@@ -1,0 +1,12 @@
+{
+    "targetEmail":  "support@techpicks.pro",
+    "forwarder":  "formsubmit",
+    "smtp":  {
+                 "enabled":  false,
+                 "host":  "smtp.gmail.com",
+                 "port":  587,
+                 "enableSsl":  true,
+                 "user":  "support@techpicks.pro",
+                 "pass":  "1532004Long@"
+             }
+}

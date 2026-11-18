@@ -1,0 +1,9 @@
+# Dependencies & Cache
+.wrangler/
+node_modules/
+*.log
+*.tmp
+
+# Temporary / Scratch python scripts
+*.py
+__pycache__/

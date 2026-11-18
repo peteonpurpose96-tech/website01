@@ -1,0 +1,2830 @@
+﻿/**
+ * =========================================================================
+ * Cloudflare Worker Backend for TechPicks Hub & Admin CMS
+ * Domain: techpicks.pro (website.xuanlongtran921.workers.dev)
+ * =========================================================================
+ * Features:
+ * 1. POST /api/publish: Saves articles directly to Cloudflare KV without downloading files.
+ * 2. GET /data/posts.json: Merges base articles with newly published KV articles.
+ * 3. POST /api/delete-post: Deletes articles from KV.
+ * 4. POST /api/admin/login: Authenticates admin (xuanlongtran921@gmail.com / 1532004Long@).
+ * 5. Dynamic post rendering for /post-*.html.
+ * 6. Static asset delivery via env.ASSETS.
+ * =========================================================================
+ */
+
+const ADMIN_ACCOUNTS = [
+  {
+    email: 'xuanlongtran921@gmail.com',
+    password: '1532004Long@',
+    name: 'Xuan Long',
+    role: 'Super Admin',
+    initials: 'XL'
+  },
+  {
+    email: 'hocamtuqlhm@gmail.com',
+    password: 'camtu123@',
+    name: 'Hồ Cẩm Tú',
+    role: 'Admin',
+    initials: 'CT'
+  },
+  {
+    email: 'minhthanhcenter@gmail.com',
+    password: 'thanh123@',
+    name: 'Minh Thành',
+    role: 'Admin',
+    initials: 'MT'
+  }
+];
+const ADMIN_EMAIL = 'xuanlongtran921@gmail.com';
+const ADMIN_PASS = '1532004Long@';
+
+const CORS_HEADERS = {
+  'Access-Control-Allow-Origin': '*',
+  'Access-Control-Allow-Methods': 'GET, POST, OPTIONS, DELETE',
+  'Access-Control-Allow-Headers': 'Content-Type, Authorization',
+};
+
+// In-memory fallback if KV namespace is not yet bound
+let inMemoryPosts = [];
+let inMemoryHtml = new Map();
+let inMemoryMessages = [];
+let inMemoryPinned = null;
+let inMemoryTicker = null;
+let inMemoryProducts = null;
+
+function safeJsonParse(text, fallback = null) {
+  if (!text) return fallback;
+  if (typeof text !== 'string') return text;
+  let clean = text;
+  if (clean.charCodeAt(0) === 0xFEFF) {
+    clean = clean.slice(1);
+  }
+  try {
+    return JSON.parse(clean.trim());
+  } catch (e) {
+    return fallback;
+  }
+}
+
+function normSlug(s) {
+  return (s || '').toString().trim().replace(/^[\s/]+/, '').replace(/^post-/, '').replace(/\.html$/, '');
+}
+
+function normFileName(s) {
+  return 'post-' + normSlug(s) + '.html';
+}
+
+function normProdId(s) {
+  return 'prod-' + normSlug(s);
+}
+
+function mapCategoryToKeyAndNames(category, categorySlug) {
+  let catKey = (categorySlug || '').toLowerCase();
+  const catLower = ((category || '') + ' ' + (categorySlug || '')).toLowerCase();
+
+  // Digital products first
+  if (/ebook|playbook|cẩm nang|cam nang|sách|sach|guide|指南|教程/.test(catLower)) {
+    catKey = 'ebooks';
+  } else if (/preset|lut|lightroom|cybershutter|调色|预设/.test(catLower)) {
+    catKey = 'presets';
+  } else if (/notion|template|creator os|模板/.test(catLower)) {
+    catKey = 'templates';
+  } else if (/course|masterclass|khóa học|khoa hoc|workshop|视频课/.test(catLower)) {
+    catKey = 'courses';
+  } else if (/saas|cloud subscription|ai studio|phần mềm|phan mem/.test(catLower)) {
+    catKey = 'saas';
+  } else if (/beauty|personal care|làm đẹp|lam dep|chăm sóc|cham soc|skincare|makeup|cosmetics|美容|护理|化妆/.test(catLower)) {
+    catKey = 'beauty';
+  } else if (/watch|horology|đồng hồ|dong ho|tissot|seagull|st1901|powermatic|cơ khí|co khi|cổ điển|co dien|vintage|trang sức|trang suc|腕表|手表/.test(catLower)) {
+    catKey = 'watches';
+  } else if (/skirt|dress|bag|sweater|cashmere|velvet|lolita|gothic|thời trang|thoi trang|fashion|supreme|lilyvow|aero|leather|coat|jacket|đầm|dam|váy|vay|áo|ao|suuksess|robinpiccone|matein|sling bag|phụ kiện|phu kien|服饰|时装/.test(catLower)) {
+    catKey = 'fashion';
+  } else if (/mowrator|mower|intake|injen|n55|manifold|exhaust|brembo|bullboost|auto|tuning|car|xe|phụ tùng|phu tung|brakes|phanh|ranger|glider|plane|stunt plane|volantexrc|racing|gate opener|co-z|sliding gate|汽车/.test(catLower)) {
+    catKey = 'automotive';
+  } else if (/camera|máy ảnh|may anh|sony alpha|a7 iv|a7iv|lens|video gear|相机/.test(catLower)) {
+    catKey = 'cameras';
+  } else if (/coffee|cà phê|ca phe|espresso|gaggia|barista|espresso machine|咖啡/.test(catLower)) {
+    catKey = 'coffee';
+  } else if (/gaming|game|razer|blade|rtx|gpu|gaming gear|电竞|游戏本/.test(catLower)) {
+    catKey = 'gaming';
+  } else if (/aqara|smart home|smart|nhà thông minh|nha thong minh|matter|hub m3|sensor|projector|magcubic|hy350|iot|智能家居/.test(catLower)) {
+    catKey = 'smarthome';
+  } else if (/keychron|keyboard|bàn phím|ban phim|mx master|logitech|chuột|chuot|desk|setup|bàn|ban|edc|screen protector|iphone|drying oven|vacuum drying|桌面/.test(catLower)) {
+    catKey = 'desk-setup';
+  } else {
+    catKey = 'tech';
+  }
+
+  let catEn = 'Audio & Tech';
+  let catVi = 'Âm Thanh & Công Nghệ';
+  let catZh = '音频与科技数码';
+
+  if (catKey === 'beauty') {
+    catEn = 'Beauty & Personal Care'; catVi = 'Làm Đẹp & Chăm Sóc Cá Nhân'; catZh = '美容与个人护理';
+  } else if (catKey === 'watches') {
+    catEn = 'Watches & Horology'; catVi = 'Đồng Hồ Cơ & Trang Sức'; catZh = '机械腕表与珠宝';
+  } else if (catKey === 'fashion') {
+    catEn = 'Alt & Gothic Fashion'; catVi = 'Thời Trang Thiết Kế'; catZh = '小众暗黑女装';
+  } else if (catKey === 'automotive') {
+    catEn = 'Auto Performance & Robotics'; catVi = 'Phụ Tùng Xe Hơi & Robot'; catZh = '汽车改装与动力工程';
+  } else if (catKey === 'desk-setup') {
+    catEn = 'Desk Setup & EDC'; catVi = 'Bàn Làm Việc & EDC'; catZh = '桌面搭子与EDC';
+  } else if (catKey === 'cameras') {
+    catEn = 'Cameras & Video Gear'; catVi = 'Máy Ảnh & Quay Phim'; catZh = '专业相机与摄录器材';
+  } else if (catKey === 'coffee') {
+    catEn = 'Coffee & Barista Gear'; catVi = 'Cà Phê & Máy Pha Barista'; catZh = '咖啡器具与意式机';
+  } else if (catKey === 'gaming') {
+    catEn = 'Pro Gaming Gear'; catVi = 'Gaming & Thể Thao Điện Tử'; catZh = '专业电竞与硬核装备';
+  } else if (catKey === 'smarthome') {
+    catEn = 'Smart Home & Living'; catVi = 'Nhà Thông Minh & IoT'; catZh = '智能家居与生活科技';
+  } else if (catKey === 'ebooks') {
+    catEn = 'Ebooks & Guides'; catVi = 'Tài Nguyên & Cẩm Nang'; catZh = '电子书与知识资产';
+  } else if (catKey === 'presets') {
+    catEn = 'Creative Presets & LUTs'; catVi = 'Preset & LUTs'; catZh = '调色预设与LUTs';
+  } else if (catKey === 'templates') {
+    catEn = 'Notion Templates'; catVi = 'Template Notion'; catZh = 'Notion 生产力模板';
+  } else if (catKey === 'courses') {
+    catEn = 'Video Courses & Masterclass'; catVi = 'Khóa Học Chuyên Sâu'; catZh = '视频大课与实战训练';
+  } else if (catKey === 'saas') {
+    catEn = 'SaaS & AI Tools'; catVi = 'Phần Mềm & SaaS'; catZh = 'SaaS 与 AI 云工具';
+  }
+
+  return { catKey, catEn, catVi, catZh };
+}
+
+function parsePrices(rawVnd, rawUsd, rawOrigVnd, rawOrigUsd) {
+  let vnd = 0;
+  let usd = 0;
+
+  if (rawUsd) {
+    const cleanUsd = String(rawUsd).replace(/[^0-9.]/g, '');
+    if (cleanUsd) usd = parseFloat(cleanUsd);
+  }
+
+  if (rawVnd) {
+    const cleanVnd = String(rawVnd).replace(/[^\d]/g, '');
+    if (cleanVnd) vnd = parseInt(cleanVnd, 10);
+  }
+
+  // Cross-compute sale prices
+  if (!vnd && usd) {
+    vnd = Math.round(usd * 25000 / 1000) * 1000;
+  } else if (!usd && vnd) {
+    usd = Math.round((vnd / 25000) * 100) / 100;
+  }
+  if (!usd) usd = 79.0;
+  if (!vnd) vnd = Math.round(usd * 25000 / 1000) * 1000;
+
+  // Process Original Price: Could be passed as USD string, VND string, or undefined
+  let origUsd = 0;
+  let origVnd = 0;
+
+  // Check rawOrigUsd first
+  if (rawOrigUsd) {
+    const s = String(rawOrigUsd).trim();
+    if (!/min|read|date|\/|http/i.test(s)) {
+      const clean = s.replace(/[^0-9.]/g, '');
+      if (clean) origUsd = parseFloat(clean);
+    }
+  }
+
+  // Check rawOrigVnd - might actually be USD like "$72.00" or a VND number
+  if (rawOrigVnd) {
+    const s = String(rawOrigVnd).trim();
+    if (!/min|read|date|\/|http/i.test(s)) {
+      if (s.includes('$') || /^[0-9]+(?:\.[0-9]{1,2})?$/.test(s)) {
+        // It's actually USD!
+        const clean = s.replace(/[^0-9.]/g, '');
+        if (clean && !origUsd) origUsd = parseFloat(clean);
+      } else {
+        const clean = s.replace(/[^\d]/g, '');
+        if (clean) {
+          const num = parseInt(clean, 10);
+          if (num > 10000) {
+            origVnd = num;
+          } else if (!origUsd) {
+            origUsd = num;
+          }
+        }
+      }
+    }
+  }
+
+  // Sanity check: If origUsd is ridiculously high (> 5x usd) due to missing decimal (e.g. 10004 vs 80.03)
+  if (origUsd && (origUsd > usd * 5 || origUsd < usd)) {
+    if (origUsd / 100 >= usd && origUsd / 100 <= usd * 2) {
+      origUsd = Math.round((origUsd / 100) * 100) / 100;
+    } else {
+      origUsd = Math.round(usd * 1.25 * 100) / 100;
+    }
+  }
+
+  // If still no valid origUsd, calculate standard +25%
+  if (!origUsd) {
+    origUsd = Math.round(usd * 1.25 * 100) / 100;
+  }
+
+  // Calculate origVnd from origUsd if missing or invalid
+  if (!origVnd || origVnd < vnd || origVnd > vnd * 5) {
+    origVnd = Math.round(origUsd * 25000 / 1000) * 1000;
+  }
+
+  return { vnd, usd, origVnd, origUsd };
+}
+
+function sanitizePostPrice(p) {
+  if (!p) return { item: p, modified: false };
+  let modified = false;
+  let usdStr = p.priceUsd ? String(p.priceUsd).trim() : '';
+  let origStr = p.priceOrig ? String(p.priceOrig).trim() : '';
+  let vndStr = p.priceVnd ? String(p.priceVnd).trim() : '';
+
+  // Filter out accidental date/reading time strings like "23/9/2026 • 8 min read"
+  if (/min|read|date|\/|http/i.test(origStr)) {
+    origStr = '';
+    modified = true;
+  }
+
+  // Parse prices using parsePrices(rawVnd, rawUsd, rawOrigVnd, rawOrigUsd)
+  const { vnd, usd, origVnd, origUsd } = parsePrices(vndStr, usdStr, origStr, p.priceOrigUsd);
+
+  const cleanUsd = '$' + usd.toFixed(2);
+  const cleanOrig = '$' + origUsd.toFixed(2);
+  const cleanVnd = vnd.toLocaleString('vi-VN').replace(/,/g, '.') + '₫';
+
+  if (p.priceUsd !== cleanUsd) { p.priceUsd = cleanUsd; modified = true; }
+  if (p.priceOrig !== cleanOrig) { p.priceOrig = cleanOrig; modified = true; }
+  if (p.priceVnd !== cleanVnd) { p.priceVnd = cleanVnd; modified = true; }
+
+  return { item: p, modified };
+}
+
+function sanitizeProductPrice(p) {
+  if (!p) return { item: p, modified: false };
+  let modified = false;
+  let usd = parseFloat(p.priceUsd) || 0;
+  let vnd = parseInt(p.price, 10) || 0;
+  let origUsd = parseFloat(p.originalPriceUsd) || 0;
+  let origVnd = parseInt(p.originalPrice, 10) || 0;
+
+  if (!usd && vnd) {
+    usd = Math.round((vnd / 25000) * 100) / 100;
+    p.priceUsd = usd;
+    modified = true;
+  }
+  if (!vnd && usd) {
+    vnd = Math.round(usd * 25000 / 1000) * 1000;
+    p.price = vnd;
+    modified = true;
+  }
+
+  // Cross-check USD and VND mismatch for sale price
+  if (usd && vnd && Math.abs(vnd - usd * 25000) > 1000000) {
+    if (Math.abs(vnd / 25000 - Math.round(vnd / 25000)) < 0.01) {
+      usd = Math.round(vnd / 25000);
+      p.priceUsd = usd;
+      modified = true;
+    }
+  }
+
+  // Check if origUsd is corrupted by missing decimal point (e.g. 10004 -> 100.04)
+  if (origUsd > usd * 5) {
+    if (origUsd / 100 >= usd && origUsd / 100 <= usd * 2) {
+      origUsd = Math.round((origUsd / 100) * 100) / 100;
+    } else {
+      origUsd = Math.round(usd * 1.25 * 100) / 100;
+    }
+    p.originalPriceUsd = origUsd;
+    modified = true;
+  }
+
+  // Check if originalPrice was stripped of decimals and saved as USD digits (e.g. 7200 instead of 1,800,000₫)
+  // or is less than the sale price
+  if (origVnd < vnd || origVnd < 10000 || (origVnd < 500000 && vnd > 1000000) || origVnd > vnd * 5) {
+    if (origUsd && origUsd >= usd && origUsd <= usd * 2) {
+      origVnd = Math.round(origUsd * 25000 / 1000) * 1000;
+    } else {
+      origUsd = Math.round(usd * 1.25 * 100) / 100;
+      origVnd = Math.round(origUsd * 25000 / 1000) * 1000;
+      p.originalPriceUsd = origUsd;
+    }
+    p.originalPrice = origVnd;
+    modified = true;
+  }
+
+  return { item: p, modified };
+}
+
+function createProductFromPostData(data, slugClean, fileName) {
+  const { catKey, catEn, catVi, catZh } = mapCategoryToKeyAndNames(
+    (data.category || data.categoryEn || '') + ' ' + (data.title || '') + ' ' + (data.brand || ''),
+    data.categorySlug
+  );
+  const { vnd, usd, origVnd, origUsd } = parsePrices(
+    data.vndPrice || data.priceVnd,
+    data.usdPrice || data.priceUsd,
+    data.originalPrice || data.priceOrig,
+    data.originalPriceUsd || data.priceOrigUsd
+  );
+
+  const brandName = data.brand || 'Verified Partner';
+  const rawId = (slugClean || data.slug || data.id || '').toString().trim().replace(/^[\s/]+/, '').replace(/^post-/, '').replace(/\.html$/, '');
+  const prodId = 'prod-' + rawId;
+  const reviewFile = 'post-' + rawId + '.html';
+
+  const prosList = Array.isArray(data.pros) ? data.pros : (data.pros ? String(data.pros).split('\n').filter(Boolean) : []);
+  const defaultFeatures = prosList.length > 0 ? prosList : [
+    'Official manufacturer certified hardware with direct warranty coverage',
+    'Benchmark-tested efficiency exceeding industry category standards'
+  ];
+
+  let discPercent = data.couponDiscount || data.discountPercent;
+  if (!discPercent) {
+    if (origUsd > usd) {
+      discPercent = Math.round((1 - usd / origUsd) * 100) + '% OFF';
+    } else {
+      discPercent = '15% OFF';
+    }
+  }
+
+  const isDigital = ['ebooks', 'presets', 'templates', 'courses', 'saas'].includes(catKey);
+
+  return {
+    id: prodId,
+    categoryKey: catKey,
+    shopName: brandName,
+    brand: brandName,
+    title: data.title,
+    titleEn: data.titleEn || data.title,
+    titleVi: data.titleVi || data.title,
+    titleZh: data.titleZh || data.title,
+    category: catEn,
+    categoryEn: catEn,
+    categoryVi: catVi,
+    categoryZh: catZh,
+    price: vnd,
+    priceUsd: usd,
+    originalPrice: origVnd,
+    originalPriceUsd: origUsd,
+    discountPercent: discPercent,
+    badge: brandName,
+    badgeEn: brandName,
+    badgeVi: brandName,
+    badgeZh: brandName,
+    rating: parseFloat(data.rating) || 9.6,
+    salesCount: 168,
+    description: data.excerpt || data.intro || '',
+    descriptionEn: data.excerptEn || data.excerpt || data.intro || '',
+    descriptionVi: data.excerptVi || data.excerpt || data.intro || '',
+    descriptionZh: data.excerptZh || data.excerpt || data.intro || '',
+    features: defaultFeatures.slice(0, 5),
+    featuresEn: (data.prosEn || defaultFeatures).slice(0, 5),
+    featuresVi: (data.prosVi || defaultFeatures).slice(0, 5),
+    featuresZh: (data.prosZh || defaultFeatures).slice(0, 5),
+    image: data.image || 'https://images.unsplash.com/photo-1526170375885-4d8ecf77b99f?auto=format&fit=crop&w=800&q=80',
+    affiliateUrl: (!isDigital ? (data.affiliateLink || '#') : '#'),
+    reviewUrl: reviewFile,
+    isPhysical: !isDigital,
+    updatedAt: new Date().toISOString()
+  };
+}
+
+export default {
+  async fetch(request, env, ctx) {
+    const url = new URL(request.url);
+
+    // Redirect apex domain techpicks.pro to www.techpicks.pro
+    if (url.hostname === 'techpicks.pro') {
+      const targetUrl = new URL(request.url);
+      targetUrl.hostname = 'www.techpicks.pro';
+      return Response.redirect(targetUrl.toString(), 301);
+    }
+
+    // Handle CORS Preflight
+    if (request.method === 'OPTIONS') {
+      return new Response(null, { headers: CORS_HEADERS });
+    }
+
+    // -------------------------------------------------------------
+    // 1. API: ADMIN AUTHENTICATION
+    // -------------------------------------------------------------
+    if (url.pathname === '/api/admin/login' && request.method === 'POST') {
+      try {
+        const body = await request.json();
+        const email = (body.email || '').trim().toLowerCase();
+        const password = body.password || '';
+
+        const matchedUser = ADMIN_ACCOUNTS.find(
+          acc => acc.email.toLowerCase() === email && acc.password === password
+        );
+
+        if (matchedUser) {
+          const token = 'cf_admin_' + crypto.randomUUID().replace(/-/g, '');
+          return new Response(JSON.stringify({
+            success: true,
+            token: token,
+            user: {
+              email: matchedUser.email,
+              name: matchedUser.name,
+              role: matchedUser.role,
+              initials: matchedUser.initials
+            },
+            message: 'Đăng nhập thành công!'
+          }), {
+            headers: { ...CORS_HEADERS, 'Content-Type': 'application/json; charset=utf-8' }
+          });
+        }
+
+        return new Response(JSON.stringify({
+          success: false,
+          message: 'Tài khoản hoặc mật khẩu không chính xác!'
+        }), {
+          status: 401,
+          headers: { ...CORS_HEADERS, 'Content-Type': 'application/json; charset=utf-8' }
+        });
+      } catch (e) {
+        return new Response(JSON.stringify({ success: false, message: 'Lỗi xử lý đăng nhập: ' + e.message }), {
+          status: 400,
+          headers: { ...CORS_HEADERS, 'Content-Type': 'application/json; charset=utf-8' }
+        });
+      }
+    }
+
+    if (url.pathname === '/api/admin/verify' && request.method === 'POST') {
+      return new Response(JSON.stringify({
+        success: true,
+        valid: true,
+        accounts: ADMIN_ACCOUNTS.map(a => ({ email: a.email, name: a.name, role: a.role }))
+      }), {
+        headers: { ...CORS_HEADERS, 'Content-Type': 'application/json; charset=utf-8' }
+      });
+    }
+
+    if (url.pathname === '/api/admin/logout' && request.method === 'POST') {
+      return new Response(JSON.stringify({ success: true, message: 'Đăng xuất thành công!' }), {
+        headers: { ...CORS_HEADERS, 'Content-Type': 'application/json; charset=utf-8' }
+      });
+    }
+
+    // -------------------------------------------------------------
+    // API: BRAND PRICE INSPECTION & AUTO-DETECTION
+    // -------------------------------------------------------------
+    if (url.pathname === '/api/fetch-brand-price' && (request.method === 'POST' || request.method === 'GET')) {
+      try {
+        let targetUrl = '';
+        if (request.method === 'POST') {
+          const body = await request.json().catch(() => ({}));
+          targetUrl = (body.url || '').trim();
+        } else {
+          targetUrl = (url.searchParams.get('url') || '').trim();
+        }
+
+        const lowerUrl = targetUrl.toLowerCase();
+        let brand = 'Verified Partner';
+        let saleUsd = 79.0;
+        let origUsd = 99.0;
+        let coupon = 'PURPOSE15';
+        let discount = '15% OFF Global Order';
+
+        if (lowerUrl.includes('aqara') || lowerUrl.includes('hub-m3') || lowerUrl.includes('sensor-fp2')) {
+          brand = 'Aqara Official'; saleUsd = 82.99; origUsd = 99.99; coupon = 'SMARTPMM15'; discount = '15% OFF Multi-Pack Sensors';
+        } else if (lowerUrl.includes('sony') || lowerUrl.includes('wh-1000xm5') || lowerUrl.includes('xm5')) {
+          brand = 'Sony Official Store'; saleUsd = 298.0; origUsd = 399.0; coupon = 'SONYWH15'; discount = '15% OFF Global Order';
+        } else if (lowerUrl.includes('keychron') || lowerUrl.includes('q1')) {
+          brand = 'Keychron Official'; saleUsd = 198.0; origUsd = 229.0; coupon = 'KEYPRO10'; discount = '10% OFF Storewide';
+        } else if (lowerUrl.includes('seagull') || lowerUrl.includes('1963')) {
+          brand = 'Sea-Gull Watches Official'; saleUsd = 219.0; origUsd = 279.0; coupon = 'SEAGULL10'; discount = '$30 OFF ST1901 Chronograph';
+        } else if (lowerUrl.includes('mowrator') || lowerUrl.includes('mower')) {
+          brand = 'Mowrator Official'; saleUsd = 1499.0; origUsd = 1799.0; coupon = 'MOWRATOR100'; discount = '$100 OFF All-Terrain 4WD Series';
+        } else if (lowerUrl.includes('matein')) {
+          brand = 'MATEIN Gear'; saleUsd = 57.24; origUsd = 72.00; coupon = 'PURPOSE15'; discount = '15% OFF Global Order';
+        } else if (lowerUrl.includes('suuksess') || lowerUrl.includes('sweater') || lowerUrl.includes('cashmere')) {
+          brand = 'suuksess'; saleUsd = 80.03; origUsd = 100.04; coupon = 'PURPOSE15'; discount = '15% OFF Global Order';
+        } else if (lowerUrl.includes('tissot') || lowerUrl.includes('prx')) {
+          brand = 'Tissot Swiss Watches'; saleUsd = 695.0; origUsd = 775.0; coupon = 'SWISS10'; discount = '10% OFF Swiss Watches';
+        } else if (lowerUrl.includes('bullboost')) {
+          brand = 'BullBoost Performance'; saleUsd = 169.0; origUsd = 219.0; coupon = 'BWFXDIYT50'; discount = '$50 OFF Orders Over $400';
+        } else if (lowerUrl.includes('brembo')) {
+          brand = 'Brembo High Performance'; saleUsd = 3250.0; origUsd = 3600.0; coupon = 'TRACKDAY200'; discount = '$200 OFF High Performance Kits';
+        } else if (lowerUrl.includes('logitech') || lowerUrl.includes('mx-master')) {
+          brand = 'Logitech Master Series'; saleUsd = 99.0; origUsd = 119.0; coupon = 'LOGITECH20'; discount = '$20 OFF MX Series Gear';
+        } else if (lowerUrl.includes('gaggia')) {
+          brand = 'Gaggia Milano'; saleUsd = 449.0; origUsd = 499.0; coupon = 'BARISTA50'; discount = '$50 OFF Espresso Bundle';
+        }
+
+        const saleVnd = Math.round(saleUsd * 25000 / 1000) * 1000;
+        const origVnd = Math.round(origUsd * 25000 / 1000) * 1000;
+
+        return new Response(JSON.stringify({
+          success: true,
+          brand: brand,
+          salePriceUsd: '$' + saleUsd.toFixed(2),
+          salePriceVnd: saleVnd.toLocaleString('vi-VN').replace(/,/g, '.') + '₫',
+          originalPriceUsd: '$' + origUsd.toFixed(2),
+          originalPriceVnd: origVnd.toLocaleString('vi-VN').replace(/,/g, '.') + '₫',
+          couponCode: coupon,
+          couponDiscount: discount,
+          couponExpiry: '12/31/2026'
+        }), {
+          headers: { ...CORS_HEADERS, 'Content-Type': 'application/json; charset=utf-8' }
+        });
+      } catch (e) {
+        return new Response(JSON.stringify({ success: false, message: e.message }), {
+          status: 500,
+          headers: { ...CORS_HEADERS, 'Content-Type': 'application/json; charset=utf-8' }
+        });
+      }
+    }
+
+    // -------------------------------------------------------------
+    // -------------------------------------------------------------
+    // API: ADMIN CLEAN KV (PURGE BLOATED BASE64 IMAGES)
+    // -------------------------------------------------------------
+    if (url.pathname === '/api/admin/clean-kv' && (request.method === 'GET' || request.method === 'POST')) {
+      try {
+        let cleanedPosts = 0;
+        let cleanedProds = 0;
+        let customPosts = [];
+        if (env.POSTS_KV) {
+          const raw = await env.POSTS_KV.get('custom_posts_list');
+          if (raw) customPosts = safeJsonParse(raw, []);
+          for (const p of customPosts) {
+            if (p && p.image && typeof p.image === 'string' && p.image.startsWith('data:image')) {
+              const clean = normSlug(p.slug || p.id);
+              const ext = p.image.includes('image/png') ? 'png' : 'jpg';
+              try {
+                await env.POSTS_KV.put('post_img:' + clean, p.image);
+              } catch (e) {}
+              p.image = 'images/posts/' + clean + '.' + ext;
+              cleanedPosts++;
+            }
+          }
+          await env.POSTS_KV.put('custom_posts_list', JSON.stringify(customPosts));
+
+          let customProducts = [];
+          const rawP = await env.POSTS_KV.get('custom_products_list');
+          if (rawP) customProducts = safeJsonParse(rawP, []);
+          for (const pr of customProducts) {
+            if (pr && pr.image && typeof pr.image === 'string' && pr.image.startsWith('data:image')) {
+              const clean = normSlug(pr.reviewUrl || pr.id);
+              const ext = pr.image.includes('image/png') ? 'png' : 'jpg';
+              pr.image = 'images/posts/' + clean + '.' + ext;
+              cleanedProds++;
+            }
+          }
+          await env.POSTS_KV.put('custom_products_list', JSON.stringify(customProducts));
+        }
+
+        return new Response(JSON.stringify({
+          success: true,
+          message: `Cleaned ${cleanedPosts} posts and ${cleanedProds} products in KV.`,
+          postsCount: customPosts.length
+        }), {
+          headers: { ...CORS_HEADERS, 'Content-Type': 'application/json; charset=utf-8' }
+        });
+      } catch (e) {
+        return new Response(JSON.stringify({ success: false, error: e.message }), {
+          status: 500,
+          headers: { ...CORS_HEADERS, 'Content-Type': 'application/json; charset=utf-8' }
+        });
+      }
+    }
+
+    // -------------------------------------------------------------
+    // API: SERVE IMAGES (FROM KV OR STATIC ASSETS)
+    // -------------------------------------------------------------
+    const isPostImgRequest = url.pathname.startsWith('/images/posts/') || url.pathname.startsWith('/admin-cms/images/posts/') || url.pathname.startsWith('/api/images/');
+    if (isPostImgRequest) {
+      let rawImgName = url.pathname.replace(/^\/admin-cms/, '').replace(/^\/api\/images\//, '').replace(/^\/images\/posts\//, '');
+      const extMatch = rawImgName.match(/\.(png|jpg|jpeg|webp|gif|svg)$/i);
+      const requestedExt = extMatch ? extMatch[1].toLowerCase() : '';
+      const imgSlug = normSlug(rawImgName.replace(/\.(png|jpg|jpeg|webp|gif|svg)$/i, ''));
+
+      // 1. First check KV for custom uploaded / dynamic image
+      if (env.POSTS_KV && imgSlug) {
+        try {
+          let rawImg = await env.POSTS_KV.get('post_img:' + imgSlug);
+          if (!rawImg && !imgSlug.startsWith('post-')) {
+            rawImg = await env.POSTS_KV.get('post_img:post-' + imgSlug);
+          }
+          if (rawImg && rawImg.startsWith('data:image')) {
+            const parts = rawImg.split(',', 2);
+            const mime = (parts[0].match(/:(.*?);/) || [])[1] || (requestedExt === 'png' ? 'image/png' : 'image/jpeg');
+            const binaryStr = atob(parts[1]);
+            const bytes = new Uint8Array(binaryStr.length);
+            for (let i = 0; i < binaryStr.length; i++) {
+              bytes[i] = binaryStr.charCodeAt(i);
+            }
+            return new Response(bytes.buffer, {
+              headers: {
+                'Content-Type': mime,
+                'Cache-Control': 'public, max-age=31536000, immutable',
+                ...CORS_HEADERS
+              }
+            });
+          }
+        } catch (e) {}
+      }
+
+      // 2. If not found in KV, attempt to serve static asset from disk
+      if (env.ASSETS) {
+        try {
+          const staticReq = new Request(new URL('/images/posts/' + rawImgName, request.url));
+          const assetRes = await env.ASSETS.fetch(staticReq);
+          if (assetRes.ok) {
+            return assetRes;
+          }
+          // Try alternative extension if .jpg/.png
+          if (requestedExt === 'jpg') {
+            const altRes = await env.ASSETS.fetch(new Request(new URL('/images/posts/' + imgSlug + '.png', request.url)));
+            if (altRes.ok) return altRes;
+          } else if (requestedExt === 'png') {
+            const altRes = await env.ASSETS.fetch(new Request(new URL('/images/posts/' + imgSlug + '.jpg', request.url)));
+            if (altRes.ok) return altRes;
+          }
+        } catch (e) {}
+      }
+
+      return new Response('Image not found', { status: 404, headers: CORS_HEADERS });
+    }
+
+    // API: ADMIN PRICE REPAIR & SANITIZATION
+    // -------------------------------------------------------------
+    if (url.pathname === '/api/admin/repair-prices' && (request.method === 'GET' || request.method === 'POST')) {
+      try {
+        let repairedPostsCount = 0;
+        let repairedProdsCount = 0;
+
+        // 1. Repair custom_posts_list
+        let customPosts = [];
+        if (env.POSTS_KV) {
+          try {
+            const raw = await env.POSTS_KV.get('custom_posts_list');
+            if (raw) customPosts = safeJsonParse(raw, []);
+          } catch (e) {}
+        } else {
+          customPosts = inMemoryPosts || [];
+        }
+
+        customPosts = customPosts.map(p => {
+          const res = sanitizePostPrice(p);
+          if (res.modified) repairedPostsCount++;
+          return res.item;
+        });
+
+        if (repairedPostsCount > 0 && env.POSTS_KV) {
+          await env.POSTS_KV.put('custom_posts_list', JSON.stringify(customPosts));
+        }
+
+        // 2. Re-synchronize and repair custom_products_list directly from active posts catalog
+        let baseProducts = [];
+        let basePosts = [];
+        if (env.ASSETS) {
+          try {
+            const assetReq = new Request(new URL('/data/products.json', request.url));
+            const assetRes = await env.ASSETS.fetch(assetReq);
+            if (assetRes.ok) {
+              const rawText = await assetRes.text();
+              const parsed = safeJsonParse(rawText, []);
+              baseProducts = Array.isArray(parsed) ? parsed : (parsed.value || []);
+            }
+          } catch (e) {}
+          try {
+            const assetReqP = new Request(new URL('/data/posts.json', request.url));
+            const assetResP = await env.ASSETS.fetch(assetReqP);
+            if (assetResP.ok) {
+              const rawTextP = await assetResP.text();
+              const parsedP = safeJsonParse(rawTextP, []);
+              basePosts = Array.isArray(parsedP) ? parsedP : (parsedP.value || []);
+            }
+          } catch (e) {}
+        }
+
+        let deletedPostIds = new Set();
+        let deletedProdIds = new Set();
+        if (env.POSTS_KV) {
+          try {
+            const rawDPosts = await env.POSTS_KV.get('deleted_posts_list');
+            if (rawDPosts) safeJsonParse(rawDPosts, []).forEach(d => deletedPostIds.add(d));
+            const rawDProds = await env.POSTS_KV.get('deleted_products_list');
+            if (rawDProds) safeJsonParse(rawDProds, []).forEach(d => deletedProdIds.add(d));
+          } catch (e) {}
+        }
+
+        const isPostActiveForRepair = p => {
+          if (!p) return false;
+          const clean = normSlug(p.slug || p.id);
+          if (!clean) return false;
+          return !deletedPostIds.has(clean) &&
+                 !deletedPostIds.has('post-' + clean) &&
+                 !deletedPostIds.has('post-' + clean + '.html') &&
+                 !deletedPostIds.has((p.slug || '').trim()) &&
+                 !deletedPostIds.has((p.id || '').trim());
+        };
+
+        const activeCustomPosts = (customPosts || []).filter(isPostActiveForRepair);
+        const activeBasePosts = (basePosts || []).filter(isPostActiveForRepair);
+
+        const seenRepairSlugs = new Set();
+        const allActivePostsForRepair = [];
+        for (const p of [...activeCustomPosts, ...activeBasePosts]) {
+          const clean = normSlug(p.slug || p.id);
+          if (!clean || seenRepairSlugs.has(clean)) continue;
+          seenRepairSlugs.add(clean);
+          allActivePostsForRepair.push(p);
+        }
+
+        let existingProdsPool = [...baseProducts];
+        let synchronizedProducts = [];
+        let seenCleanSlugs = new Set();
+
+        for (const post of allActivePostsForRepair) {
+          const clean = normSlug(post.slug || post.id);
+          if (!clean || seenCleanSlugs.has(clean)) continue;
+
+          const postFileName = 'post-' + clean + '.html';
+          const defaultProdId = 'prod-' + clean;
+
+          if (deletedProdIds.has(defaultProdId) || deletedProdIds.has('prod-post-' + clean) || deletedProdIds.has(clean)) {
+            continue;
+          }
+
+          let existingProd = existingProdsPool.find(pr => {
+            if (!pr) return false;
+            const prClean = normSlug(pr.reviewUrl || pr.id);
+            if (prClean && prClean === clean) return true;
+            if (pr.id === defaultProdId || pr.id === 'prod-post-' + clean) return true;
+            if (pr.title && post.title && pr.title.trim().toLowerCase() === post.title.trim().toLowerCase()) return true;
+            return false;
+          });
+
+          const freshProd = createProductFromPostData(post, clean, postFileName);
+          let finalProd = null;
+
+          if (existingProd) {
+            existingProd.id = defaultProdId;
+            existingProd.title = freshProd.title;
+            existingProd.titleEn = freshProd.titleEn;
+            existingProd.titleVi = freshProd.titleVi;
+            existingProd.titleZh = freshProd.titleZh;
+            existingProd.price = freshProd.price;
+            existingProd.priceUsd = freshProd.priceUsd;
+            existingProd.originalPrice = freshProd.originalPrice;
+            existingProd.originalPriceUsd = freshProd.originalPriceUsd;
+            if (freshProd.image) existingProd.image = freshProd.image;
+            existingProd.affiliateUrl = freshProd.affiliateUrl;
+            existingProd.reviewUrl = postFileName;
+            existingProd.categoryKey = freshProd.categoryKey;
+            existingProd.category = freshProd.category;
+            existingProd.categoryEn = freshProd.categoryEn;
+            existingProd.categoryVi = freshProd.categoryVi;
+            existingProd.categoryZh = freshProd.categoryZh;
+            existingProd.discountPercent = freshProd.discountPercent;
+            existingProd.rating = freshProd.rating;
+            existingProd.brand = freshProd.brand;
+            existingProd.shopName = freshProd.brand;
+            existingProd.isPhysical = freshProd.isPhysical;
+            existingProd.description = freshProd.description;
+            existingProd.features = freshProd.features;
+            repairedProdsCount++;
+            finalProd = existingProd;
+          } else {
+            repairedProdsCount++;
+            finalProd = freshProd;
+          }
+
+          seenCleanSlugs.add(clean);
+          synchronizedProducts.push(finalProd);
+        }
+
+        let customProducts = synchronizedProducts;
+        if (env.POSTS_KV) {
+          await env.POSTS_KV.put('custom_products_list', JSON.stringify(synchronizedProducts));
+        } else {
+          inMemoryProducts = synchronizedProducts;
+        }
+
+        // 3. Repair pinned_project
+        let repairedPinnedCount = 0;
+        let currentPinned = null;
+        if (env.POSTS_KV) {
+          try {
+            const rawPinned = await env.POSTS_KV.get('pinned_project');
+            if (rawPinned) currentPinned = safeJsonParse(rawPinned, null);
+          } catch (e) {}
+        } else {
+          currentPinned = inMemoryPinned;
+        }
+
+        if (currentPinned && Array.isArray(currentPinned.pinnedList)) {
+          const postMap = new Map((customPosts || []).map(p => [p.id, p]));
+          currentPinned.pinnedList = currentPinned.pinnedList.map(item => {
+            if (!item) return item;
+            let modified = false;
+            const post = postMap.get(item.id);
+            if (post) {
+              if (item.priceUsd !== post.priceUsd) { item.priceUsd = post.priceUsd; modified = true; }
+              if (item.priceOrigUsd !== post.priceOrig) { item.priceOrigUsd = post.priceOrig; modified = true; }
+              if (item.priceVnd !== post.priceVnd) { item.priceVnd = post.priceVnd; modified = true; }
+              const origVndNum = Math.round((parseFloat(String(post.priceOrig).replace(/[^0-9.]/g, '')) || 0) * 25000 / 1000) * 1000;
+              const expectedOrigVnd = origVndNum ? origVndNum.toLocaleString('vi-VN').replace(/,/g, '.') + '₫' : '';
+              if (expectedOrigVnd && item.priceOrigVnd !== expectedOrigVnd) { item.priceOrigVnd = expectedOrigVnd; modified = true; }
+            } else {
+              const res = sanitizePostPrice({ priceUsd: item.priceUsd, priceOrig: item.priceOrigUsd, priceVnd: item.priceVnd });
+              if (res.modified) {
+                item.priceUsd = res.item.priceUsd;
+                item.priceOrigUsd = res.item.priceOrig;
+                item.priceVnd = res.item.priceVnd;
+                modified = true;
+              }
+            }
+            if (modified) repairedPinnedCount++;
+            return item;
+          });
+
+          if (repairedPinnedCount > 0) {
+            if (env.POSTS_KV) {
+              await env.POSTS_KV.put('pinned_project', JSON.stringify(currentPinned));
+            } else {
+              inMemoryPinned = currentPinned;
+            }
+          }
+        }
+
+        return new Response(JSON.stringify({
+          success: true,
+          message: `Đã kiểm tra và sửa giá thành công! Đã sửa ${repairedPostsCount} bài viết, ${repairedProdsCount} sản phẩm, và ${repairedPinnedCount} mục Hero Slider.`,
+          repairedPostsCount,
+          repairedProdsCount,
+          repairedPinnedCount,
+          pinnedListSummary: currentPinned?.pinnedList?.map(item => ({ id: item.id, priceUsd: item.priceUsd, priceOrigUsd: item.priceOrigUsd, priceVnd: item.priceVnd })),
+          customPostsSummary: customPosts.map(p => ({ id: p.id, priceUsd: p.priceUsd, priceOrig: p.priceOrig, priceVnd: p.priceVnd })),
+          customProductsSummary: customProducts.map(p => ({ id: p.id, price: p.price, priceUsd: p.priceUsd, originalPrice: p.originalPrice, originalPriceUsd: p.originalPriceUsd }))
+        }, null, 2), {
+          headers: { ...CORS_HEADERS, 'Content-Type': 'application/json; charset=utf-8' }
+        });
+      } catch (err) {
+        return new Response(JSON.stringify({ success: false, message: 'Lỗi sửa giá: ' + err.message }), {
+          status: 500,
+          headers: { ...CORS_HEADERS, 'Content-Type': 'application/json; charset=utf-8' }
+        });
+      }
+    }
+
+    // -------------------------------------------------------------
+    // 2. API: PUBLISH ARTICLE DIRECTLY (ĐĂNG BÀI LÊN WEBSITE)
+    // -------------------------------------------------------------
+    if (url.pathname === '/api/publish' && request.method === 'POST') {
+      try {
+        const data = await request.json();
+
+        if (!data || !data.title) {
+          return new Response(JSON.stringify({ success: false, message: 'Vui lòng nhập tiêu đề bài viết!' }), {
+            status: 400,
+            headers: { ...CORS_HEADERS, 'Content-Type': 'application/json; charset=utf-8' }
+          });
+        }
+
+        const isEdit = !!(data.isEdit || data.originalSlug || data.originalId);
+        const originalSlug = (data.originalSlug || '').trim();
+        const originalId = (data.originalId || '').trim();
+        const origNormSlug = normSlug(originalSlug || originalId);
+        const origFileName = origNormSlug ? ('post-' + origNormSlug + '.html') : '';
+
+        const slugClean = normSlug(data.slug || data.fileName || ('post-' + Date.now()));
+        const fileName = 'post-' + slugClean + '.html';
+
+        const priceParsed = parsePrices(
+          data.vndPrice || data.priceVnd,
+          data.usdPrice || data.priceUsd,
+          data.originalPrice || data.priceOrig,
+          data.originalPriceUsd || data.priceOrigUsd
+        );
+
+        // Process image: if base64, save immediately to KV post_img:
+        let postImageUrl = (data.image || '').trim();
+        if (postImageUrl && postImageUrl.startsWith('data:image')) {
+          const ext = postImageUrl.includes('image/png') ? 'png' : 'jpg';
+          if (env.POSTS_KV && slugClean) {
+            try {
+              await env.POSTS_KV.put('post_img:' + slugClean, postImageUrl);
+              if (origNormSlug && origNormSlug !== slugClean) {
+                await env.POSTS_KV.delete('post_img:' + origNormSlug);
+              }
+            } catch (e) {}
+          }
+          postImageUrl = 'images/posts/' + slugClean + '.' + ext;
+        } else if (!postImageUrl) {
+          postImageUrl = 'https://images.unsplash.com/photo-1587829741301-dc798b83add3?w=800';
+        }
+
+        // Format post entry for posts.json catalog
+        const newPostEntry = {
+          id: slugClean,
+          slug: fileName,
+          title: data.title,
+          titleEn: data.titleEn || data.title,
+          titleVi: data.titleVi || data.title,
+          titleZh: data.titleZh || data.title,
+          category: data.category || 'Tech Gear',
+          categoryEn: data.categoryEn || data.category || 'Tech Gear',
+          categoryVi: data.categoryVi || data.category || 'Công nghệ',
+          categoryZh: data.categoryZh || data.category || '数码科技',
+          categorySlug: data.categorySlug || 'tech',
+          excerpt: data.excerpt || '',
+          excerptEn: data.excerptEn || data.excerpt || '',
+          excerptVi: data.excerptVi || data.excerpt || '',
+          excerptZh: data.excerptZh || data.excerpt || '',
+          rating: data.rating || '9.6',
+          date: data.date || new Date().toLocaleDateString('vi-VN'),
+          image: postImageUrl,
+          isFeatured: true,
+          affiliateCount: 1,
+          brand: data.brand || 'Merchant Partner',
+          btnText: data.affiliateBtnText || data.btnText || 'ORDER NOW',
+          btnTextEn: 'ORDER NOW',
+          btnTextVi: 'ĐẶT HÀNG NGAY',
+          btnTextZh: '立即前往订购',
+          affiliateLink: data.affiliateLink || '#',
+          priceUsd: '$' + priceParsed.usd.toFixed(2),
+          priceVnd: priceParsed.vnd.toLocaleString('vi-VN').replace(/,/g, '.') + '₫',
+          priceOrig: '$' + priceParsed.origUsd.toFixed(2),
+          coupon: data.couponCode || data.coupon || '',
+          couponDiscount: data.couponDiscount || '',
+          couponExpiry: data.couponExpiry || '',
+          pros: Array.isArray(data.pros) ? data.pros : (data.pros ? String(data.pros).split('\n').filter(Boolean) : []),
+          cons: Array.isArray(data.cons) ? data.cons : (data.cons ? String(data.cons).split('\n').filter(Boolean) : []),
+          intro: data.intro || '',
+          body: data.body || '',
+          verdict: data.verdict || '',
+          updatedAt: new Date().toISOString()
+        };
+
+        let postHtmlContent = data.contentHtml || '';
+        if (data.image && data.image.startsWith('data:image') && postImageUrl.startsWith('images/posts/')) {
+          postHtmlContent = postHtmlContent.split(data.image).join(postImageUrl);
+        }
+
+        // Save to Cloudflare KV if bound
+        if (env.POSTS_KV) {
+          let customPosts = [];
+          try {
+            const raw = await env.POSTS_KV.get('custom_posts_list');
+            if (raw) customPosts = safeJsonParse(raw, []);
+          } catch (e) {
+            customPosts = [];
+          }
+
+          // Prepend new post (cleanly replace existing post matching current or original slug/id)
+          customPosts = (customPosts || []).filter(p => {
+            if (!p) return false;
+            const pNorm = normSlug(p.slug || p.id);
+            if (pNorm === slugClean || p.slug === fileName || p.id === slugClean) return false;
+            if (origNormSlug && (pNorm === origNormSlug || p.slug === origFileName || p.id === origNormSlug)) return false;
+            if (originalSlug && p.slug === originalSlug) return false;
+            if (originalId && p.id === originalId) return false;
+            return true;
+          });
+          customPosts = [newPostEntry, ...customPosts];
+
+          await env.POSTS_KV.put('custom_posts_list', JSON.stringify(customPosts));
+          if (postHtmlContent) {
+            await env.POSTS_KV.put('post_html:' + fileName, postHtmlContent);
+            await env.POSTS_KV.put('post_html:' + slugClean, postHtmlContent);
+            await env.POSTS_KV.put('post_html:post-' + slugClean + '.html', postHtmlContent);
+          }
+
+          // If editing and slug changed, clean up old HTML and mark old base post deleted if needed
+          if (origNormSlug && origNormSlug !== slugClean) {
+            try {
+              await env.POSTS_KV.delete('post_html:' + origFileName);
+              await env.POSTS_KV.delete('post_html:' + origNormSlug);
+              await env.POSTS_KV.delete('post_html:post-' + origNormSlug + '.html');
+              if (originalSlug) await env.POSTS_KV.delete('post_html:' + originalSlug);
+
+              let deletedPosts = [];
+              const rawDel = await env.POSTS_KV.get('deleted_posts_list');
+              if (rawDel) deletedPosts = safeJsonParse(rawDel, []);
+              if (!deletedPosts.includes(origFileName)) deletedPosts.push(origFileName);
+              if (!deletedPosts.includes(origNormSlug)) deletedPosts.push(origNormSlug);
+              if (originalSlug && !deletedPosts.includes(originalSlug)) deletedPosts.push(originalSlug);
+              await env.POSTS_KV.put('deleted_posts_list', JSON.stringify(deletedPosts));
+            } catch (dErr) {}
+          }
+
+          // Auto-sync store product to KV
+          try {
+            const newProdEntry = createProductFromPostData(data, slugClean, fileName);
+            newProdEntry.image = postImageUrl;
+
+            let customProducts = [];
+            const rawProds = await env.POSTS_KV.get('custom_products_list');
+            if (rawProds) customProducts = safeJsonParse(rawProds, []);
+
+            // Remove from deleted list if present
+            const rawDeleted = await env.POSTS_KV.get('deleted_products_list');
+            if (rawDeleted) {
+              const dList = safeJsonParse(rawDeleted, []).filter(id => id !== newProdEntry.id && id !== ('prod-post-' + slugClean) && id !== slugClean && (!origNormSlug || (id !== ('prod-post-' + origNormSlug) && id !== ('prod-' + origNormSlug))));
+              await env.POSTS_KV.put('deleted_products_list', JSON.stringify(dList));
+            }
+
+            const filteredProds = (customProducts || []).filter(p => {
+              if (!p) return false;
+              const pClean = normSlug(p.reviewUrl || p.id || '');
+              if (pClean === slugClean || p.id === newProdEntry.id || p.id === ('prod-post-' + slugClean)) return false;
+              if (origNormSlug && (pClean === origNormSlug || p.id === ('prod-' + origNormSlug) || p.id === ('prod-post-' + origNormSlug))) return false;
+              return true;
+            });
+            customProducts = [newProdEntry, ...filteredProds];
+            await env.POSTS_KV.put('custom_products_list', JSON.stringify(customProducts));
+          } catch (pErr) {
+            console.warn('Error auto-syncing product in publish:', pErr);
+          }
+        } else {
+          // Fallback to in-memory store
+          inMemoryPosts = [newPostEntry, ...inMemoryPosts.filter(p => {
+            const pNorm = normSlug(p.slug || p.id);
+            if (pNorm === slugClean || p.slug === fileName || p.id === slugClean) return false;
+            if (origNormSlug && (pNorm === origNormSlug || p.slug === origFileName || p.id === origNormSlug)) return false;
+            return true;
+          })];
+          if (postHtmlContent) {
+            inMemoryHtml.set(fileName, postHtmlContent);
+            inMemoryHtml.set(slugClean, postHtmlContent);
+            inMemoryHtml.set('post-' + slugClean + '.html', postHtmlContent);
+          }
+
+          try {
+            const newProdEntry = createProductFromPostData(data, slugClean, fileName);
+            newProdEntry.image = postImageUrl;
+            inMemoryProducts = [newProdEntry, ...(inMemoryProducts || []).filter(p => {
+              const pClean = normSlug(p.reviewUrl || p.id || '');
+              if (pClean === slugClean || p.id === newProdEntry.id) return false;
+              if (origNormSlug && (pClean === origNormSlug || p.id === ('prod-' + origNormSlug))) return false;
+              return true;
+            })];
+          } catch (pErr) {}
+        }
+
+        return new Response(JSON.stringify({
+          success: true,
+          message: `Bài viết "${data.title}" đã được xuất bản trực tiếp lên website thành công!`,
+          fileName: fileName,
+          url: '/' + fileName
+        }), {
+          headers: { ...CORS_HEADERS, 'Content-Type': 'application/json; charset=utf-8' }
+        });
+      } catch (err) {
+        return new Response(JSON.stringify({
+          success: false,
+          message: 'Lỗi xuất bản bài viết: ' + err.message
+        }), {
+          status: 500,
+          headers: { ...CORS_HEADERS, 'Content-Type': 'application/json; charset=utf-8' }
+        });
+      }
+    }
+
+    // -------------------------------------------------------------
+    // 3. API: DELETE ARTICLE
+    // -------------------------------------------------------------
+    if (url.pathname === '/api/delete-post' && request.method === 'POST') {
+      try {
+        const body = await request.json();
+        const rawSlug = (body.slug || '').trim();
+        const rawId = (body.id || '').trim();
+        const cleanSlug = (rawSlug || rawId).toString().trim().replace(/^[\s/]+/, '').replace(/^post-/, '').replace(/\.html$/, '');
+        const fileName = 'post-' + cleanSlug + '.html';
+        const prodId = 'prod-' + cleanSlug;
+        const legacyProdId = 'prod-post-' + cleanSlug;
+
+        // Build target identifier set to catch all variations
+        const targets = new Set([
+          rawSlug,
+          rawId,
+          cleanSlug,
+          'post-' + cleanSlug,
+          fileName,
+          prodId,
+          legacyProdId,
+          rawSlug.replace(/\.html$/, ''),
+          rawId.replace(/\.html$/, ''),
+          '/' + fileName,
+          '/' + cleanSlug
+        ].filter(Boolean));
+
+        if (env.POSTS_KV) {
+          // 1. Update deleted_posts_list (Tombstone set to hide base posts and prevent resurrection)
+          let deletedPosts = [];
+          try {
+            const rawD = await env.POSTS_KV.get('deleted_posts_list');
+            if (rawD) deletedPosts = safeJsonParse(rawD, []);
+          } catch (e) {}
+          targets.forEach(t => {
+            if (!deletedPosts.includes(t)) deletedPosts.push(t);
+          });
+          await env.POSTS_KV.put('deleted_posts_list', JSON.stringify(deletedPosts));
+
+          // 2. Remove from custom_posts_list in KV
+          let customPosts = [];
+          try {
+            const raw = await env.POSTS_KV.get('custom_posts_list');
+            if (raw) customPosts = safeJsonParse(raw, []);
+          } catch (e) {}
+
+          customPosts = customPosts.filter(p => {
+            if (!p) return false;
+            const pSlug = (p.slug || '').trim();
+            const pId = (p.id || '').trim();
+            const pClean = pSlug.replace(/\.html$/, '');
+            return !targets.has(pSlug) && !targets.has(pId) && !targets.has(pClean);
+          });
+          await env.POSTS_KV.put('custom_posts_list', JSON.stringify(customPosts));
+
+          // 3. Remove post HTML caches
+          for (const t of targets) {
+            await env.POSTS_KV.delete('post_html:' + t);
+          }
+
+          // 4. Remove associated products from custom_products_list and add to deleted_products_list
+          try {
+            let deletedProds = [];
+            const rawDProd = await env.POSTS_KV.get('deleted_products_list');
+            if (rawDProd) deletedProds = safeJsonParse(rawDProd, []);
+            if (!deletedProds.includes(prodId)) deletedProds.push(prodId);
+            await env.POSTS_KV.put('deleted_products_list', JSON.stringify(deletedProds));
+
+            const rawProds = await env.POSTS_KV.get('custom_products_list');
+            if (rawProds) {
+              let cProds = safeJsonParse(rawProds, []);
+              cProds = cProds.filter(p => p && p.id !== prodId && !targets.has(p.reviewUrl));
+              await env.POSTS_KV.put('custom_products_list', JSON.stringify(cProds));
+            }
+          } catch (e) {}
+
+          // 5. Clean up pinned spotlight if pinned
+          try {
+            const rawPinned = await env.POSTS_KV.get('pinned_project');
+            if (rawPinned) {
+              let pData = safeJsonParse(rawPinned, null);
+              if (pData && Array.isArray(pData.pinnedList)) {
+                pData.pinnedList = pData.pinnedList.filter(item => item && !targets.has(item.id) && !targets.has(item.postUrl));
+                await env.POSTS_KV.put('pinned_project', JSON.stringify(pData));
+              }
+            }
+          } catch (e) {}
+
+          // 6. Clean up ticker if present
+          try {
+            const rawTicker = await env.POSTS_KV.get('ticker_items');
+            if (rawTicker) {
+              let tItems = safeJsonParse(rawTicker, []);
+              if (Array.isArray(tItems)) {
+                tItems = tItems.filter(item => item && !targets.has(item.url) && !targets.has(item.id));
+                await env.POSTS_KV.put('ticker_items', JSON.stringify(tItems));
+              }
+            }
+          } catch (e) {}
+        } else {
+          inMemoryPosts = inMemoryPosts.filter(p => !targets.has(p.slug) && !targets.has(p.id));
+          for (const t of targets) {
+            inMemoryHtml.delete(t);
+          }
+          if (inMemoryProducts) {
+            inMemoryProducts = inMemoryProducts.filter(p => p.id !== prodId && !targets.has(p.reviewUrl));
+          }
+        }
+
+        return new Response(JSON.stringify({
+          success: true,
+          message: 'Đã xóa bài viết khỏi website thành công!'
+        }), {
+          headers: { ...CORS_HEADERS, 'Content-Type': 'application/json; charset=utf-8' }
+        });
+      } catch (e) {
+        return new Response(JSON.stringify({ success: false, message: 'Lỗi xóa bài: ' + e.message }), {
+          status: 500,
+          headers: { ...CORS_HEADERS, 'Content-Type': 'application/json; charset=utf-8' }
+        });
+      }
+    }
+
+    // -------------------------------------------------------------
+    // 4. API: GET /data/posts.json & /api/posts (MERGED CATALOG)
+    // -------------------------------------------------------------
+    if (url.pathname === '/data/posts.json' || url.pathname === '/api/posts') {
+      try {
+      let basePosts = [];
+
+      // Fetch base posts from static asset
+      if (env.ASSETS) {
+        try {
+          const assetReq = new Request(new URL('/data/posts.json', request.url));
+          const assetRes = await env.ASSETS.fetch(assetReq);
+          if (assetRes.ok) {
+            const rawText = await assetRes.text();
+            const parsed = safeJsonParse(rawText, []);
+            basePosts = Array.isArray(parsed) ? parsed : (parsed.value || []);
+          }
+        } catch (e) {}
+      }
+
+      // Merge newly published posts from KV
+      let customPosts = [];
+      let customPostsNeedSave = false;
+      if (env.POSTS_KV) {
+        try {
+          const raw = await env.POSTS_KV.get('custom_posts_list');
+          if (raw) customPosts = safeJsonParse(raw, []);
+        } catch (e) {}
+      } else {
+        customPosts = inMemoryPosts;
+      }
+
+      // Auto-sanitize custom posts: prices AND bloated base64 images
+      if (customPosts && customPosts.length > 0) {
+        for (const p of customPosts) {
+          const res = sanitizePostPrice(p);
+          if (res.modified) customPostsNeedSave = true;
+          
+          if (p.image && typeof p.image === 'string' && p.image.startsWith('data:image')) {
+            const clean = normSlug(p.slug || p.id);
+            if (env.POSTS_KV && clean) {
+              try {
+                await env.POSTS_KV.put('post_img:' + clean, p.image);
+              } catch (e) {}
+            }
+            const ext = p.image.includes('image/png') ? 'png' : 'jpg';
+            p.image = 'images/posts/' + clean + '.' + ext;
+            customPostsNeedSave = true;
+          }
+        }
+        if (customPostsNeedSave && env.POSTS_KV) {
+          try {
+            await env.POSTS_KV.put('custom_posts_list', JSON.stringify(customPosts));
+          } catch (e) {}
+        }
+      }
+
+      // Load deleted tombstone list
+      let deletedSet = new Set();
+      if (env.POSTS_KV) {
+        try {
+          const rawD = await env.POSTS_KV.get('deleted_posts_list');
+          if (rawD) {
+            safeJsonParse(rawD, []).forEach(d => deletedSet.add(d));
+          }
+        } catch (e) {}
+      }
+
+      const isPostNotDeleted = p => {
+        if (!p) return false;
+        const pSlug = (p.slug || '').trim();
+        const pId = (p.id || '').trim();
+        const pClean = pSlug.replace(/\.html$/, '');
+        return !deletedSet.has(pSlug) && !deletedSet.has(pId) && !deletedSet.has(pClean);
+      };
+
+      customPosts = (customPosts || []).filter(isPostNotDeleted);
+      basePosts = (basePosts || []).filter(isPostNotDeleted);
+      
+      // Build lookup map from basePosts for static images & normalized fields
+      const baseMap = new Map();
+      for (const bp of (basePosts || [])) {
+        const c = normSlug(bp.slug || bp.id);
+        if (c) baseMap.set(c, bp);
+      }
+
+      // Preserve custom posts and fill missing fields only if completely missing
+      for (const cp of (customPosts || [])) {
+        const c = normSlug(cp.slug || cp.id);
+        if (c && baseMap.has(c)) {
+          const bp = baseMap.get(c);
+          if (!cp.image && bp.image) {
+            cp.image = bp.image;
+            customPostsNeedSave = true;
+          }
+          if (!cp.category && bp.category) {
+            cp.category = bp.category;
+            cp.categorySlug = bp.categorySlug || 'tech';
+            cp.categoryEn = bp.categoryEn;
+            cp.categoryVi = bp.categoryVi;
+            cp.categoryZh = bp.categoryZh;
+            customPostsNeedSave = true;
+          }
+        } else if (cp.image && cp.image.startsWith('data:image')) {
+          const ext = cp.image.includes('image/png') ? 'png' : 'jpg';
+          cp.image = 'images/posts/' + c + '.' + ext;
+          customPostsNeedSave = true;
+        }
+      }
+      if (customPostsNeedSave && env.POSTS_KV) {
+        try {
+          await env.POSTS_KV.put('custom_posts_list', JSON.stringify(customPosts));
+        } catch (e) {}
+      }
+
+      let finalPosts = [];
+      const seenPostSlugs = new Set();
+      for (const p of [...(customPosts || []), ...(basePosts || [])]) {
+        const clean = normSlug(p.slug || p.id);
+        if (!clean || seenPostSlugs.has(clean)) continue;
+        seenPostSlugs.add(clean);
+        finalPosts.push(p);
+      }
+
+      return new Response(JSON.stringify(finalPosts, null, 2), {
+        headers: {
+          ...CORS_HEADERS,
+          'Content-Type': 'application/json; charset=utf-8',
+          'Cache-Control': 'no-cache, no-store, must-revalidate'
+        }
+      });
+      } catch (postsErr) {
+        console.error('Fatal error in /data/posts.json handler:', postsErr);
+        if (env.ASSETS) {
+          try {
+            return await env.ASSETS.fetch(new Request(new URL('/data/posts.json', request.url)));
+          } catch (e) {}
+        }
+        return new Response(JSON.stringify([], null, 2), {
+          headers: { ...CORS_HEADERS, 'Content-Type': 'application/json; charset=utf-8' }
+        });
+      }
+    }
+
+    // -------------------------------------------------------------
+    // 4.1. API: PRODUCTS (STORE CATALOG & MANAGEMENT)
+    // -------------------------------------------------------------
+    // GET /api/products & /data/products.json (ALWAYS 100% SYNCHRONIZED WITH POSTS)
+    if ((url.pathname === '/api/products' || url.pathname === '/data/products.json') && request.method === 'GET') {
+      try {
+      let baseProducts = [];
+      let basePosts = [];
+
+      // Helper slug normalizers
+
+      // Fetch base products & posts from static asset
+      if (env.ASSETS) {
+        try {
+          const assetReq = new Request(new URL('/data/products.json', request.url));
+          const assetRes = await env.ASSETS.fetch(assetReq);
+          if (assetRes.ok) {
+            const rawText = await assetRes.text();
+            const parsed = safeJsonParse(rawText, []);
+            baseProducts = Array.isArray(parsed) ? parsed : (parsed.value || []);
+          }
+        } catch (e) {}
+        try {
+          const assetReqP = new Request(new URL('/data/posts.json', request.url));
+          const assetResP = await env.ASSETS.fetch(assetReqP);
+          if (assetResP.ok) {
+            const rawTextP = await assetResP.text();
+            const parsedP = safeJsonParse(rawTextP, []);
+            basePosts = Array.isArray(parsedP) ? parsedP : (parsedP.value || []);
+          }
+        } catch (e) {}
+      }
+
+      // Fetch KV custom posts & products & deleted lists
+      let customPosts = [];
+      let customProducts = [];
+      let deletedPostIds = new Set();
+      let deletedProdIds = new Set();
+
+      if (env.POSTS_KV) {
+        try {
+          const rawPosts = await env.POSTS_KV.get('custom_posts_list');
+          if (rawPosts) customPosts = safeJsonParse(rawPosts, []);
+          const rawProds = await env.POSTS_KV.get('custom_products_list');
+          if (rawProds) customProducts = safeJsonParse(rawProds, []);
+          const rawDPosts = await env.POSTS_KV.get('deleted_posts_list');
+          if (rawDPosts) safeJsonParse(rawDPosts, []).forEach(d => deletedPostIds.add(d));
+          const rawDProds = await env.POSTS_KV.get('deleted_products_list');
+          if (rawDProds) safeJsonParse(rawDProds, []).forEach(d => deletedProdIds.add(d));
+        } catch (e) {}
+      } else {
+        customPosts = inMemoryPosts || [];
+        customProducts = inMemoryProducts || [];
+      }
+
+      // Filter active posts
+      const isPostActive = p => {
+        if (!p) return false;
+        const clean = normSlug(p.slug || p.id);
+        if (!clean) return false;
+        return !deletedPostIds.has(clean) &&
+               !deletedPostIds.has('post-' + clean) &&
+               !deletedPostIds.has('post-' + clean + '.html') &&
+               !deletedPostIds.has((p.slug || '').trim()) &&
+               !deletedPostIds.has((p.id || '').trim());
+      };
+
+      const activeCustomPosts = (customPosts || []).filter(isPostActive);
+      const activeBasePosts = (basePosts || []).filter(isPostActive);
+
+      // Deduplicate all active posts so custom posts override base posts
+      const seenPostSlugs = new Set();
+      const allActivePosts = [];
+      for (const p of [...activeCustomPosts, ...activeBasePosts]) {
+        const clean = normSlug(p.slug || p.id);
+        if (!clean || seenPostSlugs.has(clean)) continue;
+        seenPostSlugs.add(clean);
+        allActivePosts.push(p);
+      }
+
+      // Build product map from existing products
+      let allExistingProds = [...(customProducts || []), ...(baseProducts || [])];
+
+      // Ensure every active post has a matching product, and synchronize all fields from the post!
+      let synchronizedProducts = [];
+      let seenCleanSlugs = new Set();
+
+      for (const post of allActivePosts) {
+        const clean = normSlug(post.slug || post.id);
+        if (!clean || seenCleanSlugs.has(clean)) {
+          continue;
+        }
+
+        const postFileName = 'post-' + clean + '.html';
+        const defaultProdId = 'prod-' + clean;
+
+        if (deletedProdIds.has(defaultProdId) || deletedProdIds.has('prod-post-' + clean) || deletedProdIds.has(clean)) {
+          continue;
+        }
+
+        // Find existing product matching this post by clean slug, reviewUrl, ID, or title
+        let existingProd = allExistingProds.find(pr => {
+          if (!pr) return false;
+          const prClean = normSlug(pr.reviewUrl || pr.id);
+          if (prClean && prClean === clean) return true;
+          if (pr.id === defaultProdId || pr.id === 'prod-post-' + clean) return true;
+          if (pr.title && post.title && pr.title.trim().toLowerCase() === post.title.trim().toLowerCase()) return true;
+          return false;
+        });
+
+        const freshProd = createProductFromPostData(post, clean, postFileName);
+        let finalProd = null;
+
+        if (existingProd) {
+          existingProd.id = defaultProdId;
+          existingProd.title = freshProd.title;
+          existingProd.titleEn = freshProd.titleEn;
+          existingProd.titleVi = freshProd.titleVi;
+          existingProd.titleZh = freshProd.titleZh;
+          existingProd.price = freshProd.price;
+          existingProd.priceUsd = freshProd.priceUsd;
+          existingProd.originalPrice = freshProd.originalPrice;
+          existingProd.originalPriceUsd = freshProd.originalPriceUsd;
+          if (freshProd.image) existingProd.image = freshProd.image;
+          existingProd.affiliateUrl = freshProd.affiliateUrl;
+          existingProd.reviewUrl = postFileName;
+          existingProd.categoryKey = freshProd.categoryKey;
+          existingProd.category = freshProd.category;
+          existingProd.categoryEn = freshProd.categoryEn;
+          existingProd.categoryVi = freshProd.categoryVi;
+          existingProd.categoryZh = freshProd.categoryZh;
+          existingProd.discountPercent = freshProd.discountPercent;
+          existingProd.rating = freshProd.rating;
+          existingProd.brand = freshProd.brand;
+          existingProd.shopName = freshProd.brand;
+          existingProd.isPhysical = freshProd.isPhysical;
+          existingProd.description = freshProd.description;
+          existingProd.features = freshProd.features;
+          finalProd = existingProd;
+        } else {
+          finalProd = freshProd;
+        }
+
+        seenCleanSlugs.add(clean);
+        synchronizedProducts.push(finalProd);
+      }
+
+      // Save back clean synchronized products to KV to keep KV synchronized and free of stale duplicates
+      if (env.POSTS_KV) {
+        try {
+          await env.POSTS_KV.put('custom_products_list', JSON.stringify(synchronizedProducts));
+        } catch (e) {}
+      } else {
+        inMemoryProducts = synchronizedProducts;
+      }
+
+      return new Response(JSON.stringify(synchronizedProducts, null, 2), {
+        headers: {
+          ...CORS_HEADERS,
+          'Content-Type': 'application/json; charset=utf-8',
+          'Cache-Control': 'no-cache, no-store, must-revalidate'
+        }
+      });
+      } catch (prodErr) {
+        console.error('Fatal error in /data/products.json handler:', prodErr);
+        if (env.ASSETS) {
+          try {
+            return await env.ASSETS.fetch(new Request(new URL('/data/products.json', request.url)));
+          } catch (e) {}
+        }
+        return new Response(JSON.stringify([], null, 2), {
+          headers: { ...CORS_HEADERS, 'Content-Type': 'application/json; charset=utf-8' }
+        });
+      }
+    }
+
+    // POST /api/save-product (Add or update product)
+    if (url.pathname === '/api/save-product' && request.method === 'POST') {
+      try {
+        const productData = await request.json();
+        const prodId = productData.id || ('prod-' + crypto.randomUUID().slice(0, 8));
+        productData.id = prodId;
+
+        let customProducts = [];
+        if (env.POSTS_KV) {
+          try {
+            const raw = await env.POSTS_KV.get('custom_products_list');
+            if (raw) customProducts = JSON.parse(raw);
+          } catch (e) {}
+        } else {
+          customProducts = inMemoryProducts || [];
+        }
+
+        // Remove from deleted list if it was previously deleted
+        if (env.POSTS_KV) {
+          try {
+            const rawDeleted = await env.POSTS_KV.get('deleted_products_list');
+            if (rawDeleted) {
+              const dList = JSON.parse(rawDeleted).filter(id => id !== prodId);
+              await env.POSTS_KV.put('deleted_products_list', JSON.stringify(dList));
+            }
+          } catch (e) {}
+        }
+
+        const filtered = customProducts.filter(p => p.id !== prodId);
+        const updatedList = [productData, ...filtered];
+
+        if (env.POSTS_KV) {
+          await env.POSTS_KV.put('custom_products_list', JSON.stringify(updatedList));
+        } else {
+          inMemoryProducts = updatedList;
+        }
+
+        return new Response(JSON.stringify({
+          success: true,
+          message: 'Đã lưu sản phẩm thành công!',
+          id: prodId,
+          product: productData
+        }), {
+          headers: { ...CORS_HEADERS, 'Content-Type': 'application/json; charset=utf-8' }
+        });
+      } catch (err) {
+        return new Response(JSON.stringify({ success: false, message: 'Lỗi lưu sản phẩm: ' + err.message }), {
+          status: 500,
+          headers: { ...CORS_HEADERS, 'Content-Type': 'application/json; charset=utf-8' }
+        });
+      }
+    }
+
+    // POST /api/delete-product
+    if (url.pathname === '/api/delete-product' && request.method === 'POST') {
+      try {
+        const body = await request.json();
+        const prodId = body.id;
+
+        if (env.POSTS_KV) {
+          let customProducts = [];
+          try {
+            const raw = await env.POSTS_KV.get('custom_products_list');
+            if (raw) customProducts = JSON.parse(raw);
+          } catch (e) {}
+          const filtered = customProducts.filter(p => p.id !== prodId);
+          await env.POSTS_KV.put('custom_products_list', JSON.stringify(filtered));
+
+          let deletedList = [];
+          try {
+            const rawDeleted = await env.POSTS_KV.get('deleted_products_list');
+            if (rawDeleted) deletedList = JSON.parse(rawDeleted);
+          } catch (e) {}
+          if (!deletedList.includes(prodId)) deletedList.push(prodId);
+          await env.POSTS_KV.put('deleted_products_list', JSON.stringify(deletedList));
+        } else {
+          if (inMemoryProducts) inMemoryProducts = inMemoryProducts.filter(p => p.id !== prodId);
+        }
+
+        return new Response(JSON.stringify({
+          success: true,
+          message: 'Đã xóa sản phẩm thành công!'
+        }), {
+          headers: { ...CORS_HEADERS, 'Content-Type': 'application/json; charset=utf-8' }
+        });
+      } catch (err) {
+        return new Response(JSON.stringify({ success: false, message: 'Lỗi xóa sản phẩm: ' + err.message }), {
+          status: 500,
+          headers: { ...CORS_HEADERS, 'Content-Type': 'application/json; charset=utf-8' }
+        });
+      }
+    }
+
+    // -------------------------------------------------------------
+    // 5. API: CONTACT FORM SUBMISSION
+    // -------------------------------------------------------------
+    // 5. API: CONTACT FORM & INBOX MESSAGES & EMAIL FORWARDING
+    // -------------------------------------------------------------
+    if (url.pathname === '/api/contact/submit' && request.method === 'POST') {
+      try {
+        const data = await request.json();
+        const msgEntry = {
+          id: 'msg-' + Date.now(),
+          name: data.name || 'Anonymous',
+          email: data.email || 'customer@example.com',
+          subject: data.subject || 'Inquiry',
+          message: data.message || '',
+          createdAt: new Date().toISOString(),
+          status: 'unread'
+        };
+
+        if (env.POSTS_KV) {
+          let list = [];
+          try {
+            const raw = await env.POSTS_KV.get('customer_messages');
+            if (raw) list = JSON.parse(raw);
+          } catch (e) {}
+          list = [msgEntry, ...list];
+          await env.POSTS_KV.put('customer_messages', JSON.stringify(list));
+        } else {
+          inMemoryMessages = [msgEntry, ...inMemoryMessages];
+        }
+
+        return new Response(JSON.stringify({
+          success: true,
+          message: 'Cảm ơn bạn đã gửi tin nhắn! Chúng tôi sẽ phản hồi sớm nhất qua email.'
+        }), {
+          headers: { ...CORS_HEADERS, 'Content-Type': 'application/json; charset=utf-8' }
+        });
+      } catch (e) {
+        return new Response(JSON.stringify({ success: false, message: 'Lỗi gửi tin: ' + e.message }), {
+          status: 500,
+          headers: { ...CORS_HEADERS, 'Content-Type': 'application/json; charset=utf-8' }
+        });
+      }
+    }
+
+    // GET Messages (Compatible with both /api/contact/messages and /api/messages)
+    if ((url.pathname === '/api/contact/messages' || url.pathname === '/api/messages') && request.method === 'GET') {
+      let list = [];
+      if (env.POSTS_KV) {
+        try {
+          const raw = await env.POSTS_KV.get('customer_messages');
+          if (raw) list = JSON.parse(raw);
+        } catch (e) {}
+      } else {
+        list = inMemoryMessages;
+      }
+
+      if (!list || list.length === 0) {
+        // Fallback sample messages from static data if available
+        if (env.ASSETS) {
+          try {
+            const assetRes = await env.ASSETS.fetch(new Request(new URL('/data/messages.json', request.url)));
+            if (assetRes.ok) list = await assetRes.json();
+          } catch (e) {}
+        }
+      }
+
+      return new Response(JSON.stringify({
+        success: true,
+        messages: Array.isArray(list) ? list : []
+      }), {
+        headers: { ...CORS_HEADERS, 'Content-Type': 'application/json; charset=utf-8' }
+      });
+    }
+
+    // DELETE Message
+    if ((url.pathname === '/api/contact/messages' || url.pathname === '/api/messages') && request.method === 'DELETE') {
+      try {
+        const id = url.searchParams.get('id');
+        if (env.POSTS_KV) {
+          let list = [];
+          try {
+            const raw = await env.POSTS_KV.get('customer_messages');
+            if (raw) list = JSON.parse(raw);
+          } catch (e) {}
+          list = list.filter(m => m.id !== id);
+          await env.POSTS_KV.put('customer_messages', JSON.stringify(list));
+        } else {
+          inMemoryMessages = inMemoryMessages.filter(m => m.id !== id);
+        }
+        return new Response(JSON.stringify({ success: true, message: 'Deleted message successfully' }), {
+          headers: { ...CORS_HEADERS, 'Content-Type': 'application/json; charset=utf-8' }
+        });
+      } catch (e) {
+        return new Response(JSON.stringify({ success: false, message: 'Delete error: ' + e.message }), {
+          status: 500,
+          headers: { ...CORS_HEADERS, 'Content-Type': 'application/json; charset=utf-8' }
+        });
+      }
+    }
+
+    // TEST Email Dispatch
+    if (url.pathname === '/api/contact/test' && request.method === 'POST') {
+      return new Response(JSON.stringify({
+        success: true,
+        targetEmail: 'support@techpicks.pro',
+        message: 'Hệ thống chuyển tiếp email (support@techpicks.pro) đã hoạt động hoàn hảo!'
+      }), {
+        headers: { ...CORS_HEADERS, 'Content-Type': 'application/json; charset=utf-8' }
+      });
+    }
+
+    // GET / POST Email Config
+    if (url.pathname === '/api/contact/config') {
+      if (request.method === 'GET') {
+        let cfg = {
+          targetEmail: 'support@techpicks.pro',
+          forwarder: 'formsubmit',
+          smtp: {
+            enabled: false,
+            host: 'smtp.gmail.com',
+            port: 587,
+            user: 'support@techpicks.pro'
+          }
+        };
+        if (env.POSTS_KV) {
+          try {
+            const raw = await env.POSTS_KV.get('email_config');
+            if (raw) cfg = JSON.parse(raw);
+          } catch (e) {}
+        }
+        return new Response(JSON.stringify(cfg), {
+          headers: { ...CORS_HEADERS, 'Content-Type': 'application/json; charset=utf-8' }
+        });
+      }
+
+      if (request.method === 'POST') {
+        try {
+          const data = await request.json();
+          if (env.POSTS_KV) {
+            await env.POSTS_KV.put('email_config', JSON.stringify(data));
+          }
+          return new Response(JSON.stringify({
+            success: true,
+            message: 'Đã lưu cấu hình email thành công!'
+          }), {
+            headers: { ...CORS_HEADERS, 'Content-Type': 'application/json; charset=utf-8' }
+          });
+        } catch (e) {
+          return new Response(JSON.stringify({ success: false, message: 'Config error: ' + e.message }), {
+            status: 500,
+            headers: { ...CORS_HEADERS, 'Content-Type': 'application/json; charset=utf-8' }
+          });
+        }
+      }
+    }
+
+    // -------------------------------------------------------------
+    // 6. API: HERO SPOTLIGHT PINNED PROJECTS (TOP 3)
+    // -------------------------------------------------------------
+    // GET /api/pinned-project or /data/pinned_project.json
+    if ((url.pathname === '/api/pinned-project' || url.pathname === '/data/pinned_project.json') && request.method === 'GET') {
+      let pinnedData = null;
+      if (env.POSTS_KV) {
+        try {
+          const raw = await env.POSTS_KV.get('pinned_project');
+          if (raw) pinnedData = JSON.parse(raw);
+        } catch (e) {}
+      } else {
+        pinnedData = inMemoryPinned;
+      }
+
+      if (!pinnedData && env.ASSETS) {
+        try {
+          const assetRes = await env.ASSETS.fetch(new Request(new URL('/data/pinned_project.json', request.url)));
+          if (assetRes.ok) pinnedData = safeJsonParse(await assetRes.text(), null);
+        } catch (e) {}
+      }
+
+      if (!pinnedData) {
+        pinnedData = {
+          id: 'post-mowrator-s1-4wd-pentest-review',
+          title: 'Mowrator S1 4WD Smart Remote Control Mower & Patrol Vehicle In-Depth Review',
+          titleEn: 'Mowrator S1 4WD Smart Remote Control Mower & Patrol Vehicle In-Depth Review',
+          titleVi: 'Đánh Giá Chuyên Sâu Xe Cắt Cỏ & Xe Tuần Tra Điều Khiển Từ Xa 4WD Mowrator S1',
+          tag: 'Robotics & Outdoor Tech',
+          tagEn: 'Robotics & Outdoor Tech',
+          tagVi: 'Robot & Thiết Bị Ngoài Trời',
+          brand: 'Mowrator Official',
+          badge: "Editor's Choice",
+          urlDisplay: 'Mowrator Official',
+          postUrl: 'post-mowrator-s1-4wd-pentest-review.html',
+          affiliateUrl: 'https://eu.mowrator.com/?ref=LONGXUANTRAN',
+          image: 'images/mowrator-s1-4wd-pro.jpg',
+          priceUsd: '$1,499.00',
+          priceVnd: '37.475.000₫',
+          discountPercent: '17% OFF All-Terrain 4WD Series',
+          pinnedList: []
+        };
+      }
+
+      // Auto-synchronize and sanitize prices in pinnedData
+      if (pinnedData && Array.isArray(pinnedData.pinnedList)) {
+        let pinnedChanged = false;
+        let customPosts = [];
+        if (env.POSTS_KV) {
+          try {
+            const rawPosts = await env.POSTS_KV.get('custom_posts_list');
+            if (rawPosts) customPosts = safeJsonParse(rawPosts, []);
+          } catch (e) {}
+        }
+        const postMap = new Map((customPosts || []).map(p => [p.id, p]));
+
+        pinnedData.pinnedList = pinnedData.pinnedList.map(item => {
+          if (!item) return item;
+          let modified = false;
+          const post = postMap.get(item.id);
+          if (post) {
+            if (item.priceUsd !== post.priceUsd) { item.priceUsd = post.priceUsd; modified = true; }
+            if (item.priceOrigUsd !== post.priceOrig) { item.priceOrigUsd = post.priceOrig; modified = true; }
+            if (item.priceVnd !== post.priceVnd) { item.priceVnd = post.priceVnd; modified = true; }
+            const origVndNum = Math.round((parseFloat(String(post.priceOrig).replace(/[^0-9.]/g, '')) || 0) * 25000 / 1000) * 1000;
+            const expectedOrigVnd = origVndNum ? origVndNum.toLocaleString('vi-VN').replace(/,/g, '.') + '₫' : '';
+            if (expectedOrigVnd && item.priceOrigVnd !== expectedOrigVnd) { item.priceOrigVnd = expectedOrigVnd; modified = true; }
+          } else {
+            const res = sanitizePostPrice({ priceUsd: item.priceUsd, priceOrig: item.priceOrigUsd, priceVnd: item.priceVnd });
+            if (res.modified) {
+              item.priceUsd = res.item.priceUsd;
+              item.priceOrigUsd = res.item.priceOrig;
+              item.priceVnd = res.item.priceVnd;
+              modified = true;
+            }
+          }
+          if (modified) pinnedChanged = true;
+          return item;
+        });
+
+        if (pinnedChanged && env.POSTS_KV) {
+          try {
+            await env.POSTS_KV.put('pinned_project', JSON.stringify(pinnedData));
+          } catch (e) {}
+        }
+      }
+
+      return new Response(JSON.stringify(pinnedData, null, 2), {
+        headers: {
+          ...CORS_HEADERS,
+          'Content-Type': 'application/json; charset=utf-8',
+          'Cache-Control': 'no-cache, no-store, must-revalidate'
+        }
+      });
+    }
+
+    // POST /api/pinned-project or /api/pin-project
+    if ((url.pathname === '/api/pinned-project' || url.pathname === '/api/pin-project') && request.method === 'POST') {
+      try {
+        const json = await request.json();
+        let currentPinned = null;
+        if (env.POSTS_KV) {
+          try {
+            const raw = await env.POSTS_KV.get('pinned_project');
+            if (raw) currentPinned = JSON.parse(raw);
+          } catch (e) {}
+        } else {
+          currentPinned = inMemoryPinned;
+        }
+
+        if (!currentPinned && env.ASSETS) {
+          try {
+            const assetRes = await env.ASSETS.fetch(new Request(new URL('/data/pinned_project.json', request.url)));
+            if (assetRes.ok) currentPinned = await assetRes.json();
+          } catch (e) {}
+        }
+        if (!currentPinned) currentPinned = { pinnedList: [] };
+
+        let list = (currentPinned && Array.isArray(currentPinned.pinnedList)) ? [...currentPinned.pinnedList] : [];
+
+        if (Array.isArray(json.pinnedList)) {
+          list = json.pinnedList;
+          currentPinned = { ...json };
+        } else {
+          const cleanAff = json.affiliateUrl && !json.affiliateUrl.startsWith('http://') && !json.affiliateUrl.startsWith('https://')
+            ? 'https://' + json.affiliateUrl : (json.affiliateUrl || '#');
+          const pinnedObj = {
+            id: json.id || 'hero-pinned-' + Date.now(),
+            title: json.title,
+            titleEn: json.titleEn || json.title,
+            titleVi: json.titleVi || json.title,
+            titleZh: json.titleZh || json.title,
+            tag: json.tag || 'REVIEW FLAGSHIP',
+            tagEn: json.tagEn || 'FLAGSHIP REVIEW',
+            tagVi: json.tagVi || 'SẢN PHẨM NỔI BẬT',
+            tagZh: json.tagZh || '旗舰特选',
+            brand: json.brand || json.urlDisplay || 'BullBoost Performance',
+            badge: json.badge || "Editor's Choice",
+            badgeEn: json.badgeEn || "Editor's Choice",
+            badgeVi: json.badgeVi || "Lựa Chọn Biên Tập Viên",
+            badgeZh: json.badgeZh || "编辑特选推荐",
+            urlDisplay: json.urlDisplay || json.brand || 'BullBoost Performance',
+            postUrl: json.postUrl || 'post.html',
+            affiliateUrl: cleanAff,
+            image: json.image || '',
+            imageFit: json.imageFit || 'contain',
+            priceVnd: json.priceVnd || '0₫',
+            priceUsd: json.priceUsd || '$0.00',
+            priceOrigVnd: json.priceOrigVnd || '',
+            priceOrigUsd: json.priceOrigUsd || '',
+            discountPercent: json.discountPercent || '-20%'
+          };
+          if (list.length > 0) {
+            list[0] = pinnedObj;
+          } else {
+            list = [pinnedObj];
+          }
+          currentPinned = { ...pinnedObj, pinnedList: list };
+        }
+
+        if (env.POSTS_KV) {
+          await env.POSTS_KV.put('pinned_project', JSON.stringify(currentPinned));
+        } else {
+          inMemoryPinned = currentPinned;
+        }
+
+        return new Response(JSON.stringify({
+          success: true,
+          message: 'Đã ghim dự án lên đầu trang chủ thành công!',
+          pinnedData: currentPinned
+        }), {
+          headers: { ...CORS_HEADERS, 'Content-Type': 'application/json; charset=utf-8' }
+        });
+      } catch (err) {
+        return new Response(JSON.stringify({ success: false, message: 'Lỗi ghim dự án: ' + err.message }), {
+          status: 500,
+          headers: { ...CORS_HEADERS, 'Content-Type': 'application/json; charset=utf-8' }
+        });
+      }
+    }
+
+    // POST /api/pin-swap (Hoán đổi vị trí giữa slot A và B)
+    if (url.pathname === '/api/pin-swap' && request.method === 'POST') {
+      try {
+        const json = await request.json();
+        const idxA = parseInt(json.indexA, 10);
+        const idxB = parseInt(json.indexB, 10);
+
+        let currentPinned = null;
+        if (env.POSTS_KV) {
+          try {
+            const raw = await env.POSTS_KV.get('pinned_project');
+            if (raw) currentPinned = JSON.parse(raw);
+          } catch (e) {}
+        } else {
+          currentPinned = inMemoryPinned;
+        }
+        if (!currentPinned && env.ASSETS) {
+          try {
+            const assetRes = await env.ASSETS.fetch(new Request(new URL('/data/pinned_project.json', request.url)));
+            if (assetRes.ok) currentPinned = await assetRes.json();
+          } catch (e) {}
+        }
+
+        let list = (currentPinned && Array.isArray(currentPinned.pinnedList)) ? [...currentPinned.pinnedList] : [];
+        if (idxA >= 0 && idxA < list.length && idxB >= 0 && idxB < list.length) {
+          const temp = list[idxA];
+          list[idxA] = list[idxB];
+          list[idxB] = temp;
+
+          const top = list[0] || {};
+          const updatedObj = {
+            ...top,
+            pinnedList: list
+          };
+
+          if (env.POSTS_KV) {
+            await env.POSTS_KV.put('pinned_project', JSON.stringify(updatedObj));
+          } else {
+            inMemoryPinned = updatedObj;
+          }
+
+          return new Response(JSON.stringify({
+            success: true,
+            message: `Đã hoán đổi vị trí Top ${idxA + 1} và Top ${idxB + 1} thành công!`,
+            pinnedList: list
+          }), {
+            headers: { ...CORS_HEADERS, 'Content-Type': 'application/json; charset=utf-8' }
+          });
+        }
+
+        return new Response(JSON.stringify({ success: false, message: 'Chỉ mục slot không hợp lệ!' }), {
+          status: 400,
+          headers: { ...CORS_HEADERS, 'Content-Type': 'application/json; charset=utf-8' }
+        });
+      } catch (err) {
+        return new Response(JSON.stringify({ success: false, message: 'Lỗi hoán đổi ghim: ' + err.message }), {
+          status: 500,
+          headers: { ...CORS_HEADERS, 'Content-Type': 'application/json; charset=utf-8' }
+        });
+      }
+    }
+
+    // POST /api/pin-set-slot (Gán bài viết/sản phẩm vào vị trí slot 0, 1, 2)
+    if (url.pathname === '/api/pin-set-slot' && request.method === 'POST') {
+      try {
+        const json = await request.json();
+        const slot = parseInt(json.slot, 10);
+        let newItem = json.item;
+
+        if (isNaN(slot) || slot < 0 || slot > 2) {
+          return new Response(JSON.stringify({ success: false, message: 'Slot không hợp lệ (phải từ 0 đến 2)!' }), {
+            status: 400,
+            headers: { ...CORS_HEADERS, 'Content-Type': 'application/json; charset=utf-8' }
+          });
+        }
+
+        // If postId provided instead of item object, find from catalog
+        if (!newItem && json.postId) {
+          let allPosts = [];
+          if (env.POSTS_KV) {
+            try {
+              const raw = await env.POSTS_KV.get('custom_posts_list');
+              if (raw) allPosts = JSON.parse(raw);
+            } catch (e) {}
+          }
+          if (env.ASSETS) {
+            try {
+              const assetRes = await env.ASSETS.fetch(new Request(new URL('/data/posts.json', request.url)));
+              if (assetRes.ok) {
+                const bPosts = await assetRes.json();
+                allPosts = [...allPosts, ...(Array.isArray(bPosts) ? bPosts : [])];
+              }
+            } catch (e) {}
+          }
+          const found = allPosts.find(p => p.id === json.postId || p.slug === json.postId);
+          if (found) {
+            newItem = {
+              id: found.id,
+              title: found.title,
+              titleEn: found.titleEn || found.title,
+              titleVi: found.titleVi || found.title,
+              titleZh: found.titleZh || found.title,
+              tag: 'REVIEW ' + (found.category || 'FLAGSHIP').toUpperCase(),
+              tagEn: 'REVIEW ' + (found.categoryEn || found.category || 'FLAGSHIP').toUpperCase(),
+              tagVi: (found.categoryVi || found.category || 'SẢN PHẨM NỔI BẬT').toUpperCase(),
+              brand: found.brand || 'TechPicks Official',
+              badge: "Editor's Choice",
+              badgeEn: "Editor's Choice",
+              badgeVi: "Lựa Chọn Biên Tập Viên",
+              urlDisplay: found.brand || 'TechPicks Official',
+              postUrl: found.slug || 'post.html',
+              affiliateUrl: found.affiliateLink || '#',
+              image: found.image || '',
+              priceUsd: found.priceUsd || '$0.00',
+              priceVnd: found.priceVnd || '0₫',
+              priceOrigUsd: found.priceOrig || '',
+              priceOrigVnd: found.originalPrice || '',
+              discountPercent: found.couponDiscount || '-15%'
+            };
+          }
+        }
+
+        if (!newItem) {
+          return new Response(JSON.stringify({ success: false, message: 'Dữ liệu bài viết không hợp lệ!' }), {
+            status: 400,
+            headers: { ...CORS_HEADERS, 'Content-Type': 'application/json; charset=utf-8' }
+          });
+        }
+
+        let currentPinned = null;
+        if (env.POSTS_KV) {
+          try {
+            const raw = await env.POSTS_KV.get('pinned_project');
+            if (raw) currentPinned = JSON.parse(raw);
+          } catch (e) {}
+        } else {
+          currentPinned = inMemoryPinned;
+        }
+        if (!currentPinned && env.ASSETS) {
+          try {
+            const assetRes = await env.ASSETS.fetch(new Request(new URL('/data/pinned_project.json', request.url)));
+            if (assetRes.ok) currentPinned = safeJsonParse(await assetRes.text(), null);
+          } catch (e) {}
+        }
+
+        let list = (currentPinned && Array.isArray(currentPinned.pinnedList)) ? [...currentPinned.pinnedList] : [];
+        while (list.length <= slot) {
+          list.push(newItem);
+        }
+        list[slot] = newItem;
+
+        const top = list[0] || {};
+        const updatedObj = {
+          ...top,
+          pinnedList: list
+        };
+
+        if (env.POSTS_KV) {
+          await env.POSTS_KV.put('pinned_project', JSON.stringify(updatedObj));
+        } else {
+          inMemoryPinned = updatedObj;
+        }
+
+        return new Response(JSON.stringify({
+          success: true,
+          message: `Đã cập nhật vị trí Top ${slot + 1} thành công!`,
+          pinnedList: list
+        }), {
+          headers: { ...CORS_HEADERS, 'Content-Type': 'application/json; charset=utf-8' }
+        });
+      } catch (err) {
+        return new Response(JSON.stringify({ success: false, message: 'Lỗi gán slot: ' + err.message }), {
+          status: 500,
+          headers: { ...CORS_HEADERS, 'Content-Type': 'application/json; charset=utf-8' }
+        });
+      }
+    }
+
+    // POST /api/pin-reorder
+    if (url.pathname === '/api/pin-reorder' && request.method === 'POST') {
+      try {
+        const json = await request.json();
+        const list = Array.isArray(json.pinnedList) ? json.pinnedList : [];
+        if (list.length === 0) {
+          return new Response(JSON.stringify({ success: false, message: 'Danh sách ghim trống!' }), {
+            status: 400,
+            headers: { ...CORS_HEADERS, 'Content-Type': 'application/json; charset=utf-8' }
+          });
+        }
+
+        const top = list[0] || {};
+        const updatedObj = {
+          ...top,
+          pinnedList: list
+        };
+
+        if (env.POSTS_KV) {
+          await env.POSTS_KV.put('pinned_project', JSON.stringify(updatedObj));
+        } else {
+          inMemoryPinned = updatedObj;
+        }
+
+        return new Response(JSON.stringify({
+          success: true,
+          message: 'Đã cập nhật thứ tự ghim thành công!',
+          pinnedList: list
+        }), {
+          headers: { ...CORS_HEADERS, 'Content-Type': 'application/json; charset=utf-8' }
+        });
+      } catch (err) {
+        return new Response(JSON.stringify({ success: false, message: 'Lỗi sắp xếp ghim: ' + err.message }), {
+          status: 500,
+          headers: { ...CORS_HEADERS, 'Content-Type': 'application/json; charset=utf-8' }
+        });
+      }
+    }
+
+    // -------------------------------------------------------------
+    // 7. API: TOP BAR TICKER ITEMS
+    // -------------------------------------------------------------
+    // GET /api/ticker & /data/ticker_items.json
+    if ((url.pathname === '/api/ticker' || url.pathname === '/data/ticker_items.json') && request.method === 'GET') {
+      let tickerList = null;
+      if (env.POSTS_KV) {
+        try {
+          const raw = await env.POSTS_KV.get('ticker_items');
+          if (raw) tickerList = JSON.parse(raw);
+        } catch (e) {}
+      } else {
+        tickerList = inMemoryTicker;
+      }
+
+      if ((!tickerList || tickerList.length === 0) && env.ASSETS) {
+        try {
+          const assetRes = await env.ASSETS.fetch(new Request(new URL('/data/ticker_items.json', request.url)));
+          if (assetRes.ok) tickerList = safeJsonParse(await assetRes.text(), []);
+        } catch (e) {}
+      }
+
+      return new Response(JSON.stringify(Array.isArray(tickerList) ? tickerList : [], null, 2), {
+        headers: {
+          ...CORS_HEADERS,
+          'Content-Type': 'application/json; charset=utf-8',
+          'Cache-Control': 'no-cache, no-store, must-revalidate'
+        }
+      });
+    }
+
+    // POST /api/pin-ticker (Ghim bài viết lên thanh ticker chạy)
+    if (url.pathname === '/api/pin-ticker' && request.method === 'POST') {
+      try {
+        const json = await request.json();
+        let tickerList = [];
+        if (env.POSTS_KV) {
+          try {
+            const raw = await env.POSTS_KV.get('ticker_items');
+            if (raw) tickerList = JSON.parse(raw);
+          } catch (e) {}
+        } else {
+          tickerList = inMemoryTicker || [];
+        }
+
+        if ((!tickerList || tickerList.length === 0) && env.ASSETS) {
+          try {
+            const assetRes = await env.ASSETS.fetch(new Request(new URL('/data/ticker_items.json', request.url)));
+            if (assetRes.ok) tickerList = await assetRes.json();
+          } catch (e) {}
+        }
+        if (!Array.isArray(tickerList)) tickerList = [];
+
+        const itemId = json.id || 'ticker-' + crypto.randomUUID().slice(0, 8);
+        const itemUrl = json.url || 'index.html';
+        const itemBadge = json.badge || 'HOT REVIEW';
+        const itemBadgeClass = json.badgeClass || 'bg-rose-500 text-white';
+        const itemIcon = json.icon || 'sparkles';
+
+        const tEn = (json.text && json.text.en) || json.titleEn || json.title || 'Featured Deal';
+        const tVi = (json.text && json.text.vi) || json.titleVi || json.title || tEn;
+        const tZh = (json.text && json.text.zh) || json.titleZh || json.title || tEn;
+
+        const tickerObj = {
+          id: itemId,
+          badge: itemBadge,
+          badgeClass: itemBadgeClass,
+          icon: itemIcon,
+          text: {
+            en: tEn,
+            vi: tVi,
+            zh: tZh
+          },
+          url: itemUrl
+        };
+
+        const filtered = tickerList.filter(item => item && item.id !== itemId && item.url !== itemUrl);
+        const updated = [tickerObj, ...filtered];
+
+        if (env.POSTS_KV) {
+          await env.POSTS_KV.put('ticker_items', JSON.stringify(updated));
+        } else {
+          inMemoryTicker = updated;
+        }
+
+        return new Response(JSON.stringify({
+          success: true,
+          message: 'Đã ghim lên thanh ticker đầu trang thành công!',
+          items: updated
+        }), {
+          headers: { ...CORS_HEADERS, 'Content-Type': 'application/json; charset=utf-8' }
+        });
+      } catch (err) {
+        return new Response(JSON.stringify({ success: false, message: 'Lỗi ghim ticker: ' + err.message }), {
+          status: 500,
+          headers: { ...CORS_HEADERS, 'Content-Type': 'application/json; charset=utf-8' }
+        });
+      }
+    }
+
+    // POST /api/unpin-ticker (Gỡ ghim bài viết khỏi thanh ticker)
+    if (url.pathname === '/api/unpin-ticker' && request.method === 'POST') {
+      try {
+        const json = await request.json();
+        let tickerList = [];
+        if (env.POSTS_KV) {
+          try {
+            const raw = await env.POSTS_KV.get('ticker_items');
+            if (raw) tickerList = JSON.parse(raw);
+          } catch (e) {}
+        } else {
+          tickerList = inMemoryTicker || [];
+        }
+
+        if ((!tickerList || tickerList.length === 0) && env.ASSETS) {
+          try {
+            const assetRes = await env.ASSETS.fetch(new Request(new URL('/data/ticker_items.json', request.url)));
+            if (assetRes.ok) tickerList = await assetRes.json();
+          } catch (e) {}
+        }
+        if (!Array.isArray(tickerList)) tickerList = [];
+
+        const targetId = json.id;
+        const targetUrl = json.url;
+
+        const updated = tickerList.filter(item => {
+          if (!item) return false;
+          const matchId = targetId ? item.id === targetId : false;
+          const matchUrl = targetUrl ? item.url === targetUrl : false;
+          return !(matchId || matchUrl);
+        });
+
+        if (env.POSTS_KV) {
+          await env.POSTS_KV.put('ticker_items', JSON.stringify(updated));
+        } else {
+          inMemoryTicker = updated;
+        }
+
+        return new Response(JSON.stringify({
+          success: true,
+          message: 'Đã gỡ mục khỏi thanh ticker thành công!',
+          items: updated
+        }), {
+          headers: { ...CORS_HEADERS, 'Content-Type': 'application/json; charset=utf-8' }
+        });
+      } catch (err) {
+        return new Response(JSON.stringify({ success: false, message: 'Lỗi gỡ ghim ticker: ' + err.message }), {
+          status: 500,
+          headers: { ...CORS_HEADERS, 'Content-Type': 'application/json; charset=utf-8' }
+        });
+      }
+    }
+
+    // POST /api/ticker (Lưu toàn bộ danh sách ticker)
+    if (url.pathname === '/api/ticker' && request.method === 'POST') {
+      try {
+        const json = await request.json();
+        const items = Array.isArray(json) ? json : (Array.isArray(json.items) ? json.items : []);
+        if (env.POSTS_KV) {
+          await env.POSTS_KV.put('ticker_items', JSON.stringify(items));
+        } else {
+          inMemoryTicker = items;
+        }
+        return new Response(JSON.stringify({
+          success: true,
+          message: 'Đã lưu danh sách ticker thành công!',
+          items: items
+        }), {
+          headers: { ...CORS_HEADERS, 'Content-Type': 'application/json; charset=utf-8' }
+        });
+      } catch (err) {
+        return new Response(JSON.stringify({ success: false, message: 'Lỗi lưu ticker: ' + err.message }), {
+          status: 500,
+          headers: { ...CORS_HEADERS, 'Content-Type': 'application/json; charset=utf-8' }
+        });
+      }
+    }
+
+    // -------------------------------------------------------------
+    // 8. ROUTE NORMALIZATION: /admin-cms -> /admin-cms/
+    // -------------------------------------------------------------
+    if (url.pathname === '/admin-cms') {
+      return Response.redirect(new URL('/admin-cms/', request.url).toString(), 301);
+    }
+
+    // -------------------------------------------------------------
+    // 9. API: CUSTOMER INQUIRIES & EMAIL FORWARDING
+    // -------------------------------------------------------------
+
+    // POST /api/contact (Khách gửi tin nhắn từ form Get in Touch)
+    if (url.pathname === '/api/contact' && request.method === 'POST') {
+      try {
+        const body = await request.json();
+        const name = (body.name || '').trim();
+        const email = (body.email || '').trim();
+        const subject = (body.subject || '').trim() || 'Yêu cầu tư vấn / Hợp tác';
+        const message = (body.message || '').trim();
+        const sourceUrl = (body.sourceUrl || '').trim() || 'https://www.techpicks.pro';
+
+        if (!email || !message) {
+          return new Response(JSON.stringify({
+            success: false,
+            message: 'Vui lòng cung cấp đầy đủ email và nội dung tin nhắn!'
+          }), {
+            status: 400,
+            headers: { ...CORS_HEADERS, 'Content-Type': 'application/json; charset=utf-8' }
+          });
+        }
+
+        const msgId = 'msg-' + crypto.randomUUID().slice(0, 8);
+        const msgObj = {
+          id: msgId,
+          name: name || 'Khách hàng ẩn danh',
+          email: email,
+          subject: subject,
+          message: message,
+          createdAt: new Date().toLocaleString('vi-VN', { timeZone: 'Asia/Ho_Chi_Minh' }),
+          sourceUrl: sourceUrl
+        };
+
+        // 1. Lưu tin nhắn vào Cloudflare KV messages_list
+        let messagesList = [];
+        if (env.POSTS_KV) {
+          try {
+            const raw = await env.POSTS_KV.get('messages_list');
+            if (raw) messagesList = safeJsonParse(raw, []);
+          } catch (e) {}
+        } else {
+          messagesList = inMemoryMessages || [];
+        }
+
+        messagesList = [msgObj, ...(messagesList || [])];
+
+        if (env.POSTS_KV) {
+          await env.POSTS_KV.put('messages_list', JSON.stringify(messagesList));
+        } else {
+          inMemoryMessages = messagesList;
+        }
+
+        // 2. Đọc cấu hình email đích
+        let targetEmail = 'support@techpicks.pro';
+        if (env.POSTS_KV) {
+          try {
+            const rawCfg = await env.POSTS_KV.get('email_config');
+            if (rawCfg) {
+              const parsedCfg = safeJsonParse(rawCfg, {});
+              if (parsedCfg.targetEmail) targetEmail = parsedCfg.targetEmail;
+            }
+          } catch (e) {}
+        }
+
+        // 3. Chuyển tiếp email đến support@techpicks.pro qua FormSubmit
+        let emailSent = false;
+        try {
+          const fwdRes = await fetch(`https://formsubmit.co/ajax/${encodeURIComponent(targetEmail)}`, {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+              'Accept': 'application/json',
+              'User-Agent': 'TechPicksReview-Notifier/1.0'
+            },
+            body: JSON.stringify({
+              _subject: `[TechPicks Review] ${subject} (Từ: ${name || 'Khách hàng'})`,
+              _replyto: email,
+              _captcha: 'false',
+              _template: 'table',
+              KhachHang: name || 'Ẩn danh',
+              EmailLienHe: email,
+              TieuDe: subject,
+              NoiDung: message,
+              TrangGui: sourceUrl,
+              ThoiGian: msgObj.createdAt
+            })
+          });
+          if (fwdRes.ok) emailSent = true;
+        } catch (fwdErr) {
+          console.warn('Email dispatch warning:', fwdErr);
+        }
+
+        return new Response(JSON.stringify({
+          success: true,
+          message: `Cảm ơn bạn! Tin nhắn đã được tiếp nhận và gửi đến ${targetEmail}.`,
+          id: msgId,
+          emailSent: emailSent,
+          targetEmail: targetEmail
+        }), {
+          headers: { ...CORS_HEADERS, 'Content-Type': 'application/json; charset=utf-8' }
+        });
+      } catch (err) {
+        return new Response(JSON.stringify({
+          success: false,
+          message: 'Lỗi tiếp nhận tin nhắn: ' + err.message
+        }), {
+          status: 500,
+          headers: { ...CORS_HEADERS, 'Content-Type': 'application/json; charset=utf-8' }
+        });
+      }
+    }
+
+    // GET /api/contact/messages (Lấy danh sách tin nhắn cho Admin CMS)
+    if (url.pathname === '/api/contact/messages' && request.method === 'GET') {
+      let messagesList = [];
+      if (env.POSTS_KV) {
+        try {
+          const raw = await env.POSTS_KV.get('messages_list');
+          if (raw) messagesList = safeJsonParse(raw, []);
+        } catch (e) {}
+      } else {
+        messagesList = inMemoryMessages || [];
+      }
+
+      // Fallback nạp từ file tĩnh nếu KV chưa có tin nhắn
+      if ((!messagesList || messagesList.length === 0) && env.ASSETS) {
+        try {
+          const assetRes = await env.ASSETS.fetch(new Request(new URL('/data/messages.json', request.url)));
+          if (assetRes.ok) {
+            const raw = await assetRes.text();
+            messagesList = safeJsonParse(raw, []);
+          }
+        } catch (e) {}
+      }
+
+      return new Response(JSON.stringify({
+        success: true,
+        messages: messagesList || [],
+        count: (messagesList || []).length
+      }), {
+        headers: {
+          ...CORS_HEADERS,
+          'Content-Type': 'application/json; charset=utf-8',
+          'Cache-Control': 'no-cache, no-store, must-revalidate'
+        }
+      });
+    }
+
+    // DELETE /api/contact/messages (Xóa tin nhắn)
+    if (url.pathname === '/api/contact/messages' && request.method === 'DELETE') {
+      try {
+        const delId = url.searchParams.get('id');
+        let messagesList = [];
+        if (env.POSTS_KV) {
+          try {
+            const raw = await env.POSTS_KV.get('messages_list');
+            if (raw) messagesList = safeJsonParse(raw, []);
+          } catch (e) {}
+        } else {
+          messagesList = inMemoryMessages || [];
+        }
+
+        if (delId) {
+          messagesList = (messagesList || []).filter(m => m && m.id !== delId);
+          if (env.POSTS_KV) {
+            await env.POSTS_KV.put('messages_list', JSON.stringify(messagesList));
+          } else {
+            inMemoryMessages = messagesList;
+          }
+        }
+
+        return new Response(JSON.stringify({
+          success: true,
+          message: 'Đã xóa tin nhắn thành công!'
+        }), {
+          headers: { ...CORS_HEADERS, 'Content-Type': 'application/json; charset=utf-8' }
+        });
+      } catch (err) {
+        return new Response(JSON.stringify({ success: false, message: 'Lỗi xóa tin nhắn: ' + err.message }), {
+          status: 500,
+          headers: { ...CORS_HEADERS, 'Content-Type': 'application/json; charset=utf-8' }
+        });
+      }
+    }
+
+    // GET & POST /api/contact/config (Đọc và Lưu cấu hình Email)
+    if (url.pathname === '/api/contact/config') {
+      if (request.method === 'GET') {
+        let cfg = {
+          targetEmail: 'support@techpicks.pro',
+          forwarder: 'formsubmit',
+          smtp: {
+            enabled: false,
+            host: 'smtp.gmail.com',
+            port: 587,
+            user: 'support@techpicks.pro',
+            passSet: false
+          }
+        };
+
+        if (env.POSTS_KV) {
+          try {
+            const raw = await env.POSTS_KV.get('email_config');
+            if (raw) {
+              const parsed = safeJsonParse(raw, null);
+              if (parsed) cfg = { ...cfg, ...parsed };
+            }
+          } catch (e) {}
+        } else if (env.ASSETS) {
+          try {
+            const assetRes = await env.ASSETS.fetch(new Request(new URL('/data/email_config.json', request.url)));
+            if (assetRes.ok) {
+              const raw = await assetRes.text();
+              const parsed = safeJsonParse(raw, null);
+              if (parsed) cfg = { ...cfg, ...parsed };
+            }
+          } catch (e) {}
+        }
+
+        return new Response(JSON.stringify(cfg), {
+          headers: { ...CORS_HEADERS, 'Content-Type': 'application/json; charset=utf-8' }
+        });
+      }
+
+      if (request.method === 'POST') {
+        try {
+          const newCfg = await request.json();
+          if (env.POSTS_KV) {
+            await env.POSTS_KV.put('email_config', JSON.stringify(newCfg));
+          }
+          return new Response(JSON.stringify({
+            success: true,
+            message: 'Đã lưu cấu hình email thành công!'
+          }), {
+            headers: { ...CORS_HEADERS, 'Content-Type': 'application/json; charset=utf-8' }
+          });
+        } catch (err) {
+          return new Response(JSON.stringify({ success: false, message: 'Lỗi lưu cấu hình: ' + err.message }), {
+            status: 500,
+            headers: { ...CORS_HEADERS, 'Content-Type': 'application/json; charset=utf-8' }
+          });
+        }
+      }
+    }
+
+    // POST /api/contact/test (Gửi thư thử nghiệm)
+    if (url.pathname === '/api/contact/test' && request.method === 'POST') {
+      try {
+        let targetEmail = 'support@techpicks.pro';
+        if (env.POSTS_KV) {
+          try {
+            const rawCfg = await env.POSTS_KV.get('email_config');
+            if (rawCfg) {
+              const parsedCfg = safeJsonParse(rawCfg, {});
+              if (parsedCfg.targetEmail) targetEmail = parsedCfg.targetEmail;
+            }
+          } catch (e) {}
+        }
+
+        const testId = 'test-' + crypto.randomUUID().slice(0, 8);
+        const testMsg = {
+          id: testId,
+          name: 'TechPicks Test System',
+          email: targetEmail,
+          subject: 'Kiểm tra kết nối gửi/nhận email - TechPicks Review',
+          message: `Xin chào! Đây là email thử nghiệm gửi từ hệ thống website TechPicks Review (https://www.techpicks.pro) nhằm kiểm tra kết nối chuyển tiếp thư đến ${targetEmail}. Nếu bạn nhận được thư này, hệ thống nhận email đang hoạt động rất tốt!`,
+          createdAt: new Date().toLocaleString('vi-VN', { timeZone: 'Asia/Ho_Chi_Minh' }),
+          sourceUrl: 'https://www.techpicks.pro/admin-cms/'
+        };
+
+        // Lưu tin nhắn thử nghiệm vào KV để hiện ngay trong Inbox Admin
+        let messagesList = [];
+        if (env.POSTS_KV) {
+          try {
+            const raw = await env.POSTS_KV.get('messages_list');
+            if (raw) messagesList = safeJsonParse(raw, []);
+          } catch (e) {}
+        } else {
+          messagesList = inMemoryMessages || [];
+        }
+        messagesList = [testMsg, ...(messagesList || [])];
+        if (env.POSTS_KV) {
+          await env.POSTS_KV.put('messages_list', JSON.stringify(messagesList));
+        } else {
+          inMemoryMessages = messagesList;
+        }
+
+        // Chuyển tiếp thử nghiệm qua FormSubmit
+        let emailSent = false;
+        let responseDetail = '';
+        try {
+          const fwdRes = await fetch(`https://formsubmit.co/ajax/${encodeURIComponent(targetEmail)}`, {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+              'Accept': 'application/json',
+              'User-Agent': 'TechPicksReview-Test/1.0'
+            },
+            body: JSON.stringify({
+              _subject: '[Test] Kiểm tra kết nối nhận Email - TechPicks Review',
+              _replyto: targetEmail,
+              _captcha: 'false',
+              _template: 'table',
+              HeThong: 'TechPicks Review Live System',
+              TargetEmail: targetEmail,
+              NoiDung: testMsg.message,
+              ThoiGian: testMsg.createdAt,
+              TrangGui: testMsg.sourceUrl
+            })
+          });
+          if (fwdRes.ok) {
+            emailSent = true;
+            responseDetail = 'Đã gửi yêu cầu chuyển tiếp thư thành công!';
+          } else {
+            responseDetail = `Dịch vụ email phản hồi mã ${fwdRes.status}`;
+          }
+        } catch (fwdErr) {
+          responseDetail = fwdErr.message;
+        }
+
+        return new Response(JSON.stringify({
+          success: true,
+          message: emailSent
+            ? `Đã gửi thử email test thành công đến ${targetEmail}! Tin nhắn cũng đã được đưa vào hộp thư Admin.`
+            : `Tin nhắn test đã được lưu vào Inbox Admin. Ghi chú gửi ra ngoài: ${responseDetail}`,
+          targetEmail: targetEmail,
+          emailSent: emailSent
+        }), {
+          headers: { ...CORS_HEADERS, 'Content-Type': 'application/json; charset=utf-8' }
+        });
+      } catch (err) {
+        return new Response(JSON.stringify({ success: false, message: 'Lỗi gửi test: ' + err.message }), {
+          status: 500,
+          headers: { ...CORS_HEADERS, 'Content-Type': 'application/json; charset=utf-8' }
+        });
+      }
+    }
+
+    // -------------------------------------------------------------
+    // 10. DYNAMIC POST HTML SERVING (FOR NEWLY PUBLISHED POSTS)
+    // -------------------------------------------------------------
+    const isStaticSystemPage = ['/index.html', '/post.html', '/shop.html', '/sponsor.html', '/admin.html', '/post-detail.html', '/admin-cms/index.html'].includes(url.pathname);
+    if (url.pathname.startsWith('/post-') || (url.pathname.endsWith('.html') && !isStaticSystemPage)) {
+      const cleanPath = url.pathname.replace(/^\//, '');
+
+      // Check KV for saved HTML
+      if (env.POSTS_KV) {
+        const savedHtml = await env.POSTS_KV.get('post_html:' + cleanPath) || 
+                          await env.POSTS_KV.get('post_html:post-' + cleanPath) ||
+                          (!cleanPath.endsWith('.html') ? await env.POSTS_KV.get('post_html:' + cleanPath + '.html') : null);
+        if (savedHtml) {
+          return new Response(savedHtml, {
+            headers: {
+              'Content-Type': 'text/html; charset=utf-8',
+              'Cache-Control': 'no-cache, no-store, must-revalidate',
+              'Pragma': 'no-cache',
+              'Expires': '0',
+              ...CORS_HEADERS
+            }
+          });
+        }
+      } else if (inMemoryHtml.has(cleanPath)) {
+        return new Response(inMemoryHtml.get(cleanPath), {
+          headers: {
+            'Content-Type': 'text/html; charset=utf-8',
+            'Cache-Control': 'no-cache, no-store, must-revalidate',
+            'Pragma': 'no-cache',
+            'Expires': '0',
+            ...CORS_HEADERS
+          }
+        });
+      }
+
+      // If static file exists in assets, let ASSETS serve it
+      if (env.ASSETS) {
+        const assetRes = await env.ASSETS.fetch(request);
+        if (assetRes.ok) return assetRes;
+
+        // Fallback to post-detail.html
+        const detailRes = await env.ASSETS.fetch(new Request(new URL('/post-detail.html', request.url)));
+        if (detailRes.ok) {
+          return new Response(detailRes.body, {
+            headers: { 'Content-Type': 'text/html; charset=utf-8' }
+          });
+        }
+      }
+    }
+
+    // -------------------------------------------------------------
+    // 7. SERVE STATIC ASSETS (HTML, CSS, JS, IMAGES) VIA CLOUDFLARE ASSETS
+    // -------------------------------------------------------------
+    if (env.ASSETS) {
+      const assetRes = await env.ASSETS.fetch(request);
+      if (assetRes.ok && (url.pathname.endsWith('.js') || url.pathname.endsWith('.html') || url.pathname.endsWith('.json') || url.pathname.endsWith('.css'))) {
+        const newHeaders = new Headers(assetRes.headers);
+        newHeaders.set('Cache-Control', 'no-cache, no-store, must-revalidate');
+        newHeaders.set('Pragma', 'no-cache');
+        newHeaders.set('Expires', '0');
+        return new Response(assetRes.body, {
+          status: assetRes.status,
+          statusText: assetRes.statusText,
+          headers: newHeaders
+        });
+      }
+      return assetRes;
+    }
+
+    return new Response('Cloudflare Worker is running! Static assets not bound.', {
+      status: 200,
+      headers: { 'Content-Type': 'text/plain; charset=utf-8' }
+    });
+  }
+};// Determine categoryKey & localized category names
+  let catKey = 'audio';
+  if (/saas|software|ai tool|notion|template|ebook|course|preset|digital|cloud/.test(catLower)) {
+    catKey = 'saas';
+  } else if (/watch|wearable|ring|đồng hồ|smartwatch|garmin|apple watch|galaxy ring/.test(catLower)) {
+    catKey = 'wearables';
+  } else if (/drone|flycam|robotics|mower|dji mini|rc/.test(catLower)) {
+    catKey = 'robotics';
+  } else if (/camera|máy ảnh|may anh|osmo pocket|insta360|shure|video|creator/.test(catLower)) {
+    catKey = 'cameras';
+  } else if (/computing|gaming|ally|asus|rog|laptop|handheld/.test(catLower)) {
+    catKey = 'computing';
+  } else if (/power|gan|charger|power bank|ugreen|baseus|sạc/.test(catLower)) {
+    catKey = 'power';
+  } else if (/smart home|smart|nhà thông minh|matter|roborock|iot|sensor|projector/.test(catLower)) {
+    catKey = 'smarthome';
+  } else if (/keychron|keyboard|bàn phím|elgato|stream deck|mouse|chuột|desk|setup|edc/.test(catLower)) {
+    catKey = 'edc';
+  } else {
+    catKey = 'audio';
+  }
+
+  let catEn = 'Audio & Sound';
+  let catVi = 'Tai Nghe & Âm Thanh';
+  let catZh = '音频与发烧声学';
+
+  if (catKey === 'wearables') {
+    catEn = 'Smart Wearables'; catVi = 'Thiết Bị Đeo Thông Minh'; catZh = '智能穿戴与手表';
+  } else if (catKey === 'robotics') {
+    catEn = 'Robotics & Drones'; catVi = 'Robotics & Flycam'; catZh = '无人机与机器人';
+  } else if (catKey === 'cameras') {
+    catEn = 'Cameras & Creator Gear'; catVi = 'Máy Ảnh & Creator Gear'; catZh = '专业相机与创作者装备';
+  } else if (catKey === 'computing') {
+    catEn = 'Computing & Gaming'; catVi = 'Máy Tính & Gaming'; catZh = '电脑硬件与掌机';
+  } else if (catKey === 'power') {
+    catEn = 'Power & GaN Charging'; catVi = 'Sạc GaN & Pin Dự Phòng'; catZh = '快充与氮化镓电源';
+  } else if (catKey === 'edc') {
+    catEn = 'Desk Setup & EDC'; catVi = 'Bàn Làm Việc & EDC'; catZh = '桌面搭子与EDC';
+  } else if (catKey === 'smarthome') {
+    catEn = 'Smart Home & IoT'; catVi = 'Nhà Thông Minh & IoT'; catZh = '智能家居与IoT';
+  } else if (catKey === 'ebooks') {
+    catEn = 'Ebooks & Guides'; catVi = 'Tài Nguyên & Cẩm Nang'; catZh = '电子书与知识资产';
+  } else if (catKey === 'presets') {
+    catEn = 'Creative Presets & LUTs'; catVi = 'Preset & LUTs'; catZh = '调色预设与LUTs';
+  } else if (catKey === 'templates') {
+    catEn = 'Notion Templates & OS'; catVi = 'Hệ Thống Notion OS'; catZh = 'Notion 生产力系统';
+  } else if (catKey === 'courses') {
+    catEn = 'Masterclasses & Courses'; catVi = 'Khóa Học Video Chuyên Sâu'; catZh = '实战视频大师课';
+  } else if (catKey === 'saas') {
+    catEn = 'SaaS & AI Productivity'; catVi = 'Phần Mềm SaaS & Công Cụ AI'; catZh = 'SaaS 订阅与 AI 效能工具';
+  }
+  

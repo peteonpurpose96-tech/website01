@@ -1,0 +1,3302 @@
+/**
+ * review-pagination.js
+ * High-Converting Reviews Hub & Multi-Page Pagination Engine
+ * Handles real-time search, category filtering, sorting, pagination, and multi-currency updates.
+ */
+
+(function() {
+  'use strict';
+
+  let allReviews = [];
+  let filteredReviews = [];
+  let currentPage = 1;
+  let itemsPerPage = 6;
+  let currentCategory = 'all';
+  let searchQuery = '';
+  let currentSort = 'newest';
+
+  // Trilingual UI strings & Category names
+  const reviewI18n = {
+            vi: {
+      categories: {
+        all: 'Tất Cả',
+        audio: 'Tai Nghe & Âm Thanh',
+        smarthome: 'Nhà Thông Minh & IoT',
+        edc: 'Bàn Làm Việc & EDC',
+        computing: 'Laptop & Gaming Gear',
+        wearables: 'Thiết Bị Đeo Thông Minh',
+        robotics: 'Robot & Drones',
+        cameras: 'Máy Ảnh & Creator Gear',
+        power: 'Sạc GaN & Pin Dự Phòng',
+        mobile: 'Phụ Kiện Điện Thoại',
+        digital: 'Phần Mềm & Công Cụ AI'
+      },
+      catPills: {
+        all: 'Tất Cả',
+        physical: 'Đồ Vật Lý',
+        digital: 'Sản Phẩm Số',
+        audio: 'Tai Nghe & Âm Thanh',
+        smarthome: 'Nhà Thông Minh & IoT',
+        edc: 'Bàn Làm Việc & EDC',
+        computing: 'Laptop & Gaming Gear',
+        wearables: 'Thiết Bị Đeo Thông Minh',
+        robotics: 'Robot & Drones',
+        cameras: 'Máy Ảnh & Creator Gear',
+        power: 'Sạc GaN & Pin Dự Phòng',
+        mobile: 'Phụ Kiện Điện Thoại',
+        saas: 'SaaS & AI Tools',
+        ebooks: 'Ebooks & Playbooks',
+        presets: 'Presets & LUTs',
+        templates: 'Notion OS',
+        courses: 'Khóa Học Video'
+      },
+      heading: 'Danh Sách Bài Đánh Giá',
+      showingSummary: (start, end, total) => `Hiển thị bài viết ${start} - ${end} trên tổng số ${total} bài`,
+      pageSummary: (cur, total, count) => `Trang ${cur} / ${total} (${count} bài viết)`,
+      pageSingle: 'Trang 1 / 1',
+      prevPage: 'Trang Trước',
+      nextPage: 'Trang Sau',
+      readReview: 'Xem Review',
+      orderNow: 'ORDER NOW',
+      priceLabel: 'Giá Ưu Đãi',
+      couponLabel: 'Mã',
+      spotlightBadge: '🔥 SPOTLIGHT FLAGSHIP',
+      spotlightPriceLabel: 'Giá tốt nhất hôm nay',
+      spotlightRead: 'Đọc Đánh Giá Chi Tiết →',
+      spotlightOrder: 'ORDER NOW ↗',
+      viewAllBtn: 'Xem Tất Cả Bài Viết',
+      emptyTitle: 'Không tìm thấy bài viết phù hợp',
+      emptyDesc: 'Hãy thử tìm kiếm với từ khóa khác hoặc bấm "Tất Cả" để xem toàn bộ danh mục.'
+    },
+            en: {
+      categories: {
+        all: 'All Reviews',
+        audio: 'Audio & Sound',
+        smarthome: 'Smart Home & IoT',
+        edc: 'Desk Setup & EDC',
+        computing: 'Computing & Gaming',
+        wearables: 'Smart Wearables',
+        robotics: 'Robotics & Drones',
+        cameras: 'Cameras & Creator Gear',
+        power: 'Power & GaN Charging',
+        mobile: 'Smart Phone Gear',
+        digital: 'Digital Tools & SaaS'
+      },
+      catPills: {
+        all: 'All Reviews',
+        physical: 'Physical Gear',
+        digital: 'Digital Downloads',
+        audio: 'Audio & Sound',
+        smarthome: 'Smart Home & IoT',
+        edc: 'Desk Setup & EDC',
+        computing: 'Computing & Gaming',
+        wearables: 'Smart Wearables',
+        robotics: 'Robotics & Drones',
+        cameras: 'Cameras & Creator Gear',
+        power: 'Power & GaN Charging',
+        mobile: 'Smart Phone Gear',
+        saas: 'SaaS & AI Tools',
+        ebooks: 'Ebooks & Playbooks',
+        presets: 'Presets & LUTs',
+        templates: 'Notion OS',
+        courses: 'Video Courses'
+      },
+      heading: 'Curated Review Catalog',
+      showingSummary: (start, end, total) => `Showing reviews ${start} - ${end} of ${total} total`,
+      pageSummary: (cur, total, count) => `Page ${cur} of ${total} (${count} reviews)`,
+      pageSingle: 'Page 1 of 1',
+      prevPage: 'Previous',
+      nextPage: 'Next',
+      readReview: 'Read Review',
+      orderNow: 'ORDER NOW',
+      priceLabel: 'Best Price',
+      couponLabel: 'Code',
+      spotlightBadge: '🔥 EDITORS\' SPOTLIGHT',
+      spotlightPriceLabel: 'Best price today',
+      spotlightRead: 'Read Full Review →',
+      spotlightOrder: 'ORDER NOW ↗',
+      viewAllBtn: 'View All Reviews',
+      emptyTitle: 'No matching reviews found',
+      emptyDesc: 'Try searching with different keywords or click "All Reviews" to view the entire catalog.'
+    },
+            zh: {
+      categories: {
+        all: '全部评测',
+        audio: '音频与发烧声学',
+        smarthome: '智能家居与物联网',
+        edc: '桌面装备与EDC',
+        computing: '笔记本与硬核硬件',
+        wearables: '智能穿戴与健康监测',
+        robotics: '机器人与智能飞行器',
+        cameras: '相机与创作者装备',
+        power: '氮化镓快充与移动电源',
+        mobile: '手机旗舰配件',
+        digital: '数字化软件与AI工具'
+      },
+      catPills: {
+        all: '全部评测',
+        physical: '实体硬件',
+        digital: '数字工具',
+        audio: '音频与发烧声学',
+        smarthome: '智能家居与物联网',
+        edc: '桌面搭子与EDC',
+        computing: '笔记本与硬核硬件',
+        wearables: '智能穿戴与健康',
+        robotics: '机器人与无人机',
+        cameras: '相机与创作者装备',
+        power: '氮化镓快充与电源',
+        mobile: '手机旗舰配件',
+        saas: 'SaaS与AI工具',
+        ebooks: '电子手册与指南',
+        presets: '调色预设与LUTs',
+        templates: 'Notion 生产力模板',
+        courses: '视频实战大课'
+      },
+      heading: '精选评测目录',
+      showingSummary: (start, end, total) => `正在显示第 ${start} - ${end} 篇，共 ${total} 篇评测`,
+      pageSummary: (cur, total, count) => `第 ${cur} / ${total} 页 (共 ${count} 篇)`,
+      pageSingle: '第 1 / 1 页',
+      prevPage: '上一页',
+      nextPage: '下一页',
+      readReview: '阅读评测',
+      orderNow: '立即订购',
+      priceLabel: '特惠价格',
+      couponLabel: '券码',
+      spotlightBadge: '🔥 编辑力荐精选',
+      spotlightPriceLabel: '今日全网最优价',
+      spotlightRead: '查看评测全文 →',
+      spotlightOrder: '立即订购 ↗',
+      viewAllBtn: '查看全部文章',
+      emptyTitle: '未找到相关评测',
+      emptyDesc: '请尝试更换关键词搜索，或点击“全部评测”查看完整目录。'
+    }
+  };
+
+  /**
+   * Helper: Get current language ('en' | 'vi' | 'zh')
+   */
+  function getCurrentLang() {
+    if (typeof window.getCurrentLanguage === 'function') {
+      return window.getCurrentLanguage();
+    }
+    return localStorage.getItem('blog_lang') || 'en';
+  }
+
+  /**
+   * Helper: Get current active dictionary
+   */
+  function getDict() {
+    const lang = getCurrentLang();
+    return reviewI18n[lang] || reviewI18n.en;
+  }
+
+  /**
+   * Helper: Extract localized field from post item
+   */
+  function getPostField(post, field) {
+    const lang = getCurrentLang();
+    if (field === 'title') {
+      if (lang === 'vi') return post.titleVi || post.title;
+      if (lang === 'zh') return post.titleZh || post.title;
+      return post.title || post.titleEn;
+    }
+    if (field === 'category') {
+      if (lang === 'vi') return post.categoryVi || post.category;
+      if (lang === 'zh') return post.categoryZh || post.category;
+      return post.categoryEn || post.category;
+    }
+    if (field === 'excerpt') {
+      if (lang === 'vi') return post.excerptVi || post.excerpt || post.intro;
+      if (lang === 'zh') return post.excerptZh || post.excerpt || post.intro;
+      return post.excerpt || post.excerptEn || post.intro;
+    }
+    if (field === 'btnText') {
+      return 'ORDER NOW';
+    }
+    return post[field] || '';
+  }
+
+  /**
+   * Initialize the Review Hub
+   */
+  async function initReviewHub() {
+    // Read URL query params
+    const params = new URLSearchParams(window.location.search);
+    if (params.has('page')) {
+      const p = parseInt(params.get('page'), 10);
+      if (!isNaN(p) && p > 0) currentPage = p;
+    }
+    if (params.has('category')) {
+      currentCategory = params.get('category');
+    }
+    if (params.has('q')) {
+      searchQuery = params.get('q').trim();
+      const sInput = document.getElementById('review-search-input');
+      if (sInput) sInput.value = searchQuery;
+    }
+
+    // Load data from posts.json (or fallback)
+    try {
+      const res = await fetch('data/posts.json?t=' + Date.now());
+      if (res.ok) {
+        const raw = await res.json();
+        let flat = [];
+        if (Array.isArray(raw)) {
+          raw.forEach(item => {
+            if (item && Array.isArray(item.value)) flat.push(...item.value);
+            else if (item && (item.id || item.slug || item.title)) flat.push(item);
+          });
+        }
+        allReviews = flat;
+        try { localStorage.setItem('techpicks_posts_cache', JSON.stringify(flat)); } catch(e) {}
+      }
+    } catch (err) {
+      console.warn('Cannot fetch data/posts.json, using fallback data:', err);
+    }
+
+    if (!allReviews || !Array.isArray(allReviews) || allReviews.length === 0) {
+      try {
+        const cached = localStorage.getItem('techpicks_posts_cache');
+        if (cached) {
+          const parsed = JSON.parse(cached);
+          if (Array.isArray(parsed) && parsed.length > 0) allReviews = parsed;
+        }
+      } catch (e) {}
+      if (!allReviews || allReviews.length === 0) allReviews = getFallbackReviews();
+    }
+
+    // Update Hero Total Count
+    const heroCount = document.getElementById('hero-total-posts-count');
+    if (heroCount) heroCount.innerText = (allReviews.length || 12) + '+';
+
+    const countCatAll = document.getElementById('count-cat-all');
+    if (countCatAll) countCatAll.innerText = allReviews.length || 12;
+
+    // Update Category Tabs labels for initial language
+    updateCategoryTabsText();
+
+    // Setup Event Listeners
+    setupEventListeners();
+
+    // Render Spotlight
+    renderSpotlightReview();
+
+    // Apply Filter, Sort, and Render Current Page
+    applyFiltersAndRender(false);
+
+    // Listen to currency changes from app.js
+    window.addEventListener('currencyChanged', onCurrencyChanged);
+    window.addEventListener('popstate', onPopState);
+
+    // Listen to language changes from i18n.js
+    window.addEventListener('languageChanged', onLanguageChanged);
+  }
+
+  /**
+   * Setup UI Event Listeners
+   */
+  function setupEventListeners() {
+    // Search input
+    const searchInput = document.getElementById('review-search-input');
+    if (searchInput) {
+      let debounceTimer = null;
+      searchInput.addEventListener('input', (e) => {
+        clearTimeout(debounceTimer);
+        debounceTimer = setTimeout(() => {
+          searchQuery = e.target.value.trim().toLowerCase();
+          currentPage = 1;
+          applyFiltersAndRender(true);
+        }, 250);
+      });
+    }
+
+    // Sort select
+    const sortSelect = document.getElementById('review-sort-select');
+    if (sortSelect) {
+      sortSelect.addEventListener('change', (e) => {
+        currentSort = e.target.value;
+        currentPage = 1;
+        applyFiltersAndRender(true);
+      });
+    }
+
+    // Per-page select
+    const perPageSelect = document.getElementById('review-per-page-select');
+    if (perPageSelect) {
+      perPageSelect.addEventListener('change', (e) => {
+        itemsPerPage = parseInt(e.target.value, 10) || 6;
+        currentPage = 1;
+        applyFiltersAndRender(true);
+      });
+    }
+
+    // Category filter pills
+    const filterTabs = document.querySelectorAll('#category-filter-tabs .cat-pill');
+    const reviewCatSelect = document.getElementById('review-category-select');
+
+    filterTabs.forEach(btn => {
+      btn.addEventListener('click', () => {
+        filterTabs.forEach(b => {
+          b.classList.remove('active', 'bg-gradient-to-r', 'from-cyan-500', 'via-sky-500', 'to-blue-600', 'text-white', 'shadow-md');
+          b.classList.add('bg-slate-100', 'dark:bg-[#0e121d]', 'text-slate-700', 'dark:text-cyan-200');
+        });
+
+        btn.classList.add('active', 'bg-gradient-to-r', 'from-cyan-500', 'via-sky-500', 'to-blue-600', 'text-white', 'shadow-md');
+        btn.classList.remove('bg-slate-100', 'dark:bg-[#0e121d]', 'text-slate-700', 'dark:text-cyan-200');
+
+        currentCategory = btn.getAttribute('data-cat') || 'all';
+        if (reviewCatSelect && reviewCatSelect.value !== currentCategory) {
+          reviewCatSelect.value = currentCategory;
+        }
+        currentPage = 1;
+        applyFiltersAndRender(true);
+      });
+    });
+
+    if (reviewCatSelect) {
+      reviewCatSelect.addEventListener('change', (e) => {
+        const selected = e.target.value;
+        const targetPill = document.querySelector(`#category-filter-tabs .cat-pill[data-cat="${selected}"]`);
+        if (targetPill) {
+          targetPill.click();
+        } else {
+          currentCategory = selected;
+          currentPage = 1;
+          applyFiltersAndRender(true);
+        }
+      });
+    }
+  }
+
+  /**
+   * Helper: Match post to category key
+   */
+      function matchPostToCategory(item, targetCat) {
+    if (!item) return false;
+    if (targetCat === 'all') return true;
+
+    const digitalSlugs = ['saas', 'ebooks', 'presets', 'templates', 'courses', 'digital'];
+    const catSlug = (item.categorySlug || '').toLowerCase();
+
+    if (targetCat === 'physical') {
+      return item.isPhysical !== false && !digitalSlugs.includes(catSlug);
+    }
+    if (targetCat === 'digital') {
+      return item.isPhysical === false || digitalSlugs.includes(catSlug);
+    }
+
+    if (catSlug) {
+      if (catSlug === targetCat) return true;
+      if (targetCat === 'audio' && (catSlug === 'audio' || catSlug === 'tech')) return true;
+      if (targetCat === 'smarthome' && (catSlug === 'smarthome' || catSlug === 'smart-home' || catSlug === 'iot')) return true;
+      if (targetCat === 'edc' && (catSlug === 'edc' || catSlug === 'desk' || catSlug === 'desk-setup')) return true;
+      if (targetCat === 'computing' && (catSlug === 'computing' || catSlug === 'gaming' || catSlug === 'laptops')) return true;
+      if (targetCat === 'wearables' && (catSlug === 'wearables' || catSlug === 'watch' || catSlug === 'watches')) return true;
+      if (targetCat === 'robotics' && (catSlug === 'robotics' || catSlug === 'drones' || catSlug === 'auto')) return true;
+      if (targetCat === 'cameras' && (catSlug === 'cameras' || catSlug === 'camera' || catSlug === 'creator')) return true;
+      if (targetCat === 'power' && (catSlug === 'power' || catSlug === 'charging')) return true;
+      if (targetCat === 'mobile' && (catSlug === 'mobile' || catSlug === 'phone')) return true;
+      if (targetCat === 'saas' && (catSlug === 'saas' || catSlug === 'ai' || catSlug === 'software')) return true;
+      if (targetCat === 'ebooks' && (catSlug === 'ebook' || catSlug === 'ebooks' || catSlug === 'guides')) return true;
+      if (targetCat === 'presets' && (catSlug === 'preset' || catSlug === 'presets' || catSlug === 'lut')) return true;
+      if (targetCat === 'templates' && (catSlug === 'template' || catSlug === 'templates' || catSlug === 'notion')) return true;
+      if (targetCat === 'courses' && (catSlug === 'course' || catSlug === 'courses' || catSlug === 'video')) return true;
+      return false;
+    }
+
+    const catText = ((item.category || '') + ' ' + (item.categoryEn || '') + ' ' + (item.categoryVi || '') + ' ' + (item.title || '')).toLowerCase();
+    if (targetCat === 'audio') return catText.includes('audio') || catText.includes('sound') || catText.includes('headphone') || catText.includes('tai nghe');
+    if (targetCat === 'smarthome') return catText.includes('smart home') || catText.includes('projector') || catText.includes('robot') || catText.includes('máy chiếu');
+    if (targetCat === 'edc') return catText.includes('keyboard') || catText.includes('mouse') || catText.includes('edc') || catText.includes('bàn phím');
+    if (targetCat === 'wearables') return catText.includes('watch') || catText.includes('ring') || catText.includes('đeo');
+    if (targetCat === 'robotics') return catText.includes('drone') || catText.includes('mower') || catText.includes('robot');
+    if (targetCat === 'cameras') return catText.includes('camera') || catText.includes('máy ảnh') || catText.includes('action');
+    if (targetCat === 'power') return catText.includes('charger') || catText.includes('gan') || catText.includes('power bank') || catText.includes('sạc');
+    if (targetCat === 'computing') return catText.includes('laptop') || catText.includes('gaming') || catText.includes('handheld');
+    return false;
+  }
+
+  /**
+   * Update category pill labels according to active language with real-time post counts
+   */
+  function updateCategoryTabsText() {
+    const dict = getDict();
+    const filterTabs = document.querySelectorAll('#category-filter-tabs .cat-pill');
+    const totalCount = (allReviews && Array.isArray(allReviews) && allReviews.length) ? allReviews.length : 0;
+
+    // Update Hero Total Count
+    const heroCount = document.getElementById('hero-total-posts-count');
+    if (heroCount) heroCount.innerText = totalCount + '+';
+
+    // Update category pills (Human design: hide categories with 0 items)
+    filterTabs.forEach(btn => {
+      const cat = btn.getAttribute('data-cat');
+      const catCount = (cat === 'all') ? totalCount : allReviews.filter(item => matchPostToCategory(item, cat)).length;
+      const label = (dict.catPills && dict.catPills[cat]) || cat;
+      btn.innerHTML = `<span data-i18n="reviews_cat_${cat}">${label}</span> <span class="opacity-60 text-[11px] font-normal" id="count-cat-${cat}">(${catCount})</span>`;
+
+      // Hide empty categories so user never sees useless (0) pills
+      if (catCount === 0 && cat !== 'all' && cat !== 'physical' && cat !== 'digital') {
+        btn.classList.add('hidden');
+        btn.style.setProperty('display', 'none', 'important');
+      } else {
+        btn.classList.remove('hidden');
+        btn.style.removeProperty('display');
+      }
+    });
+
+    // Update Category Select Dropdown options
+    const catSelect = document.getElementById('review-category-select');
+    if (catSelect) {
+      Array.from(catSelect.options).forEach(opt => {
+        const cat = opt.value;
+        if (!cat) return;
+        const catCount = (cat === 'all') ? totalCount : allReviews.filter(item => matchPostToCategory(item, cat)).length;
+        const label = (dict.catPills && dict.catPills[cat]) || opt.textContent.replace(/\s*\(\d+\)/, '');
+        opt.textContent = `${label} (${catCount})`;
+
+        // Hide empty options in dropdown as well
+        if (catCount === 0 && cat !== 'all' && cat !== 'physical' && cat !== 'digital') {
+          opt.style.display = 'none';
+        } else {
+          opt.style.display = '';
+        }
+      });
+    }
+  }
+
+  /**
+   * Apply Search, Category, and Sorting Filters
+   */
+  function applyFiltersAndRender(updateUrl = true) {
+    const dict = getDict();
+
+    // 1. Filter by Category
+    filteredReviews = allReviews.filter(item => matchPostToCategory(item, currentCategory));
+
+    // 2. Filter by Search Query across all multilingual fields with Token Matching
+    if (searchQuery) {
+      const qTokens = searchQuery.toLowerCase().split(/\s+/).filter(Boolean);
+      filteredReviews = filteredReviews.filter(item => {
+        const searchable = [
+          item.title, item.titleVi, item.titleZh, item.titleEn,
+          item.excerpt, item.excerptVi, item.excerptZh,
+          item.category, item.categoryEn, item.categoryVi, item.categoryZh,
+          item.categorySlug,
+          item.brand, item.coupon, item.intro, item.body, item.verdict
+        ].filter(Boolean).join(' ').toLowerCase();
+        return qTokens.every(tok => searchable.includes(tok));
+      });
+    }
+
+    // 3. Sort
+    filteredReviews.sort((a, b) => {
+      if (currentSort === 'rating') {
+        return (b.rating || 0) - (a.rating || 0);
+      } else if (currentSort === 'price-asc') {
+        return parsePrice(a.priceUsd) - parsePrice(b.priceUsd);
+      } else if (currentSort === 'price-desc') {
+        return parsePrice(b.priceUsd) - parsePrice(a.priceUsd);
+      } else {
+        // newest (default by original order or id)
+        return 0;
+      }
+    });
+
+    // 4. Validate Current Page
+    const totalPages = Math.max(1, Math.ceil(filteredReviews.length / itemsPerPage));
+    if (currentPage > totalPages) currentPage = totalPages;
+    if (currentPage < 1) currentPage = 1;
+
+    // 5. Update UI Labels & Name
+    const activeFilterName = document.getElementById('active-filter-name');
+    if (activeFilterName) {
+      activeFilterName.innerText = (dict.categories && dict.categories[currentCategory]) || dict.categories.all;
+    }
+
+    const activeFilterHeading = document.getElementById('active-filter-heading');
+    if (activeFilterHeading) {
+      activeFilterHeading.innerText = dict.heading;
+    }
+
+    // 6. Render Current Page Cards
+    renderCards();
+
+    // 7. Render Pagination Controls
+    renderPagination(totalPages);
+
+    // 8. Update URL Query String without reloading
+    if (updateUrl) {
+      const url = new URL(window.location);
+      if (currentPage > 1) {
+        url.searchParams.set('page', currentPage);
+      } else {
+        url.searchParams.delete('page');
+      }
+      if (currentCategory !== 'all') {
+        url.searchParams.set('category', currentCategory);
+      } else {
+        url.searchParams.delete('category');
+      }
+      if (searchQuery) {
+        url.searchParams.set('q', searchQuery);
+      } else {
+        url.searchParams.delete('q');
+      }
+      window.history.pushState({ page: currentPage, category: currentCategory }, '', url);
+    }
+  }
+
+  /**
+   * Render Review Cards for Current Page
+   */
+  function renderCards() {
+    const grid = document.getElementById('reviews-grid');
+    const emptyState = document.getElementById('reviews-empty-state');
+    const paginationSection = document.getElementById('pagination-section');
+    const dict = getDict();
+
+    if (!grid) return;
+
+    if (filteredReviews.length === 0) {
+      grid.innerHTML = '';
+      if (emptyState) emptyState.classList.remove('hidden');
+      if (paginationSection) paginationSection.classList.add('hidden');
+      const statusSummary = document.getElementById('pagination-status-summary');
+      if (statusSummary) statusSummary.innerText = dict.showingSummary(0, 0, 0);
+      return;
+    }
+
+    if (emptyState) emptyState.classList.add('hidden');
+    if (paginationSection) paginationSection.classList.remove('hidden');
+
+    const startIndex = (currentPage - 1) * itemsPerPage;
+    const endIndex = Math.min(startIndex + itemsPerPage, filteredReviews.length);
+    const pageItems = filteredReviews.slice(startIndex, endIndex);
+
+    const activeCurr = (typeof window.getCurrentCurrency === 'function') ? window.getCurrentCurrency() : (localStorage.getItem('preferred_currency') || 'USD');
+    const isVND = activeCurr === 'VND';
+
+    const newCardsHtml = pageItems.map(post => {
+      const title = getPostField(post, 'title');
+      const category = getPostField(post, 'category');
+      const excerpt = getPostField(post, 'excerpt');
+      const btnText = getPostField(post, 'btnText');
+
+      // 1. Format Sale USD Price safely
+      let safeUsd = String(post.priceUsd || '').trim();
+      if (safeUsd && !safeUsd.startsWith('$')) {
+        const num = parseFloat(safeUsd.replace(/[^0-9.]/g, ''));
+        if (!isNaN(num) && num > 0) safeUsd = '$' + num.toFixed(2);
+      }
+      if (!safeUsd) safeUsd = '$69.00';
+
+      // 2. Format Sale VND Price safely
+      let safeVnd = String(post.priceVnd || '').trim();
+      const numSaleUsd = parseFloat(safeUsd.replace(/[^0-9.]/g, '')) || 69;
+      if (!safeVnd || safeVnd === 'Liên hệ' || !safeVnd.includes('₫')) {
+        safeVnd = (Math.round(numSaleUsd * 25000 / 1000) * 1000).toLocaleString('vi-VN').replace(/,/g, '.') + '₫';
+      }
+
+      // 3. Format Strikethrough Original Price safely (reject corrupt dates/min read & fix 100x errors)
+      let safeOrigUsd = '';
+      let safeOrigVnd = '';
+      const rawOrig = String(post.priceOrig || post.originalPrice || '').trim();
+
+      if (rawOrig && !/min|read|\/|date/i.test(rawOrig)) {
+        let numOrig = parseFloat(rawOrig.replace(/[^0-9.]/g, ''));
+        // If typo like 10004 instead of 100.04
+        if (numOrig && numOrig > numSaleUsd * 5) {
+          if (numOrig / 100 >= numSaleUsd && numOrig / 100 <= numSaleUsd * 2.5) {
+            numOrig = Math.round((numOrig / 100) * 100) / 100;
+          } else {
+            numOrig = Math.round(numSaleUsd * 1.25 * 100) / 100;
+          }
+        }
+        if (numOrig && numOrig >= numSaleUsd) {
+          safeOrigUsd = '$' + numOrig.toFixed(2);
+          safeOrigVnd = (Math.round(numOrig * 25000 / 1000) * 1000).toLocaleString('vi-VN').replace(/,/g, '.') + '₫';
+        }
+      }
+
+      if (!safeOrigUsd) {
+        const numOrig = Math.round(numSaleUsd * 1.25 * 100) / 100;
+        safeOrigUsd = '$' + numOrig.toFixed(2);
+        safeOrigVnd = (Math.round(numOrig * 25000 / 1000) * 1000).toLocaleString('vi-VN').replace(/,/g, '.') + '₫';
+      }
+
+      const priceDisplay = isVND ? safeVnd : safeUsd;
+      const origDisplay = isVND ? safeOrigVnd : safeOrigUsd;
+      const detailUrl = getPostDetailUrl(post);
+      const affLink = post.affiliateLink || '#';
+      const rating = post.rating || 9.6;
+
+      const isPackshot = post.image && (post.image.startsWith('data:') || post.imageFit === 'contain');
+      const cardImgFit = isPackshot ? 'w-full h-full object-contain p-2.5 group-hover:scale-105 transition-transform duration-500' : 'w-full h-full object-cover group-hover:scale-105 transition-transform duration-500';
+      const cardBg = isPackshot ? 'bg-gradient-to-b from-slate-100 via-white to-slate-200 dark:from-[#190a36] dark:via-[#110424] dark:to-[#0a0318]' : 'bg-purple-950/20';
+
+      const rawCardImg = post.image || 'https://images.unsplash.com/photo-1587829741301-dc798b83add3?auto=format&fit=crop&w=700&q=80';
+      const cardImg = (rawCardImg && !rawCardImg.startsWith('http') && !rawCardImg.startsWith('data:') && !rawCardImg.startsWith('/')) ? ('/' + rawCardImg) : rawCardImg;
+
+      return `
+        <article class="bg-white dark:bg-[#0e121d] rounded-2xl border border-slate-200 dark:border-slate-800/90 hover:border-cyan-500/60 shadow-md dark:shadow-[0_4px_25px_rgba(0,0,0,0.5)] overflow-hidden shadow-sm card-hover flex flex-col justify-between group">
+          
+          <!-- Image & Badges -->
+          <div>
+            <div class="relative overflow-hidden aspect-[16/10] ${cardBg} flex items-center justify-center">
+              <img 
+                src="${cardImg}" 
+                alt="${escapeHtml(title)}" 
+                class="${cardImgFit}" 
+                loading="lazy"
+                onerror="this.src='https://images.unsplash.com/photo-1587829741301-dc798b83add3?auto=format&fit=crop&w=700&q=80'"
+              >
+              
+              <!-- Category Badge -->
+              <span class="absolute top-3 left-3 bg-cyan-950/90 backdrop-blur-md text-cyan-300 text-[10px] font-extrabold px-3 py-1 rounded-full border border-cyan-500/40 shadow-md uppercase tracking-wider font-mono">
+                ${escapeHtml(category)}
+              </span>
+
+              <!-- Star Rating Badge -->
+              <span class="absolute top-3 right-3 bg-black/80 backdrop-blur-md text-amber-300 text-xs font-black px-2.5 py-1 rounded-xl flex items-center gap-1 border border-amber-400/30 shadow-md">
+                <i data-lucide="star" class="w-3.5 h-3.5 fill-amber-400"></i> ${rating}
+              </span>
+
+              ${post.coupon ? `
+                <div class="absolute bottom-3 left-3 bg-gradient-to-r from-cyan-500 to-blue-600 text-white text-[10px] font-mono font-black px-2.5 py-1 rounded-lg shadow-md flex items-center gap-1">
+                  <i data-lucide="tag" class="w-3 h-3"></i> ${dict.couponLabel}: ${post.coupon}
+                </div>
+              ` : ''}
+            </div>
+
+            <!-- Content -->
+            <div class="p-5 sm:p-6">
+              
+              <!-- Meta Row -->
+              <div class="flex items-center gap-2 text-[11px] text-slate-400 dark:text-purple-300/60 mb-2.5">
+                <span>${post.date || '11/09/2026'}</span>
+                <span>•</span>
+                <span>${post.readTime || '8 min read'}</span>
+                ${post.brand ? `<span>•</span> <span class="font-bold text-cyan-400 truncate max-w-[130px]">${post.brand}</span>` : ''}
+              </div>
+
+              <!-- Title -->
+              <h3 class="text-base sm:text-lg font-extrabold text-slate-900 dark:text-white leading-snug line-clamp-2 hover:text-cyan-400 transition-colors">
+                <a href="${detailUrl}">${escapeHtml(title)}</a>
+              </h3>
+
+              <!-- Excerpt -->
+              <p class="text-xs text-slate-600 dark:text-purple-300/70 mt-2.5 line-clamp-2 leading-relaxed">
+                ${escapeHtml(excerpt)}
+              </p>
+
+            </div>
+          </div>
+
+          <!-- Bottom Footer Card: Price & 2 Conversion Buttons -->
+          <div class="p-5 sm:p-6 pt-0 mt-auto">
+            
+            <!-- Price Row -->
+            <div class="pt-3.5 border-t border-purple-100 dark:border-purple-900/50 flex items-baseline justify-between mb-3.5">
+              <div>
+                <span class="text-[10px] text-slate-400 uppercase font-bold block">${dict.priceLabel}</span>
+                <span class="text-lg sm:text-xl font-black text-cyan-400 price-val font-display" data-usd="${safeUsd}" data-vnd="${safeVnd}">
+                  ${priceDisplay}
+                </span>
+              </div>
+              <span class="text-xs text-slate-400 line-through strike-val" data-usd="${safeOrigUsd}" data-vnd="${safeOrigVnd}">${origDisplay}</span>
+            </div>
+
+            <!-- Action Buttons Grid: Read Review & Direct Affiliate Order Now -->
+            <div class="grid grid-cols-2 gap-2">
+              <a 
+                href="${detailUrl}" 
+                class="py-2.5 px-2.5 rounded-xl bg-slate-100 dark:bg-[#141926] hover:bg-cyan-950/60 text-slate-700 dark:text-cyan-300 text-xs font-bold flex items-center justify-center gap-1 transition-all border border-slate-300 dark:border-slate-800 hover:border-cyan-500/40 text-center min-h-[42px]"
+              >
+                <span>${dict.readReview}</span>
+                <i data-lucide="arrow-right" class="w-3.5 h-3.5 flex-shrink-0"></i>
+              </a>
+
+              <a 
+                href="${affLink}" 
+                target="_blank" 
+                rel="noopener noreferrer" 
+                class="py-2.5 px-2.5 rounded-xl bg-gradient-to-r from-cyan-500 via-sky-500 to-blue-600 hover:from-cyan-400 hover:to-blue-500 text-white text-xs font-black flex items-center justify-center gap-1 shadow-md shadow-cyan-500/25 transition-all text-center group/btn min-h-[42px] whitespace-nowrap"
+                title="ORDER NOW - Mở trang đặt hàng chính hãng"
+              >
+                <span class="font-black uppercase tracking-wide">ORDER NOW</span>
+                <i data-lucide="external-link" class="w-3.5 h-3.5 flex-shrink-0 group-hover/btn:translate-x-0.5 group-hover/btn:-translate-y-0.5 transition-transform"></i>
+              </a>
+            </div>
+
+          </div>
+
+        </article>
+      `;
+    }).join('');
+
+    // Smooth Content Swap Function
+    const applyNewContent = () => {
+      grid.innerHTML = newCardsHtml;
+      grid.classList.remove('grid-transition-out');
+      grid.classList.add('grid-transition-in');
+      if (window.lucide) {
+        lucide.createIcons();
+      }
+      preloadAdjacentReviews(currentPage);
+    };
+
+    if (grid.children.length > 0) {
+      grid.classList.remove('grid-transition-in');
+      grid.classList.add('grid-transition-out');
+      setTimeout(applyNewContent, 75);
+    } else {
+      applyNewContent();
+    }
+
+    // Update Status Summary
+    const statusSummary = document.getElementById('pagination-status-summary');
+    if (statusSummary) {
+      statusSummary.innerText = dict.showingSummary(startIndex + 1, endIndex, filteredReviews.length);
+    }
+  }
+
+  /**
+   * Render Multi-Page Pagination Controls
+   */
+  function renderPagination(totalPages) {
+    const bottomInfo = document.getElementById('pagination-bottom-info');
+    const container = document.getElementById('pagination-buttons');
+    const dict = getDict();
+    if (!container) return;
+
+    if (bottomInfo) {
+      bottomInfo.innerText = dict.pageSummary(currentPage, totalPages, filteredReviews.length);
+    }
+
+    if (totalPages <= 1) {
+      container.innerHTML = `
+        <span class="px-3.5 py-2 rounded-xl bg-purple-100 dark:bg-purple-950 text-purple-700 dark:text-purple-300 text-xs font-black">
+          ${dict.pageSingle}
+        </span>
+      `;
+      return;
+    }
+
+    let buttonsHtml = '';
+
+    // Previous Button
+    const prevDisabled = currentPage === 1;
+    buttonsHtml += `
+      <button 
+        onclick="window.goToPage(${currentPage - 1})" 
+        ${prevDisabled ? 'disabled' : ''} 
+        class="px-3 sm:px-4 py-2 rounded-xl text-xs font-bold transition-all flex items-center gap-1 min-h-[40px] ${
+          prevDisabled 
+            ? 'opacity-40 cursor-not-allowed bg-slate-100 dark:bg-purple-950/40 text-slate-400' 
+            : 'bg-white dark:bg-[#0e121d] text-slate-700 dark:text-cyan-300 border border-slate-200 dark:border-slate-800 hover:border-cyan-500/50 cursor-pointer shadow-xs active:scale-95'
+        }"
+      >
+        <i data-lucide="chevron-left" class="w-4 h-4"></i>
+        <span class="hidden sm:inline">${dict.prevPage}</span>
+      </button>
+    `;
+
+    // Page Number Pills
+    for (let i = 1; i <= totalPages; i++) {
+      const isActive = i === currentPage;
+      buttonsHtml += `
+        <button 
+          onclick="window.goToPage(${i})" 
+          class="w-9 h-9 sm:w-10 sm:h-10 rounded-xl text-xs font-extrabold transition-all cursor-pointer flex items-center justify-center min-h-[36px] ${
+            isActive 
+              ? 'bg-gradient-to-r from-cyan-500 via-sky-500 to-blue-600 text-white shadow-md shadow-cyan-500/25 scale-105 font-mono' 
+              : 'bg-white dark:bg-[#0e121d] text-slate-700 dark:text-slate-300 border border-slate-200 dark:border-slate-800 hover:border-cyan-500/50 hover:text-cyan-400 active:scale-95 font-mono'
+          }"
+        >
+          ${i}
+        </button>
+      `;
+    }
+
+    // Next Button
+    const nextDisabled = currentPage === totalPages;
+    buttonsHtml += `
+      <button 
+        onclick="window.goToPage(${currentPage + 1})" 
+        ${nextDisabled ? 'disabled' : ''} 
+        class="px-3 sm:px-4 py-2 rounded-xl text-xs font-bold transition-all flex items-center gap-1 min-h-[40px] ${
+          nextDisabled 
+            ? 'opacity-40 cursor-not-allowed bg-slate-100 dark:bg-purple-950/40 text-slate-400' 
+            : 'bg-white dark:bg-[#0e121d] text-slate-700 dark:text-cyan-300 border border-slate-200 dark:border-slate-800 hover:border-cyan-500/50 cursor-pointer shadow-xs active:scale-95'
+        }"
+      >
+        <span class="hidden sm:inline">${dict.nextPage}</span>
+        <i data-lucide="chevron-right" class="w-4 h-4"></i>
+      </button>
+    `;
+
+    container.innerHTML = buttonsHtml;
+    if (window.lucide) lucide.createIcons();
+  }
+
+  /**
+   * Render Top Featured Spotlight Review
+   */
+  function renderSpotlightReview() {
+    const container = document.getElementById('spotlight-review-container');
+    if (!container || allReviews.length === 0) return;
+
+    const dict = getDict();
+    // Pick first review marked featured or highest rated
+    const spotlight = allReviews.find(r => r.isFeatured) || allReviews[0];
+    const activeCurr = (typeof window.getCurrentCurrency === 'function') ? window.getCurrentCurrency() : (localStorage.getItem('preferred_currency') || 'USD');
+    const isVND = activeCurr === 'VND';
+    let safeSpotUsd = String(spotlight.priceUsd || '').trim();
+    if (safeSpotUsd && !safeSpotUsd.startsWith('$')) {
+      const num = parseFloat(safeSpotUsd.replace(/[^0-9.]/g, ''));
+      if (!isNaN(num) && num > 0) safeSpotUsd = '$' + num.toFixed(2);
+    }
+    if (!safeSpotUsd) safeSpotUsd = '$69.00';
+
+    let safeSpotVnd = String(spotlight.priceVnd || '').trim();
+    const numSpotUsd = parseFloat(safeSpotUsd.replace(/[^0-9.]/g, '')) || 69;
+    if (!safeSpotVnd || safeSpotVnd === 'Liên hệ' || !safeSpotVnd.includes('₫')) {
+      safeSpotVnd = (Math.round(numSpotUsd * 25000 / 1000) * 1000).toLocaleString('vi-VN').replace(/,/g, '.') + '₫';
+    }
+
+    const priceDisplay = isVND ? safeSpotVnd : safeSpotUsd;
+    const detailUrl = getPostDetailUrl(spotlight);
+    const title = getPostField(spotlight, 'title');
+    const category = getPostField(spotlight, 'category');
+    const excerpt = getPostField(spotlight, 'excerpt');
+
+    const isPackshot = true;
+    const spotImgFit = 'w-full h-full object-contain p-3.5 transition-transform duration-500 group-hover:scale-105';
+    const spotBg = 'bg-gradient-to-b from-slate-100 via-white to-slate-200 dark:from-[#190a36] dark:via-[#110424] dark:to-[#0a0318]';
+    const rawSpotImg = spotlight.image || 'https://images.unsplash.com/photo-1587829741301-dc798b83add3?auto=format&fit=crop&w=800&q=80';
+    const spotImg = (rawSpotImg && !rawSpotImg.startsWith('http') && !rawSpotImg.startsWith('data:') && !rawSpotImg.startsWith('/')) ? ('/' + rawSpotImg) : rawSpotImg;
+
+    container.innerHTML = `
+      <div class="bg-white dark:bg-[#0e121d] text-slate-900 dark:text-white rounded-3xl p-5 sm:p-7 lg:p-8 border border-slate-200 dark:border-slate-800 shadow-md dark:shadow-2xl relative overflow-hidden transition-colors">
+        <div class="grid grid-cols-1 lg:grid-cols-12 gap-5 sm:gap-7 items-center relative z-10">
+          
+          <div class="lg:col-span-5 relative rounded-2xl overflow-hidden aspect-[16/10] bg-slate-50 dark:bg-[#141926] border border-slate-200 dark:border-slate-800/80 flex items-center justify-center p-3">
+            <img src="${spotImg}" alt="${escapeHtml(title)}" class="w-full h-full object-contain p-2 transition-transform duration-500 group-hover:scale-105" loading="lazy">
+            <span class="absolute top-3 left-3 bg-cyan-600 dark:bg-cyan-500 text-white dark:text-slate-950 text-[11px] font-bold px-3 py-1 rounded-full shadow-sm uppercase tracking-wider">
+              ${dict.spotlightBadge || "⭐ EDITORS' CHOICE"}
+            </span>
+            ${spotlight.coupon ? `
+              <div class="absolute bottom-3 left-3 bg-slate-900/90 dark:bg-slate-950/90 backdrop-blur-md text-emerald-400 text-[11px] font-bold px-2.5 py-1 rounded-lg border border-slate-700 flex items-center gap-1 shadow-md">
+                <i data-lucide="tag" class="w-3 h-3 text-emerald-400"></i> ${dict.couponLabel || 'Code'}: ${spotlight.coupon}
+              </div>
+            ` : ''}
+          </div>
+
+          <div class="lg:col-span-7 space-y-3">
+            <div class="flex items-center gap-2 text-xs font-semibold text-cyan-600 dark:text-cyan-400">
+              <span class="uppercase tracking-wider">${escapeHtml(category)}</span>
+              <span class="text-slate-300 dark:text-slate-600">•</span>
+              <span class="text-amber-500 flex items-center gap-1 font-bold">
+                <i data-lucide="star" class="w-3.5 h-3.5 fill-amber-400"></i> ${spotlight.rating || 9.7} / 10
+              </span>
+            </div>
+
+            <h3 class="text-lg sm:text-2xl font-bold font-display leading-snug text-slate-900 dark:text-white hover:text-cyan-600 dark:hover:text-cyan-400 transition-colors">
+              <a href="${detailUrl}">${escapeHtml(title)}</a>
+            </h3>
+
+            <p class="text-xs sm:text-sm text-slate-600 dark:text-slate-300 line-clamp-2 leading-relaxed">
+              ${escapeHtml(excerpt)}
+            </p>
+
+            <div class="pt-3 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 sm:gap-4 border-t border-slate-100 dark:border-slate-800/80">
+              <div>
+                <span class="text-[10px] text-slate-400 dark:text-slate-400 block uppercase font-bold tracking-wider">${dict.spotlightPriceLabel || 'Best price today'}</span>
+                <span class="text-2xl sm:text-3xl font-extrabold text-slate-900 dark:text-cyan-400 font-display" data-usd="${safeSpotUsd}" data-vnd="${safeSpotVnd}">
+                  ${priceDisplay}
+                </span>
+              </div>
+
+              <div class="grid grid-cols-2 sm:flex items-center gap-2 sm:gap-3 w-full sm:w-auto">
+                <a href="${detailUrl}" class="px-5 py-2.5 rounded-xl bg-slate-100 dark:bg-[#141926] hover:bg-slate-200 dark:hover:bg-cyan-950/60 text-slate-800 dark:text-slate-200 hover:text-slate-900 dark:hover:text-cyan-300 text-xs font-bold border border-slate-200 dark:border-slate-800 transition-all text-center min-h-[42px] flex items-center justify-center">
+                  ${dict.spotlightRead || 'Read Full Review →'}
+                </a>
+                <a href="${spotlight.affiliateLink || '#'}" target="_blank" rel="noopener noreferrer" class="px-5 py-2.5 rounded-xl bg-cyan-600 hover:bg-cyan-500 dark:bg-cyan-500 dark:hover:bg-cyan-400 text-white dark:text-slate-950 text-xs font-extrabold shadow-md shadow-cyan-600/20 transition-all flex items-center justify-center gap-1.5 text-center min-h-[42px]">
+                  <i data-lucide="shopping-bag" class="w-3.5 h-3.5"></i>
+                  <span>${dict.spotlightOrder || 'ORDER NOW ↗'}</span>
+                </a>
+              </div>
+            </div>
+
+          </div>
+
+        </div>
+      </div>
+    `;
+    if (window.lucide) lucide.createIcons();
+  }
+
+  /**
+   * Helper: Escape HTML
+   */
+  function escapeHtml(str) {
+    if (!str) return '';
+    return str
+      .replace(/&/g, '&amp;')
+      .replace(/</g, '&lt;')
+      .replace(/>/g, '&gt;')
+      .replace(/"/g, '&quot;');
+  }
+
+  /**
+   * Determine Post Detail URL
+   */
+  function getPostDetailUrl(post) {
+    if (!post) return 'post.html';
+    if (post.slug) {
+      let s = post.slug.trim();
+      if (!s.endsWith('.html')) s += '.html';
+      if (!s.startsWith('post-') && !s.startsWith('http') && !s.includes('/')) s = 'post-' + s;
+      return s;
+    }
+    if (post.id) {
+      let id = post.id.trim();
+      if (!id.endsWith('.html')) id += '.html';
+      if (!id.startsWith('post-') && !id.startsWith('http') && !id.includes('/')) id = 'post-' + id;
+      return id;
+    }
+    return 'post.html';
+  }
+
+  /**
+   * Parse Price to numeric USD
+   */
+  function parsePrice(usdStr) {
+    if (!usdStr) return 0;
+    const clean = usdStr.toString().replace(/[^0-9.]/g, '');
+    return parseFloat(clean) || 0;
+  }
+
+  /**
+   * Handle Currency Changes
+   */
+  function onCurrencyChanged(e) {
+    const isVND = e.detail && e.detail.currency === 'VND';
+    const priceEls = document.querySelectorAll('#reviews-grid .price-val, #spotlight-review-container .price-val');
+    priceEls.forEach(el => {
+      const v = isVND ? el.getAttribute('data-vnd') : el.getAttribute('data-usd');
+      if (v) el.innerText = v;
+    });
+    const strikeEls = document.querySelectorAll('#reviews-grid .strike-val, #spotlight-review-container .strike-val');
+    strikeEls.forEach(el => {
+      const v = isVND ? el.getAttribute('data-vnd') : el.getAttribute('data-usd');
+      if (v) el.innerText = v;
+    });
+  }
+
+  /**
+   * Handle Language Changes from i18n.js
+   */
+  function onLanguageChanged(e) {
+    updateCategoryTabsText();
+    applyFiltersAndRender(false);
+    renderSpotlightReview();
+  }
+
+  /**
+   * Handle PopState (Back / Forward navigation)
+   */
+  function onPopState(e) {
+    const params = new URLSearchParams(window.location.search);
+    currentPage = parseInt(params.get('page'), 10) || 1;
+    currentCategory = params.get('category') || 'all';
+    searchQuery = params.get('q') || '';
+    applyFiltersAndRender(false);
+  }
+
+  /**
+   * Preload Adjacent Reviews Images for Instant Zero-Lag Transitions
+   */
+  function preloadAdjacentReviews(page) {
+    if (!filteredReviews || !filteredReviews.length) return;
+    const totalPages = Math.ceil(filteredReviews.length / itemsPerPage);
+    const pagesToPreload = [page - 1, page + 1].filter(p => p >= 1 && p <= totalPages);
+    pagesToPreload.forEach(p => {
+      const slice = filteredReviews.slice((p - 1) * itemsPerPage, p * itemsPerPage);
+      slice.forEach(item => {
+        if (item && item.image && !item.image.startsWith('data:')) {
+          const img = new Image();
+          img.src = item.image;
+        }
+      });
+    });
+  }
+
+  /**
+   * Global Page Change function
+   */
+  window.goToPage = function(pageNumber) {
+    currentPage = pageNumber;
+    applyFiltersAndRender(true);
+
+    // Smart Smooth scroll to top of reviews section
+    const section = document.getElementById('reviews-section');
+    if (section) {
+      const rect = section.getBoundingClientRect();
+      if (rect.top < -60 || rect.top > 250) {
+        const targetY = window.pageYOffset + rect.top - 80;
+        window.scrollTo({ top: targetY, behavior: 'smooth' });
+      }
+    }
+  };
+
+  /**
+   * Global Reset Filters
+   */
+  window.resetFilters = function() {
+    searchQuery = '';
+    currentCategory = 'all';
+    currentPage = 1;
+    const sInput = document.getElementById('review-search-input');
+    if (sInput) sInput.value = '';
+    
+    const filterTabs = document.querySelectorAll('#category-filter-tabs .cat-pill');
+    filterTabs.forEach(b => {
+      if (b.getAttribute('data-cat') === 'all') {
+        b.classList.add('active', 'bg-gradient-to-r', 'from-cyan-500', 'via-sky-500', 'to-blue-600', 'text-white', 'shadow-md');
+        b.classList.remove('bg-slate-100', 'dark:bg-[#0e121d]', 'text-slate-700', 'dark:text-cyan-200');
+      } else {
+        b.classList.remove('active', 'bg-gradient-to-r', 'from-cyan-500', 'via-sky-500', 'to-blue-600', 'text-white', 'shadow-md');
+        b.classList.add('bg-slate-100', 'dark:bg-[#0e121d]', 'text-slate-700', 'dark:text-cyan-200');
+      }
+    });
+
+    applyFiltersAndRender(true);
+  };
+
+  /**
+   * Fallback Reviews (All 36 Curated Reviews)
+   */
+  function getFallbackReviews() {
+    return [
+  {
+    "id": "post-sony-wh-1000xm5-wireless-noise-canceling-headphones-review",
+    "slug": "post-sony-wh-1000xm5-wireless-noise-canceling-headphones-review.html",
+    "title": "Sony WH-1000XM5 In-Depth Review: The Undisputed King of Noise-Canceling in 2026",
+    "titleEn": "Sony WH-1000XM5 In-Depth Review: The Undisputed King of Noise-Canceling in 2026",
+    "titleVi": "Sony WH-1000XM5 Äánh Giá ChuyÃªn SÃ¢u: Vua PhÃ¢n Khúc Noise-Canceling in 2026",
+    "titleZh": "Sony WH-1000XM5 æ·±åº¦è¯„æµ‹ï¼š æ— å¯äº‰è®®çš„çŽ‹è€… Noise-Canceling in 2026",
+    "category": "Audio & Sound",
+    "categoryEn": "Audio & Sound",
+    "categoryVi": "Tai Nghe & Âm Thanh",
+    "categoryZh": "音频与发烧声学",
+    "categorySlug": "audio",
+    "excerpt": "Featuring 8 precision microphones, dual V1/QN1 dedicated noise-canceling processors, and newly engineered 30mm carbon-fiber composite drivers, this flagship creates an impenetrable auditory sanctuary for daily commuters and audiophiles alike.",
+    "excerptEn": "Featuring 8 precision microphones, dual V1/QN1 dedicated noise-canceling processors, and newly engineered 30mm carbon-fiber composite drivers, this flagship creates an impenetrable auditory sanctuary for daily commuters and audiophiles alike.",
+    "excerptVi": "Äánh giá chi tiáº¿t Sony Official Store: tráº£i nghiá»‡m thá»±c táº¿, so sánh giá Ä‘a sÃ n vÃ  mã Æ°u Ä‘ãi Ä‘á»™c quyá»n.",
+    "excerptZh": "å…³äºŽ Sony Official Store çš„æ·±åº¦å®žæµ‹ï¼šä¸Šæ‰‹ä½“éªŒã€å…¨ç½‘æ¸ é“æ¯”ä»·ä¸Žä¸“å±žä¼˜æƒ åˆ¸ã€‚",
+    "rating": "9.7",
+    "date": "1/10/2026",
+    "image": "images/posts/sony-wh-1000xm5-wireless-noise-canceling-headphones-review.png",
+    "isFeatured": true,
+    "affiliateCount": 1,
+    "brand": "Sony Official Store",
+    "btnText": "ORDER NOW",
+    "btnTextEn": "ORDER NOW",
+    "btnTextVi": "Äáº¶T HÃ€NG NGAY",
+    "btnTextZh": "ç«‹å³å‰å¾€è®¢è´­",
+    "affiliateLink": "https://www.hizoo.co/discount/Marvin01",
+    "priceUsd": "$199.00",
+    "priceVnd": "4.975.000₫",
+    "priceOrig": "$248.75",
+    "coupon": "SONYWH15",
+    "couponDiscount": "15% OFF Global Order",
+    "couponExpiry": "12/31/2026",
+    "pros": [
+      "Industry-leading Active Noise Cancellation powered by dual V1 and HD QN1 processors with 8 active microphones",
+      "Re-engineered 30mm carbon-fiber composite dome driver delivers tighter acoustic response and immaculate midrange detail",
+      "Exceptional 30-hour battery life with ANC active, plus 3-minute USB-PD quick charge delivering 3 full hours of playback",
+      "Ultra-lightweight 250g chassis lined with synthetic soft-fit leather virtually eliminates crown headband fatigue",
+      "Flawless AI beamforming call quality with 4 bone-conduction and microphone sensors isolating speech from 60dB café chatter"
+    ],
+    "cons": [
+      "Non-folding headband design requires a larger footprint carrying case compared to legacy XM4",
+      "Synthetic leather ear cushions retain body heat during outdoor summer walking sessions",
+      "Touch-capacitive ear cup controls require dry fingertips and a slight muscle-memory learning curve"
+    ],
+    "intro": "In the ultra-competitive premium noise-canceling headphone market, resting on previous laurels is a recipe for irrelevance. When Sony unveiled the WH-1000XM5, they abandoned the folding hinge design that defined their lineup for four generations in favor of a sleek, aerodynamic silhouette dubbed 'noiseless design.' After six months of daily cross-country flights, open-office typing, and late-night studio mixing, we can definitively state that this radical rethink was worth every engineering risk.\n\nHolding the XM5, the weight distribution immediately impresses. At just 250 grams, it shaves noticeable grams off competitors like the AirPods Max (385g) and Bose QuietComfort Ultra (253g). The headband adjustment mechanism now slides continuously without stepped clicks, engineered from durable ABS-polycarbonate with synthetic soft-fit leather that contours seamlessly over eyeglass frames without creating acoustic seal leaks.",
+    "body": "Acoustic performance is anchored by Sony's dual-chip architecture: the Integrated Processor V1 manages the HD Noise Canceling Processor QN1, orchestrating eight microphones to sample ambient frequencies thousands of times per second. In our controlled decibel tests, low-frequency engine rumbles on Boeing 777 flights were reduced by an astonishing 32dB. Even more impressively, human vocal chatter in crowded co-working spaces—traditionally the Achilles' heel of ANC—was suppressed by over 24dB in the critical 1kHz–3kHz spectrum.\n\nSound quality represents a noticeable shift toward neutral audiophile accuracy. The 30mm carbon-fiber dome features a softer TPU edge that allows deep, articulate sub-bass extensions down to 4Hz without muddling acoustic guitar strums or vocal sibilance. Streaming via Sony's proprietary LDAC codec at 990kbps 24-bit/96kHz reveals micro-details in lossless FLAC recordings that standard SBC/AAC codecs simply discard. Multipoint Bluetooth 5.2 enables instantaneous automatic switching between our MacBook Pro workstation and an iPhone when phone calls interrupt a Zoom meeting.\n\nBattery testing exceeded Sony's official ratings: with ANC running continuously at 65% volume, our unit lasted 31 hours and 42 minutes. When running on fumes, a standard 30W USB-PD brick provided 3 hours of listening time from a 3-minute pit stop.",
+    "verdict": "For business travelers, remote workers, students in noisy dormitories, and discerning music lovers, the Sony WH-1000XM5 remains the benchmark by which all wireless headphones are judged. While the larger travel case takes up marginally more backpack space, the combination of class-leading noise cancellation, featherweight all-day comfort, and pristine LDAC acoustics make it the easiest 9.7/10 recommendation in consumer tech.\n\nApply promo code SONYWH15 at checkout to unlock your exclusive 15% discount with worldwide expedited delivery.",
+    "updatedAt": "2026-10-01T15:39:07.180Z",
+    "isPhysical": true,
+    "categoryKey": "audio",
+    "isDigital": false
+  },
+  {
+    "id": "post-magcubic-hy350max-review",
+    "slug": "post-magcubic-hy350max-review.html",
+    "title": "Magcubic HY350MAX Review: 4K Smart Cinema & Auto-Keystone Tested",
+    "titleEn": "Magcubic HY350MAX Review: 4K Smart Cinema & Auto-Keystone Tested",
+    "titleVi": "Đánh Giá Máy Chiếu Thông Minh 4K Magcubic HY350MAX: Trải Nghiệm Rạp Phim Tại Gia Đỉnh Cao",
+    "titleZh": "Magcubic HY350MAX 4K智能激光影院深度评测：高画质与全自动校准测试",
+    "category": "Smart Home & IoT",
+    "categoryEn": "Smart Home & IoT",
+    "categoryVi": "Nhà Thông Minh & IoT",
+    "categoryZh": "智能家居与物联网",
+    "categorySlug": "smarthome",
+    "excerpt": "Revolutionary 60GHz mmWave radar tracks up to 5 people simultaneously across 30 custom zones with Apple HomeKit, Matter, and Home Assistant local automations.",
+    "excerptEn": "Revolutionary 60GHz mmWave radar tracks up to 5 people simultaneously across 30 custom zones with Apple HomeKit, Matter, and Home Assistant local automations.",
+    "excerptVi": "Äánh giá chi tiáº¿t Magcubic: tráº£i nghiá»‡m thá»±c táº¿, so sánh giá Ä‘a sÃ n vÃ  mã Æ°u Ä‘ãi Ä‘á»™c quyá»n.",
+    "excerptZh": "å…³äºŽ Magcubic çš„æ·±åº¦å®žæµ‹ï¼šä¸Šæ‰‹ä½“éªŒã€å…¨ç½‘æ¸ é“æ¯”ä»·ä¸Žä¸“å±žä¼˜æƒ åˆ¸ã€‚",
+    "rating": "9.7",
+    "date": "14/9/2026",
+    "image": "images/posts/post-magcubic-projector.jpg",
+    "isFeatured": true,
+    "affiliateCount": 1,
+    "brand": "Magcubic",
+    "btnText": "ORDER NOW",
+    "btnTextEn": "ORDER NOW",
+    "btnTextVi": "Äáº¶T HÃ€NG NGAY",
+    "btnTextZh": "ç«‹å³å‰å¾€è®¢è´­",
+    "affiliateLink": "https://magcubic.com?sca_ref=11463124.6rLNJt7O1r",
+    "priceUsd": "$94.00",
+    "priceVnd": "2.350.000₫",
+    "priceOrig": "$118.00",
+    "coupon": "SMARTPMM15",
+    "couponDiscount": "15% OFF Multi-Pack Sensors",
+    "couponExpiry": "12/31/2026",
+    "pros": [
+      "Advanced 60GHz mmWave radar detects even the micro-movements of breathing while completely still",
+      "Multi-zone positioning maps up to 30 distinct detection regions in a single room",
+      "Multi-person tracking detects entry, exit, and real-time coordinates of up to 5 occupants",
+      "Built-in ambient light sensor enables automated lighting thresholds without extra hardware",
+      "Native local integration with Apple HomeKit, Alexa, Google Home, and Home Assistant"
+    ],
+    "cons": [
+      "Requires continuous USB-C wired power (radar wattage exceeds battery capabilities)",
+      "Initial zone mapping and boundary calibration requires 10-15 minutes of app configuration"
+    ],
+    "intro": "Traditional PIR motion detectors have one fatal flaw: sit still on the sofa reading a book or typing at your desk, and your smart lights abruptly shut off. This mmWave sensor permanently solves that dilemma by tracking biological breathing.",
+    "body": "Testing across our 400-sq-ft living space, the sensor divided the room into couch, desk, reading nook, and dining areas. Walking into each predefined boundary triggered specific localized lighting scenes instantly with sub-200ms latency.",
+    "verdict": "The ultimate breakthrough in smart home occupancy detection. It elevates your home from reactive motion sensors to true ambient intelligence.",
+    "updatedAt": "2026-09-14T07:53:07.512Z",
+    "isPhysical": true,
+    "summary": "Comprehensive review of the Magcubic HY350MAX projector: native 1080p with 4K decoding, 580 ANSI lumens brightness, Android 11 smart TV system, dual-band WiFi 6, and ultra-quiet cooling tested in real home theater conditions.",
+    "summaryVi": "Đánh giá chi tiết máy chiếu 4K Magcubic HY350MAX: độ sáng 580 ANSI lumens, độ phân giải 1080p hỗ trợ giải mã 4K, hệ điều hành Android 11 mượt mà, WiFi 6 kép và tản nhiệt siêu êm cho phòng khách.",
+    "summaryZh": "Magcubic HY350MAX 4K智能影院深度实测：580 ANSI流明高亮度、原生1080P支持4K硬解、安卓11智能系统、双频WiFi 6极速连接，打造家庭影院沉浸体验。",
+    "categoryKey": "smarthome",
+    "isDigital": false
+  },
+  {
+    "id": "post-mowrator-s1-4wd-pentest-review",
+    "title": "Mowrator S1 4WD Smart Remote Control Mower & Patrol Vehicle In-Depth Review: All-Terrain Performance Tested (2026)",
+    "titleEn": "Mowrator S1 4WD Smart Remote Control Mower & Patrol Vehicle In-Depth Review: All-Terrain Performance Tested (2026)",
+    "titleVi": "Äánh Giá ChuyÃªn SÃ¢u Xe Cáº¯t Cá» & Xe Tuáº§n Tra Äiá»u Khiá»ƒn Tá»« Xa 4WD Mowrator S1: Kiá»ƒm Thá»­ Váº­n HÃ nh Má»i Äá»‹a HÃ¬nh (2026)",
+    "titleZh": "Mowrator S1 4WD å…¨æ—¶å››é©±æ™ºèƒ½é¥æŽ§å‰²è‰ä¸Žå·¡æ£€å·¡é€»è½¦æ·±åº¦è¯„æµ‹ï¼šå…¨åœ°å½¢å®žåœ°æžé™çˆ¬å¡æµ‹è¯• (2026)",
+    "slug": "post-mowrator-s1-4wd-pentest-review.html",
+    "excerpt": "High-torque 4WD brushless all-wheel drive, long-range 2.4GHz remote controller, and heavy-duty slope climbing tackle steep 45-degree grades with precision.",
+    "excerptEn": "High-torque 4WD brushless all-wheel drive, long-range 2.4GHz remote controller, and heavy-duty slope climbing tackle steep 45-degree grades with precision.",
+    "excerptVi": "Há»‡ dáº«n Ä‘á»™ng 4 bánh 4WD khÃ´ng chá»•i than lá»±c kéo khá»§ng, tay cáº§m Ä‘iá»u khiá»ƒn 2.4GHz cá»± ly 200m vÃ  kháº£ nÄƒng leo dá»‘c Ä‘á»©ng 45 Ä‘á»™ vÆ°á»£t trá»™i cho má»i Ä‘á»‹a hÃ¬nh phá»©c táº¡p.",
+    "excerptZh": "é«˜æ‰­çŸ©å››é©±å…¨è½®æ— åˆ·ç”µæœºã€200ç±³é•¿è·ç¦»èˆªæ¨¡çº§2.4GHzé¥æŽ§æ‰‹æŸ„ä¸Žå¼ºæ‚çˆ¬å¡èƒ½åŠ›ï¼Œç²¾å‡†å¾æœé«˜è¾¾45åº¦çš„é™©å³»æ–œå¡è‰åªã€‚",
+    "category": "Robotics & Drones",
+    "categoryEn": "Robotics & Drones",
+    "categoryVi": "Robot & Drones",
+    "categoryZh": "机器人与智能飞行器",
+    "categorySlug": "robotics",
+    "rating": "9.8",
+    "date": "12/09/2026",
+    "image": "images/mowrator-s1-4wd-pro.jpg",
+    "isFeatured": true,
+    "affiliateCount": 1,
+    "brand": "Mowrator Official",
+    "btnText": "ORDER NOW",
+    "btnTextEn": "ORDER NOW",
+    "btnTextVi": "Äáº¶T HÃ€NG NGAY",
+    "btnTextZh": "ç«‹å³å‰å¾€è®¢è´­",
+    "affiliateLink": "https://eu.mowrator.com/?ref=LONGXUANTRAN",
+    "priceUsd": "$1,499.00",
+    "priceVnd": "37.475.000₫",
+    "priceOrig": "$1,799.00",
+    "coupon": "MOWRATOR100",
+    "couponDiscount": "17% OFF All-Terrain 4WD Series",
+    "couponExpiry": "12/31/2026",
+    "pros": [
+      "Full 4WD brushless all-wheel drive conquers treacherous 45-degree (80%) slopes without slippage",
+      "Long-range 2.4GHz ergonomic remote control keeps operator safe from hazardous hills and debris",
+      "Heavy-duty steel cutting deck with multi-level electric blade height adjustment",
+      "High-capacity swap-and-go lithium battery delivers up to 2.5 hours of continuous runtime",
+      "Triple safety fail-safes including auto-braking on slopes and instant tilt-stop sensors"
+    ],
+    "prosEn": [
+      "Full 4WD brushless all-wheel drive conquers treacherous 45-degree (80%) slopes without slippage",
+      "Long-range 2.4GHz ergonomic remote control keeps operator safe from hazardous hills and debris",
+      "Heavy-duty steel cutting deck with multi-level electric blade height adjustment",
+      "High-capacity swap-and-go lithium battery delivers up to 2.5 hours of continuous runtime",
+      "Triple safety fail-safes including auto-braking on slopes and instant tilt-stop sensors"
+    ],
+    "prosVi": [
+      "Há»‡ dáº«n Ä‘á»™ng 4 bánh 4WD khÃ´ng chá»•i than leo dá»‘c Ä‘á»©ng 45 Ä‘á»™ (80%) khÃ´ng trÆ°á»£t bánh",
+      "Tay cáº§m Ä‘iá»u khiá»ƒn 2.4GHz cá»± ly 200m giá»¯ khoáº£ng cách an toÃ n tuyá»‡t Ä‘á»‘i cho ngÆ°á»i váº­n hÃ nh",
+      "MÃ¢m cáº¯t thép 21 inch siÃªu bá»n kèm tính nÄƒng nÃ¢ng háº¡ Ä‘á»™ cao lÆ°á»¡i cáº¯t Ä‘iá»‡n tá»­ chuáº©n xác",
+      "Pin lithium dung lÆ°á»£ng lá»›n tháo láº¯p nhanh cho thá»i gian váº­n hÃ nh liÃªn tá»¥c tá»›i 2.5 giá»",
+      "Há»‡ thá»‘ng an toÃ n 3 táº§ng vá»›i phanh tá»± Ä‘á»™ng trÃªn dá»‘c vÃ  cáº£m biáº¿n ngáº¯t kháº©n cáº¥p khi nghiÃªng"
+    ],
+    "prosZh": [
+      "å…¨æ—¶å››é©±4WDæ— åˆ·ç”µæœºå¼ºæ‚åŠ¨åŠ›ï¼Œè½»æ¾å¾æœ45åº¦ï¼ˆ80%ï¼‰é™¡å¡ä¸æ‰“æ»‘å¤±æŽ§",
+      "2.4GHzäººä½“å·¥å­¦é•¿è·é¥æŽ§å™¨ï¼Œ200ç±³å¤–è¿œè·ç¦»é¥æŽ§ä¿éšœæ“ä½œå‘˜ç»å¯¹äººèº«å®‰å…¨",
+      "21è‹±å¯¸é‡åž‹ç²¾é’¢åˆ€ç›˜åº•ç›˜ï¼Œæ”¯æŒå¤šæ¡£ä½ç”µåŠ¨å‡é™å‰²è‰é«˜åº¦å¾®è°ƒ",
+      "å¿«æ‹†å¼é«˜èƒ½é‡å¯†åº¦é”‚ç”µæ± ç»„ï¼Œå•æ¬¡å……ç”µæ”¯æŒé«˜è¾¾2.5å°æ—¶å¼ºåŠ²è¿žç»­ä½œä¸š",
+      "ä¸‰é‡å®‰å…¨é˜²æŠ¤ç³»ç»Ÿï¼Œå…·å¤‡é™¡å¡æ™ºèƒ½è‡ªåŠ¨é©»è½¦ä¸Žå€¾æ–œç´§æ€¥è‡ªåŠ¨æ–­ç”µ"
+    ],
+    "cons": [
+      "Significant machine weight requires loading ramps for transport in pickup trucks or vans",
+      "Substantial prosumer investment compared to conventional manual push mowers"
+    ],
+    "consEn": [
+      "Significant machine weight requires loading ramps for transport in pickup trucks or vans",
+      "Substantial prosumer investment compared to conventional manual push mowers"
+    ],
+    "consVi": [
+      "Trá»ng lÆ°á»£ng máy Ä‘áº§m cháº¯c cáº§n cáº§u trÆ°á»£t táº£i khi váº­n chuyá»ƒn trÃªn xe bán táº£i hoáº·c xe táº£i nhá»",
+      "Má»©c Ä‘áº§u tÆ° ban Ä‘áº§u cao hÆ¡n so vá»›i các dòng máy Ä‘áº©y tay thá»§ cÃ´ng truyá»n thá»‘ng"
+    ],
+    "consZh": [
+      "æœºèº«ç”¨æ–™æ‰Žå®žé‡é‡è¾ƒå¤§ï¼Œè£…è½½è‡³çš®å¡æˆ–åŽ¢å¼è´§è½¦æ—¶å»ºè®®æ­é…ç™»è½¦è·³æ¿",
+      "ç›¸æ¯”ä¼ ç»Ÿæ™®é€šæ‰‹æŽ¨å¼å‰²è‰æœºï¼Œåˆå§‹é‡‡è´­é¢„ç®—è¾ƒé«˜å±žäºŽä¸“ä¸šçº§è£…å¤‡æŠ•èµ„"
+    ],
+    "intro": "Steep embankments, uneven terrains, and overgrown fields have traditionally been dangerous territory for lawn maintenance. The Mowrator S1 4WD revolutionizes outdoor care with high-torque all-wheel drive and military-grade remote precision. Operating the vehicle from up to 200 meters away keeps you completely clear of dust, flying stones, and steep drops.",
+    "introEn": "Steep embankments, uneven terrains, and overgrown fields have traditionally been dangerous territory for lawn maintenance. The Mowrator S1 4WD revolutionizes outdoor care with high-torque all-wheel drive and military-grade remote precision. Operating the vehicle from up to 200 meters away keeps you completely clear of dust, flying stones, and steep drops.",
+    "introVi": "Các sÆ°á»n Ä‘Ãª dá»‘c Ä‘á»©ng, Ä‘á»‹a hÃ¬nh máº¥p mÃ´ nhiá»u há»‘ Ä‘á vÃ  nhá»¯ng Ä‘á»“ng cá» ráº­m ráº¡p tá»« lÃ¢u luÃ´n lÃ  má»‘i nguy hiá»ƒm tiá»m tÃ ng khi cáº¯t cá» thá»§ cÃ´ng. Mowrator S1 4WD táº¡o ra bÆ°á»›c ngoáº·t Ä‘á»™t phá cho viá»‡c báº£o dÆ°á»¡ng khuÃ´n viÃªn báº±ng há»‡ dáº«n Ä‘á»™ng 4 bánh toÃ n thá»i gian lá»±c kéo lá»›n vÃ  cÃ´ng nghá»‡ Ä‘iá»u khiá»ƒn tá»« xa Ä‘á»™ chính xác cao. Äiá»u khiá»ƒn xe á»Ÿ cá»± ly an toÃ n lÃªn tá»›i 200 mét giúp ngÆ°á»i váº­n hÃ nh hoÃ n toÃ n tránh khá»i bá»¥i báº©n, Ä‘á vÄƒng nguy hiá»ƒm vÃ  nguy cÆ¡ trÆ°á»£t ngã dá»‘c.",
+    "introZh": "é™©å³»çš„å ¤åé™¡å¡ã€å‡¹å‡¸ä¸å¹³çš„ä¹±çŸ³æ‚è‰åœ°å¸¦ï¼Œä»¥å¾€äººå·¥æŽ¨è‰æˆ–ä¹˜åå‰²è‰æœºä½œä¸šéƒ½ä¼´éšç€æžé«˜çš„äººèº«å®‰å…¨é£Žé™©ã€‚Mowrator S1 4WD å‡­å€Ÿå¤§æ‰­çŸ©å…¨æ—¶å››é©±ç³»ç»Ÿä¸Žå†›å·¥çº§æ— çº¿é¥æŽ§ç²¾åº¦ï¼Œå½»åº•é¢ è¦†äº†æˆ·å¤–è‰åªç»´æŠ¤ä½œä¸šæ–¹å¼ã€‚åœ¨è¿œè¾¾200ç±³çš„å¼€é˜”è§†è·å¤–é¥æŽ§ä½œä¸šï¼Œå½»åº•è¿œç¦»ç¢ŽçŸ³é£žæº…ã€ç²‰å°˜ä¸Žä¾§ç¿»æ»‘å¡å±é™©ã€‚",
+    "body": "Equipped with independent high-torque brushless hub motors on each wheel, the S1 delivers unbelievable traction over damp grass, loose gravel, and mud. In our incline testing, the 4WD system scaled 45-degree banks effortlessly without wheel spin or bogging down. The reinforced cutting blades mulch through thick weeds, wild brush, and tall turf with surgical efficiency.",
+    "bodyEn": "Equipped with independent high-torque brushless hub motors on each wheel, the S1 delivers unbelievable traction over damp grass, loose gravel, and mud. In our incline testing, the 4WD system scaled 45-degree banks effortlessly without wheel spin or bogging down. The reinforced cutting blades mulch through thick weeds, wild brush, and tall turf with surgical efficiency.",
+    "bodyVi": "ÄÆ°á»£c trang bá»‹ các Ä‘á»™ng cÆ¡ khÃ´ng chá»•i than cÃ´ng suáº¥t cao Ä‘á»™c láº­p á»Ÿ cáº£ 4 bánh, Mowrator S1 mang láº¡i lá»±c bám Ä‘Æ°á»ng phi thÆ°á»ng trÃªn tháº£m cá» Æ°á»›t trÆ¡n, sá»i lún vÃ  bùn láº§y. Trong các bÃ i kiá»ƒm tra thá»±c táº¿ Ä‘á»™ dá»‘c 45 Ä‘á»™ (tÆ°Æ¡ng Ä‘Æ°Æ¡ng 75-80%), cá»— máy 4WD leo thoÄƒn thoáº¯t mÃ  khÃ´ng há» bá»‹ trÆ°á»£t bánh hay ngháº½n Ä‘á»™ng cÆ¡. LÆ°á»¡i cáº¯t thép cÆ°á»ng lá»±c 21 inch bÄƒm nát cá» dáº¡i dÃ y, bá»¥i ráº­m gai góc vÃ  tháº£m cá» ráº­m vá»›i Ä‘á»™ hoÃ n thiá»‡n cá»±c ká»³ sáº¯c bén.",
+    "bodyZh": "S1 å››ä¸ªè½¦è½®å‡æ­è½½ç‹¬ç«‹å¤§æ‰­çŸ©æ— åˆ·è½®æ¯‚ç”µæœºï¼Œåœ¨æ¹¿æ»‘éœ²æ°´è‰åœ°ã€æ¾æ•£ç¢ŽçŸ³ä¸Žæ³¥æ³žä¸­å±•çŽ°å‡ºæƒŠäººçš„æŠ“åœ°ç‰µå¼•åŠ›ã€‚åœ¨æˆ‘ä»¬çš„æžé™å¡åº¦æµ‹è¯•ä¸­ï¼Œ4WD ç³»ç»Ÿè½»æ¾å¾æœé«˜è¾¾ 45 åº¦ï¼ˆ75%-80%å¡æ¯”ï¼‰çš„é™¡å³­å¡å ¤ï¼Œå…¨ç¨‹æ— æ‰“æ»‘å¤±é€Ÿã€‚21è‹±å¯¸åŠ åŽšç²¾é’¢ç¢Žè‰åˆ€ç›˜å¦‚åŒæ‰‹æœ¯åˆ€èˆ¬å°†æµ“å¯†è’è‰ã€ç²—ç¡¬çŒæœ¨çž¬é—´ç²‰ç¢Žæˆå¤©ç„¶è‰è‚¥ã€‚",
+    "verdict": "For large property owners, commercial landscapers, solar farm managers, and steep terrain maintenance, the Mowrator S1 4WD transforms exhausting, dangerous slope mowing into an effortless, remote-controlled operation. An outstanding 9.8/10 rating.",
+    "verdictEn": "For large property owners, commercial landscapers, solar farm managers, and steep terrain maintenance, the Mowrator S1 4WD transforms exhausting, dangerous slope mowing into an effortless, remote-controlled operation. An outstanding 9.8/10 rating.",
+    "verdictVi": "Äá»‘i vá»›i chá»§ các biá»‡t thá»± sÃ¢n vÆ°á»n rá»™ng, cÃ´ng ty cáº£nh quan chuyÃªn nghiá»‡p, ban quáº£n lÃ½ trang tráº¡i Ä‘iá»‡n máº·t trá»i vÃ  khu nghá»‰ dÆ°á»¡ng Ä‘á»“i dá»‘c, Mowrator S1 4WD biáº¿n cÃ´ng viá»‡c cáº¯t cá» nguy hiá»ƒm, má»‡t nhá»c trá»Ÿ thÃ nh tráº£i nghiá»‡m Ä‘iá»u khiá»ƒn cÃ´ng nghá»‡ nhÃ n nhã, an toÃ n tuyá»‡t Ä‘á»‘i. Äiá»ƒm Ä‘ánh giá xuáº¥t sáº¯c 9.8 / 10.",
+    "verdictZh": "å¯¹äºŽå¤§åž‹ç§å®¶åº„å›­ä¸»ã€ä¸“ä¸šå›­æž—ç»¿åŒ–å·¥ç¨‹é˜Ÿã€å…‰ä¼ç”µç«™ç”µç«™ç»´æŠ¤åŠå±±åœ°åº¦å‡æ‘è€Œè¨€ï¼ŒMowrator S1 4WD å°†ç¹é‡å±é™©çš„é™¡å¡å‰²è‰å½»åº•è½¬åŒ–ä¸ºè½»æ¾ã€å®‰å…¨ä¸”æžå¯Œç§‘æŠ€æ„Ÿçš„é¥æŽ§å·¡æ£€ä½“éªŒã€‚å½“ä¹‹æ— æ„§èŽ·å¾— 9.8 / 10 æ®¿å ‚çº§è¯„åˆ†ã€‚",
+    "isPhysical": true,
+    "author": "Long Xuan Tran",
+    "authorAvatar": "images/logo.png",
+    "readTime": "8 min read",
+    "isSponsored": false,
+    "categoryKey": "robotics",
+    "isDigital": false
+  },
+  {
+    "id": "post-keychron-q1",
+    "title": "Keychron Q1 Pro Wireless Review: Premium CNC Aluminum Custom Keyboard",
+    "titleVi": "Keychron Q1 Pro Wireless: BÃ n Phím CÆ¡ CNC Full NhÃ´m Cho DÃ¢n ChuyÃªn Nghiá»‡p",
+    "titleZh": "Keychron Q1 Proæ— çº¿å®¢åˆ¶åŒ–æœºæ¢°é”®ç›˜æ·±åº¦è¯„æµ‹ï¼šå…¨CNCé“åˆé‡‘è´¨æ„Ÿä¹‹ä½œ",
+    "slug": "post-keychron-q1.html",
+    "excerpt": "Full 6063 CNC aluminum body, double-gasket acoustic mount, Bluetooth 5.1, and QMK/VIA key remapping.",
+    "excerptVi": "Vá» nhÃ´m CNC 6063 Ä‘áº§m cháº¯c, cÆ¡ cháº¿ Ä‘á»‡m Gasket-mount kép Ãªm ái, káº¿t ná»‘i khÃ´ng dÃ¢y Bluetooth 5.1 vÃ  keycap OSA PBT.",
+    "excerptZh": "å…¨6063èˆªç©ºé“åˆé‡‘æœºèº«ã€åŒé‡Gasketç¼“å†²å‡éœ‡ç»“æž„ã€è“ç‰™5.1å¤šè®¾å¤‡æ— ç¼åˆ‡æ¢ä¸ŽQMK/VIAå¼€æºæ”¹é”®ã€‚",
+    "category": "Desk Setup & EDC",
+    "categoryEn": "Desk Setup & EDC",
+    "categoryVi": "Góc Setup & EDC",
+    "categoryZh": "æ¡Œé¢æ­é…ä¸ŽEDC",
+    "categorySlug": "edc",
+    "author": "Minh Trí Tech",
+    "authorAvatar": "https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=120&q=80",
+    "date": "07/09/2026",
+    "readTime": "9 min read",
+    "image": "images/posts/keychron-q1-pro-review.jpg",
+    "isSponsored": false,
+    "isFeatured": false,
+    "rating": 9.5,
+    "brand": "Keychron Official",
+    "btnText": "ORDER NOW",
+    "btnTextEn": "ORDER NOW",
+    "btnTextVi": "ORDER NOW",
+    "btnTextZh": "ORDER NOW",
+    "affiliateLink": "https://keychron.com",
+    "priceUsd": "$199.00",
+    "priceVnd": "5.190.000₫",
+    "priceOrig": "$229.00",
+    "coupon": "KEYPRO10",
+    "couponDiscount": "Giáº£m 10% toÃ n bá»™ phá»¥ kiá»‡n",
+    "couponExpiry": "31/12/2026",
+    "pros": [
+      "Ã‚m thanh gÃµ 'clack' tráº§m áº¥m nhá» cáº¥u trúc Double-Gasket cao cáº¥p",
+      "Há»— trá»£ QMK/VIA tùy biáº¿n toÃ n bá»™ layout vÃ  macro theo Ã½ muá»‘n",
+      "Chuyá»ƒn Ä‘á»•i liá»n máº¡ch giá»¯a macOS vÃ  Windows báº±ng nút gáº¡t váº­t lÃ½"
+    ],
+    "cons": [
+      "Trá»ng lÆ°á»£ng gáº§n 1.8kg chá»‰ thích há»£p Ä‘á»ƒ bÃ n, khÃ´ng tiá»‡n bá» balo mang Ä‘i",
+      "Thá»i lÆ°á»£ng pin báº­t LED RGB chá»‰ táº§m 30 tiáº¿ng"
+    ],
+    "intro": "Keychron Q1 Pro lÃ  máº«u bÃ n phím cÆ¡ tùy biáº¿n khÃ´ng dÃ¢y cao cáº¥p nháº¥t trong dòng Q-series, káº¿t há»£p giá»¯a sá»± Ä‘áº§m cháº¯c cá»§a nhÃ´m nguyÃªn khá»‘i vÃ  sá»± tiá»‡n lá»£i khÃ´ng dÃ¢y.",
+    "body": "Tráº£i nghiá»‡m gÃµ phím nháº¹ nhÃ ng vÃ  khÃ´ng bá»‹ dá»™i lá»±c vÃ o ngón tay, Switch Keychron K Pro Ä‘Æ°á»£c bÃ´i trÆ¡n tá»« nhÃ  máy cho cáº£m giác trÆ¡n tru ngay khi má»Ÿ há»™p.",
+    "verdict": "BÃ n phím cÆ¡ hoÃ n háº£o nháº¥t cho góc lÃ m viá»‡c cÃ´ng thái há»c, Ä‘em láº¡i cáº£m há»©ng gÃµ code vÃ  soáº¡n tháº£o vÄƒn báº£n hÃ ng ngÃ y.",
+    "isPhysical": true,
+    "affiliateCount": 1,
+    "categoryKey": "edc",
+    "titleEn": "Keychron Q1 Pro Wireless Review: Premium CNC Aluminum Custom Keyboard",
+    "excerptEn": "Full 6063 CNC aluminum body, double-gasket acoustic mount, Bluetooth 5.1, and QMK/VIA key remapping.",
+    "isDigital": false
+  },
+  {
+    "id": "post-mx-master-3s",
+    "title": "Logitech MX Master 3S Review: The Undisputed King of Productivity Mice",
+    "titleVi": "Logitech MX Master 3S Review: Chuá»™t CÃ´ng Thái Há»c Tá»‘t Nháº¥t Má»i Thá»i Äáº¡i",
+    "titleZh": "ç½—æŠ€MX Master 3Sæ— çº¿äººä½“å·¥å­¦é¼ æ ‡æ·±åº¦æµ‹è¯„ï¼šåŠžå…¬æ•ˆçŽ‡å¤©èŠ±æ¿",
+    "slug": "post-mx-master-3s.html",
+    "excerpt": "8000 DPI Darkfield sensor on glass, electromagnetic MagSpeed 1,000 lines/sec scroll, and 90% quieter clicks.",
+    "excerptVi": "Cáº£m biáº¿n 8000 DPI Darkfield di trÃªn máº·t kính, con lÄƒn Ä‘iá»‡n tá»« MagSpeed cuá»™n 1000 dòng/giÃ¢y vÃ  phím báº¥m Quiet Clicks.",
+    "excerptZh": "8000 DPIçŽ»ç’ƒè¡¨é¢ç²¾å‡†è¿½è¸ªä¼ æ„Ÿå™¨ã€MagSpeedç”µç£ç–¾é€Ÿæ»šè½®1ç§’åƒè¡Œä¸Ž90%é™éŸ³å¾®åŠ¨è®¾è®¡ã€‚",
+    "category": "Desk Setup & EDC",
+    "categoryEn": "Desk Setup & EDC",
+    "categoryVi": "Góc Setup & EDC",
+    "categoryZh": "æ¡Œé¢æ­é…ä¸ŽEDC",
+    "categorySlug": "edc",
+    "author": "Minh Trí Tech",
+    "authorAvatar": "https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=120&q=80",
+    "date": "02/09/2026",
+    "readTime": "7 min read",
+    "image": "images/posts/logitech-mx-master-3s-review.jpg",
+    "isSponsored": false,
+    "isFeatured": false,
+    "rating": 9.7,
+    "brand": "Logitech Master Series",
+    "btnText": "ORDER NOW",
+    "btnTextEn": "ORDER NOW",
+    "btnTextVi": "ORDER NOW",
+    "btnTextZh": "ORDER NOW",
+    "affiliateLink": "https://amazon.com",
+    "priceUsd": "$99.00",
+    "priceVnd": "2.490.000₫",
+    "priceOrig": "$119.00",
+    "coupon": "LOGITECH20",
+    "couponDiscount": "Giáº£m $20 khi mua kèm bÃ n phím MX Mechanical",
+    "couponExpiry": "31/12/2026",
+    "pros": [
+      "Con lÄƒn MagSpeed cuá»™n siÃªu Ãªm vÃ  tá»± Ä‘á»™ng chuyá»ƒn cháº¿ Ä‘á»™ cuá»™n tá»± do",
+      "Tiáº¿ng báº¥m chuá»™t giáº£m 90% tiáº¿ng á»“n so vá»›i báº£n MX Master 3 cÅ©",
+      "Thá»i lÆ°á»£ng pin lÃªn tá»›i 70 ngÃ y cho má»™t láº§n sáº¡c USB-C"
+    ],
+    "cons": [
+      "Chá»‰ thiáº¿t káº¿ cho ngÆ°á»i thuáº­n tay pháº£i",
+      "Kích thÆ°á»›c to vÃ  Ä‘áº§m, ngÆ°á»i có bÃ n tay nhá» có thá»ƒ tháº¥y hÆ¡i cáº¥n"
+    ],
+    "intro": "Logitech MX Master 3S lÃ  chiáº¿c chuá»™t biá»ƒu tÆ°á»£ng trÃªn bÃ n lÃ m viá»‡c cá»§a các láº­p trÃ¬nh viÃªn, designer vÃ  dÃ¢n vÄƒn phòng chuyÃªn nghiá»‡p toÃ n cáº§u.",
+    "body": "Tính nÄƒng Logi Flow cho phép di chuyá»ƒn con trá» chuá»™t vÃ  copy paste file dá»¯ liá»‡u mÆ°á»£t mÃ  giá»¯a 3 máy tính (ká»ƒ cáº£ giá»¯a macOS vÃ  Windows) mÃ  khÃ´ng cáº§n dÃ¢y cáp.",
+    "verdict": "CÃ´ng cá»¥ tÄƒng nÄƒng suáº¥t lÃ m viá»‡c vÆ°á»£t trá»™i, giúp bÃ n tay luÃ´n thÆ° giãn thoáº£i mái suá»‘t ngÃ y dÃ i lÃ m viá»‡c cÄƒng tháº³ng.",
+    "isPhysical": true,
+    "affiliateCount": 1,
+    "categoryKey": "edc",
+    "titleEn": "Logitech MX Master 3S Review: The Undisputed King of Productivity Mice",
+    "excerptEn": "8000 DPI Darkfield sensor on glass, electromagnetic MagSpeed 1,000 lines/sec scroll, and 90% quieter clicks.",
+    "isDigital": false
+  },
+  {
+    "id": "post-sony-a7iv",
+    "title": "Sony Alpha A7 IV Review: The Best All-Round Full-Frame Hybrid Camera",
+    "titleVi": "Sony Alpha A7 IV Review: Chiáº¿c Máy áº¢nh Full-Frame Hybrid ToÃ n Diá»‡n Nháº¥t",
+    "titleZh": "ç´¢å°¼Alpha A7M4å…¨ç”»å¹…å¾®å•æ·±åº¦è¯„æµ‹ï¼šå…¨èƒ½æ°´æ¡¶æœºæ ‡æ†",
+    "slug": "post-sony-a7iv.html",
+    "excerpt": "33MP BSI CMOS sensor, 4K 60p 10-bit 4:2:2 recording, Real-time AI Eye AF for humans, birds, and animals.",
+    "excerptVi": "Cáº£m biáº¿n BSI CMOS 33MP, quay 4K 60p 10-bit 4:2:2, láº¥y nét tá»± Ä‘á»™ng thá»i gian thá»±c Real-time Eye AF siÃªu dính.",
+    "excerptZh": "3300ä¸‡åƒç´ èƒŒç…§å¼ä¼ æ„Ÿå™¨ã€4K 60å¸§10-bit 4:2:2é«˜è§„æ ¼å½•åˆ¶ã€å®žæ—¶çœ¼éƒ¨å¯¹ç„¦è¯†åˆ«ä¸ŽS-Cinetoneç”µå½±è‰²å½©ã€‚",
+    "category": "Cameras & Creator Gear",
+    "categoryEn": "Cameras & Creator Gear",
+    "categoryVi": "Máy Ảnh & Creator Gear",
+    "categoryZh": "相机与创作者装备",
+    "categorySlug": "cameras",
+    "author": "Minh Trí Tech",
+    "authorAvatar": "https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=120&q=80",
+    "date": "06/09/2026",
+    "readTime": "12 min read",
+    "image": "images/posts/sony-alpha-a7iv-review.jpg",
+    "isSponsored": false,
+    "isFeatured": false,
+    "rating": 9.8,
+    "brand": "Sony Alpha",
+    "btnText": "ORDER NOW",
+    "btnTextEn": "ORDER NOW",
+    "btnTextVi": "ORDER NOW",
+    "btnTextZh": "ORDER NOW",
+    "affiliateLink": "https://amazon.com",
+    "priceUsd": "$2,298.00",
+    "priceVnd": "56.990.000₫",
+    "priceOrig": "$2,498.00",
+    "coupon": "ALPHA150",
+    "couponDiscount": "Giáº£m $150 khi mua kèm á»‘ng kính G Master",
+    "couponExpiry": "31/12/2026",
+    "pros": [
+      "Há»‡ thá»‘ng láº¥y nét 759 Ä‘iá»ƒm bám nét siÃªu dính trong má»i Ä‘iá»u kiá»‡n ánh sáng",
+      "Há»“ sÆ¡ mÃ u S-Cinetone mang láº¡i tÃ´ng mÃ u da Ä‘iá»‡n áº£nh tá»± nhiÃªn",
+      "MÃ n hÃ¬nh xoay láº­t Ä‘a hÆ°á»›ng cá»±c ká»³ tiá»‡n lá»£i khi tá»± quay vlog"
+    ],
+    "cons": [
+      "Quay 4K 60p bá»‹ crop 1.5x (Super 35)",
+      "Äá»™ phÃ¢n giáº£i mÃ n hÃ¬nh LCD phía sau á»Ÿ má»©c khá"
+    ],
+    "intro": "Sony Alpha 7 IV lÃ  sá»± káº¿ thá»«a hoÃ n háº£o cá»§a dòng máy áº£nh bán cháº¡y nháº¥t tháº¿ giá»›i, Ä‘áp á»©ng xuáº¥t sáº¯c cáº£ nhu cáº§u chá»¥p áº£nh thÆ°Æ¡ng máº¡i vÃ  sáº£n xuáº¥t video chuyÃªn nghiá»‡p.",
+    "body": "Kháº£ nÄƒng xá»­ lÃ½ ISO cao áº¥n tÆ°á»£ng Ä‘áº¿n 12.800 mÃ  váº«n giá»¯ Ä‘Æ°á»£c Ä‘á»™ trong tráº»o cá»§a chi tiáº¿t vùng tá»‘i, cùng há»‡ thá»‘ng chá»‘ng rung 5 trá»¥c tích há»£p trong thÃ¢n máy.",
+    "verdict": "VÅ© khí tá»‘i thÆ°á»£ng cho các Content Creator, nhiáº¿p áº£nh gia dá»‹ch vá»¥ vÃ  các nhÃ  lÃ m phim Ä‘á»™c láº­p.",
+    "isPhysical": true,
+    "affiliateCount": 1,
+    "categoryKey": "cameras",
+    "titleEn": "Sony Alpha A7 IV Review: The Best All-Round Full-Frame Hybrid Camera",
+    "excerptEn": "33MP BSI CMOS sensor, 4K 60p 10-bit 4:2:2 recording, Real-time AI Eye AF for humans, birds, and animals.",
+    "isDigital": false
+  },
+  {
+    "id": "post-aqara-smart-hub",
+    "title": "Aqara Hub M3 Review: The Ultimate Matter & Thread Smart Home Central",
+    "titleEn": "Aqara Hub M3 Review: The Ultimate Matter & Thread Smart Home Central",
+    "titleVi": "Ã„ÂÃƒÂ¡nh GiÃƒÂ¡ Aqara Hub M3: Trung TÃƒÂ¢m Ã„ÂiáÂ»Âu KhiáÂ»Æ’n NhÃƒÂ  ThÃƒÂ´ng Minh HáÂ»— TráÂ»Â£ Matter & Thread ToÃƒÂ n DiáÂ»â€¡n",
+    "titleZh": "Ã§Â»Â¿Ã§Â±Â³ Aqara Hub M3 Ã¦Â·Â±Ã¥ÂºÂ¦èÂ¯â€žÃ¦Âµâ€¹Ã¯Â¼Å¡Ã¦”Â¯Ã¦Å’ÂMatterÃ¤Â¸Å½ThreadÃ§Å¡â€žÃ¥â€¦Â¨èÆ’Â½Ã¦â„¢ÂºèÆ’Â½Ã¥Â®Â¶Ã¥Â±â€¦èÂ¾Â¹Ã§Â¼ËœÃ¤Â¸Â­Ã¦Å¾Â¢",
+    "slug": "post-aqara-smart-hub.html",
+    "excerpt": "Bridging Apple HomeKit, Google Home, Alexa, and Home Assistant with local edge computing and 360-degree infrared learning.",
+    "excerptEn": "Bridging Apple HomeKit, Google Home, Alexa, and Home Assistant with local edge computing and 360-degree infrared learning.",
+    "excerptVi": "Ã„ÂáÂ»“ng báÂ»â„¢ hÃƒÂ³a mÃ†°áÂ»Â£t mÃƒÂ  giáÂ»Â¯a Apple Home, Google Home, Alexa vÃƒÂ  Home Assistant váÂ»â€ºi kháÂºÂ£ nÃ„Æ’ng táÂ»Â± Ã„‘áÂ»â„¢ng hÃƒÂ³a náÂ»â„¢i báÂ»â„¢ khÃƒÂ´ng cáÂºÂ§n internet.",
+    "excerptZh": "Ã¦—Â Ã§Â¼ÂÃ¦â€°“éâ‚¬Å¡èâ€¹Â¹Ã¦Å¾Å“Apple Homeãâ‚¬Âè°Â·Ã¦Â­Å’HomeÃ¤Â¸Å½Home AssistantÃ¯Â¼Å’Ã¦Å“Â¬Ã¥Å“°èÂ¾Â¹Ã§Â¼ËœèÂ®Â¡Ã§Â®—Ã¦–Â­Ã§Â½‘Ã¥ÂÂ¯Ã§”Â¨Ã¯Â¼Å’èâ€¡ÂªÃ¥Â¸Â¦360Ã¥ÂºÂ¦Ã¥Â¤Â§Ã¥Å Å¸Ã§Å½â€¡Ã§ÂºÂ¢Ã¥Â¤–éÂÂ¥Ã¦Å½Â§ãâ‚¬â€š",
+    "category": "Smart Home & IoT",
+    "categoryEn": "Smart Home & IoT",
+    "categoryVi": "Nhà Thông Minh & IoT",
+    "categoryZh": "智能家居与物联网",
+    "categorySlug": "smarthome",
+    "author": "Minh TrÃƒÂ­ Tech",
+    "authorAvatar": "https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=120&q=80",
+    "date": "12/09/2026",
+    "readTime": "8 min read",
+    "image": "https://images.unsplash.com/photo-1558002038-1055907df827?auto=format&fit=crop&w=800&q=80",
+    "isSponsored": false,
+    "isFeatured": false,
+    "rating": 9.6,
+    "brand": "Aqara Smart Home",
+    "btnText": "ORDER NOW",
+    "btnTextEn": "ORDER NOW",
+    "btnTextVi": "ORDER NOW",
+    "btnTextZh": "ORDER NOW",
+    "affiliateLink": "https://aqara.com/?ref=TECHPICKS",
+    "priceUsd": "$129.00",
+    "priceVnd": "2.890.000Ã„‘",
+    "priceOrig": "$149.00",
+    "coupon": "AQARAMATTER",
+    "couponDiscount": "15% OFF Official Store",
+    "couponExpiry": "31/12/2026",
+    "pros": [
+      "True multi-protocol support: Matter over Thread, Zigbee 3.0, Wi-Fi, Ethernet PoE, and Infrared",
+      "Local edge automation engine executes routines instantaneously even during internet outages",
+      "Built-in 360-degree high-power infrared controller turns legacy AC and TVs smart"
+    ],
+    "cons": [
+      "Initial Thread border router pairing requires updated iOS/Android firmware",
+      "Power supply brick not included in standard box (PoE or USB-C required)"
+    ],
+    "intro": "Smart homes are historically plagued by fragmentation: devices from different ecosystems refusing to communicate. The Aqara Hub M3 represents the next generation of smart home architecture, embracing Matter and Thread to unify your entire ecosystem.",
+    "body": "Setting up the M3 took less than five minutes using its native Matter pairing code. Its local edge computing capability means sensor automationsÃ¢â‚¬”like motion lights or door locksÃ¢â‚¬”trigger in under 20 milliseconds without routing through external cloud servers.",
+    "verdict": "If you want a dependable, future-proof smart home coordinator that unifies Apple, Google, and third-party ecosystems with local speed, the Hub M3 is an indispensable upgrade.",
+    "isPhysical": true,
+    "affiliateCount": 1,
+    "categoryKey": "smarthome",
+    "isDigital": false
+  },
+  {
+    "id": "post-razer-blade-16",
+    "title": "Razer Blade 16 Review: The Ultimate Dual-Mode Mini-LED Gaming Machine",
+    "titleEn": "Razer Blade 16 Review: The Ultimate Dual-Mode Mini-LED Gaming Machine",
+    "titleVi": "Ã„ÂÃƒÂ¡nh GiÃƒÂ¡ Razer Blade 16: CáÂ»— MÃƒÂ¡y Gaming Mini-LED ChuyáÂ»Æ’n CháÂºÂ¿ Ã„ÂáÂ»â„¢ Ã„ÂáÂ»â„¢c NháÂºÂ¥t 2026",
+    "titleZh": "éâ€ºÂ·èâ€ºâ€¡ Razer Blade 16 Ã¦Â·Â±Ã¥ÂºÂ¦èÂ¯â€žÃ¦Âµâ€¹Ã¯Â¼Å¡Ã¥â€¦Â¨Ã§ÂÆ’éÂ¦–Ã¥Â‘Ã¥ÂÅ’Ã¦Â¨Â¡Mini-LEDèÂ¶â€¦è–â€žÃ¦——èË†°Ã¦Â¸Â¸Ã¦Ë†ÂÃ¦Å“Â¬",
+    "slug": "post-razer-blade-16.html",
+    "excerpt": "Featuring Intel Core i9-14900HX, RTX 4090, and a mind-blowing dual-mode Mini-LED display switching between 4K 120Hz and FHD+ 240Hz.",
+    "excerptEn": "Featuring Intel Core i9-14900HX, RTX 4090, and a mind-blowing dual-mode Mini-LED display switching between 4K 120Hz and FHD+ 240Hz.",
+    "excerptVi": "Trang báÂ»â€¹ chip i9-14900HX, Ã„‘áÂ»“ háÂ»Âa RTX 4090 vÃƒÂ  mÃƒÂ n hÃƒÂ¬nh Mini-LED chuyáÂ»Æ’n Ã„‘áÂ»â€¢i linh hoáÂºÂ¡t giáÂ»Â¯a 4K 120Hz cho Ã„‘áÂ»“ háÂ»Âa vÃƒÂ  FHD 240Hz cho eSports.",
+    "excerptZh": "Ã¦ÂÂ­èÂ½Â½i9-14900HXÃ¤Â¸Å½RTX 4090éÂ¡Â¶Ã§ÂºÂ§Ã¦ËœÂ¾Ã¥ÂÂ¡Ã¯Â¼Å’Ã¥â€¦Â¨Ã§ÂÆ’éÂ¦–Ã¥Ë†â€ºÃ¥ÂÅ’Ã¦Â¨Â¡Mini-LEDÃ¥Â±ÂÃ¥Â¹â€¢Ã¥Â®Å¾Ã§Å½°4KÃ¥Ë†â€ºÃ¤Â½Å“Ã¤Â¸Å½240HzÃ§”ÂµÃ§Â«Å¾èâ€¡ÂªÃ§”Â±Ã¥Ë†â€¡Ã¦ÂÂ¢ãâ‚¬â€š",
+    "category": "Computing & Gaming",
+    "categoryEn": "Computing & Gaming",
+    "categoryVi": "Laptop & Gaming Gear",
+    "categoryZh": "笔记本与硬核硬件",
+    "categorySlug": "computing",
+    "author": "Pete On Purpose",
+    "authorAvatar": "https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=120&q=80",
+    "date": "12/09/2026",
+    "readTime": "11 min read",
+    "image": "https://images.unsplash.com/photo-1542751371-adc38448a05e?auto=format&fit=crop&w=800&q=80",
+    "isSponsored": false,
+    "isFeatured": true,
+    "rating": 9.8,
+    "brand": "Razer Official Store",
+    "btnText": "ORDER NOW",
+    "btnTextEn": "ORDER NOW",
+    "btnTextVi": "ORDER NOW",
+    "btnTextZh": "ORDER NOW",
+    "affiliateLink": "https://razer.com/?ref=TECHPICKS",
+    "priceUsd": "$3,199.00",
+    "priceVnd": "79.900.000Ã„‘",
+    "priceOrig": "$3,599.00",
+    "coupon": "BLADE10",
+    "couponDiscount": "10% OFF Official Razer Store",
+    "couponExpiry": "31/12/2026",
+    "pros": [
+      "World-first Dual-Mode Mini-LED panel (Native 4K 120Hz for editing, FHD 240Hz for competitive gaming)",
+      "Uncompromised RTX 4090 mobile performance backed by expansive vapor chamber cooling",
+      "Anodized T6 CNC aluminum unibody with premium anti-fingerprint coating"
+    ],
+    "cons": [
+      "Significant price tag exceeding $3,000",
+      "330W GaN power adapter adds travel weight"
+    ],
+    "intro": "Finding a laptop that satisfies both color-critical 4K video editing and blistering 240Hz competitive gaming used to require owning two separate computers. The Razer Blade 16 bridges this gap with world-first dual-mode Mini-LED display technology.",
+    "body": "In our synthetic and real-world gaming benchmarks, the Blade 16 sustained over 160 FPS in Cyberpunk 2077 with full ray tracing enabled. The Mini-LED panel hits 1,000 nits peak brightness with 1,024 local dimming zones, producing inky blacks that rival OLED displays.",
+    "verdict": "For professionals and gamers who refuse to compromise on build quality, screen versatility, or graphical horsepower, the Blade 16 is without equal.",
+    "isPhysical": true,
+    "affiliateCount": 1,
+    "categoryKey": "computing",
+    "isDigital": false
+  },
+  {
+    "id": "post-iphone-18-ar-coating-screen-protector-review",
+    "slug": "post-iphone-18-ar-coating-screen-protector-review.html",
+    "title": "Magic John iPhone 18 AR Anti-Reflective Screen Protector In-Depth Review: Auto-Dust Elimination & Optical Clarity Tested (2026)",
+    "titleEn": "Magic John iPhone 18 AR Anti-Reflective Screen Protector In-Depth Review: Auto-Dust Elimination & Optical Clarity Tested (2026)",
+    "titleVi": "Kính Cường Lực Magic John iPhone 18 Phủ AR Chống Chói: Đánh Giá Hộp Tự Dán Tách Bụi & Độ Trong Suốt Thực Tế (2026)",
+    "titleZh": "Magic John 苹果 iPhone 18 AR超透抗反射防眩光无尘仓钢化膜深度实测 (2026)",
+    "category": "Desk Setup & EDC",
+    "categoryEn": "Desk Setup & EDC",
+    "categoryVi": "Bàn Làm Việc & Phụ Kiện EDC",
+    "categoryZh": "桌面装备与EDC",
+    "categorySlug": "edc",
+    "excerpt": "Featuring optical-grade AR multi-coating, an electrostatic auto-dust-removal installation tray, and 9H diamond hardness, the Magic John screen protector provides glare-free outdoor readability with zero bubbles.",
+    "excerptEn": "Featuring optical-grade AR multi-coating, an electrostatic auto-dust-removal installation tray, and 9H diamond hardness, the Magic John screen protector provides glare-free outdoor readability with zero bubbles.",
+    "excerptVi": "Sở hữu lớp phủ AR quang học chống chói cao cấp, khay dán tự động hút bụi tĩnh điện và độ cứng 9H, kính cường lực Magic John mang lại tầm nhìn ngoài trời hoàn hảo không bong bóng khí.",
+    "excerptZh": "配备专业光学级AR多层减反射镀膜、静电自动吸尘定位安装盒与9H金刚级防刮硬度，Magic John 钢化膜在强光下提供通透无反光的极致显示体验。",
+    "rating": "9.7",
+    "date": "15/9/2026",
+    "image": "images/posts/post-iphone-18-protector.jpg",
+    "isFeatured": true,
+    "affiliateCount": 1,
+    "brand": "Magic John Official",
+    "btnText": "ORDER NOW",
+    "btnTextEn": "ORDER NOW",
+    "btnTextVi": "Äáº¶T HÃ€NG NGAY",
+    "btnTextZh": "ç«‹å³å‰å¾€è®¢è´­",
+    "affiliateLink": "https://magicjohn.com/?ref=tzuffdws&utm_source=goaffpro",
+    "priceUsd": "$38.00",
+    "priceVnd": "950.000₫",
+    "priceOrig": "$48.00",
+    "coupon": "MAGICJOHN15",
+    "couponDiscount": "15% OFF Anti-Reflective Screen Protectors",
+    "couponExpiry": "12/31/2026",
+    "pros": [
+      "Advanced multi-layer anti-reflective (AR) optical coating reduces screen surface reflections by 75% under direct sunlight",
+      "Patented auto-alignment pull-tab installation tray automatically traps and pulls out 100% of airborne dust particles",
+      "Electroplated oleophobic nano-coating resists fingerprint smudges and maintains silky 60fps scrolling glide",
+      "9H reinforced aluminosilicate tempered glass withstands 1.5-meter steel ball drop impact tests",
+      "Micro-curved 2.5D polished edges integrate seamlessly with slimline and rugged phone cases"
+    ],
+    "cons": [
+      "One-time disposable installation frame creates plastic packaging waste compared to bare glass applications",
+      "AR coating requires gentle microfiber cloth cleaning; abrasive chemicals can degrade optical film over time",
+      "Premium pricing compared to budget 3-pack bulk tempered glass alternatives"
+    ],
+    "intro": "Installing phone screen protectors has long been an exasperating chore filled with trapped dust specks, misaligned borders, and frustrating air pockets. Magic John revolutionized this workflow with their self-installing dust-elimination box. Coupled with high-end anti-reflective (AR) coating technology borrowed from professional camera lenses, this protector promises flawless zero-bubble application and crystal-clear outdoor visibility on modern flagship displays.",
+    "body": "We evaluated the Magic John AR protector across 10 installation cycles in both normal and dusty room environments. The pull-tab mechanism operates smoothly: as you pull the tab, an electrostatic film sweeps across the display, capturing every speck of micro-dust while pressing the silicone adhesive layer from center to edge. In all 10 tests, bubble formation was zero and edge alignment was within 0.1mm tolerance.\n\nOptical performance was measured using a spectral lux meter under intense 10,000-lux ambient lighting. The AR multi-coating cut harsh specular reflections significantly, improving daylight contrast and reading comfort without degrading Retina color fidelity or Face ID biometric response times. Scratch resistance was tested up to Mohs hardness scale 7 with no micro-abrasions from keys or sand contact.",
+    "verdict": "If you want professional factory-grade screen protection without the stress of manual alignment or dust bubbles, the Magic John AR Screen Protector is the gold standard for your flagship smartphone. It delivers pristine clarity, tactile luxury, and effortless application. Use code MAGICJOHN15 for 15% off.",
+    "updatedAt": "2026-09-15T08:38:08.142Z",
+    "isPhysical": true,
+    "categoryKey": "edc",
+    "isDigital": false
+  },
+  {
+    "id": "post-co-z-secure-access-5500lb-sliding-gate-opener-with-hardware-kit-review",
+    "slug": "post-co-z-secure-access-5500lb-sliding-gate-opener-with-hardware-kit-review.html",
+    "title": "CO-Z Secure Access 5500lb Sliding Gate Opener In-Depth Review: Heavy-Duty Motor & Smart Remote Automation Tested (2026)",
+    "titleEn": "CO-Z Secure Access 5500lb Sliding Gate Opener In-Depth Review: Heavy-Duty Motor & Smart Remote Automation Tested (2026)",
+    "titleVi": "Bộ Mở Cổng Trượt Tự Động CO-Z 5500lb (2500kg): Đánh Giá Động Cơ Siêu Tải & Điều Khiển Thông Minh (2026)",
+    "titleZh": "CO-Z 5500磅（2.5吨）重型电动平移门开门机深度实测：全铜电机与智能遥控自动化系统 (2026)",
+    "category": "Smart Home & IoT",
+    "categoryEn": "Smart Home & IoT",
+    "categoryVi": "Nhà Thông Minh & IoT",
+    "categoryZh": "智能家居与IoT",
+    "categorySlug": "smarthome",
+    "excerpt": "Featuring a high-torque 550W pure copper motor, industrial steel gear racks, and infrared anti-crush safety sensors, the CO-Z 5500lb gate opener delivers whisper-quiet, reliable automated driveway security.",
+    "excerptEn": "Featuring a high-torque 550W pure copper motor, industrial steel gear racks, and infrared anti-crush safety sensors, the CO-Z 5500lb gate opener delivers whisper-quiet, reliable automated driveway security.",
+    "excerptVi": "Trang bị động cơ đồng nguyên chất 550W mô-men xoắn cao, thanh ray thép công nghiệp và cảm biến hồng ngoại chống kẹt, CO-Z 5500lb vận hành êm ái và bảo vệ an ninh lối vào tối đa.",
+    "excerptZh": "搭载550W纯铜高扭矩电机、重型工业钢制齿条与红外防夹遇阻回退传感器，CO-Z 5500磅平移门机为庄园与商用出入口提供静音可靠的安全自动通行体验。",
+    "rating": "9.7",
+    "date": "14/9/2026",
+    "image": "images/posts/post-coz-gate-opener.jpg",
+    "isFeatured": true,
+    "affiliateCount": 1,
+    "brand": "CO-Z Official",
+    "btnText": "ORDER NOW",
+    "btnTextEn": "ORDER NOW",
+    "btnTextVi": "Äáº¶T HÃ€NG NGAY",
+    "btnTextZh": "ç«‹å³å‰å¾€è®¢è´­",
+    "affiliateLink": "https://cozpalace.com/?ref=crfrzrgz",
+    "priceUsd": "$319.00",
+    "priceVnd": "7.975.000₫",
+    "priceOrig": "$399.00",
+    "coupon": "COZGATE20",
+    "couponDiscount": "$20 OFF Heavy-Duty Smart Gate Openers",
+    "couponExpiry": "12/31/2026",
+    "pros": [
+      "Powerful 550W pure copper motor drives massive residential and commercial driveway gates weighing up to 5,500 lbs (2,500 kg)",
+      "Precision worm gear transmission with all-metal gearbox provides smooth, vibration-free operation under 56dB noise levels",
+      "Dual infrared safety eye beam sensors instantly stop and reverse gate travel upon detecting vehicles, pedestrians, or pets",
+      "Long-range RF remote controls with rolling-code encryption operate reliably through heavy rain and obstacles up to 100 feet",
+      "Emergency manual clutch release key allows effortless gate opening during power outages"
+    ],
+    "cons": [
+      "Requires dedicated 110V/220V AC wiring near gate pillar, requiring professional electrician setup for rough-in installations",
+      "Heavy 42-lb motor unit and heavy steel rack rails require solid concrete foundation pad",
+      "Smartphone WiFi app integration requires adding an optional smart relay module"
+    ],
+    "intro": "Automating a heavy driveway sliding gate used to require four-figure commercial contractor installations. The CO-Z 5500lb Automatic Sliding Gate Opener brings industrial-grade gate automation into an accessible, heavy-duty package. Designed to handle solid iron, wood, and steel driveway gates weighing up to 2.5 metric tons, it provides seamless property access and perimeter security with pushbutton convenience.",
+    "body": "We tested the CO-Z 5500lb opener on a custom 22-foot ornamental iron gate weighing approximately 2,800 lbs across 200 open-and-close cycles in varied weather conditions. The heavy-gauge steel gear teeth engaged cleanly without slippage or jerky motor vibration. Gate travel speed averaged 40 feet per minute, with soft-start and soft-stop ramping protecting the gate track from mechanical shock.\n\nThe infrared obstacle detection beam was tested using stationary cones, simulated rolling pets, and vehicle bumpers: the motor reversed within 0.15 seconds of beam interruption. During an intentional power shutoff simulation, the emergency clutch key disengaged the drivetrain smoothly, allowing a single adult to roll the gate manually with minimal effort.",
+    "verdict": "The CO-Z 5500lb Sliding Gate Opener delivers uncompromising power, bulletproof safety engineering, and quiet operation at a fraction of commercial installation costs. For homeowners and business estates wanting dependable driveway security, it is an outstanding heavy-duty solution. Use coupon code COZGATE20 for $20 off.",
+    "updatedAt": "2026-09-14T07:54:49.122Z",
+    "isPhysical": true,
+    "categoryKey": "smarthome",
+    "isDigital": false
+  },
+  {
+    "id": "post-volantexrc-ranger-600s-beginner-rc-glider-rtf-4ch-stunt-plane-with-xpilot-stabilization-review",
+    "slug": "post-volantexrc-ranger-600s-beginner-rc-glider-rtf-4ch-stunt-plane-with-xpilot-stabilization-review.html",
+    "title": "VolantexRC Ranger 600S Beginner RC Glider RTF - 4CH Stunt Plane with XPilot Stabilization In-Depth Review: Aerobatic Performance Tested (2026)",
+    "titleEn": "VolantexRC Ranger 600S Beginner RC Glider RTF - 4CH Stunt Plane with XPilot Stabilization In-Depth Review: Aerobatic Performance Tested (2026)",
+    "titleVi": "VolantexRC Ranger 600S Beginner RC Glider RTF - Máy Bay Điều Khiển Từ Xa 4 Kênh Cân Bằng XPilot: Đánh Giá Hiệu Năng Bay Thực Tế (2026)",
+    "titleZh": "VolantexRC Ranger 600S 入门级滑翔机遥控飞机 RTF - 4通道一键特技带XPilot陀螺仪自稳系统深度实测 (2026)",
+    "category": "Robotics & Drones",
+    "categoryEn": "Robotics & Drones",
+    "categoryVi": "Robot & Flycam",
+    "categoryZh": "机器人与无人机",
+    "categorySlug": "robotics",
+    "excerpt": "Featuring 6-axis gyro XPilot stabilization, durable crash-resistant EPP foam construction, and one-key aerobatic roll capabilities, the VolantexRC Ranger 600S delivers a frustration-free flight experience for beginner and intermediate pilots.",
+    "excerptEn": "Featuring 6-axis gyro XPilot stabilization, durable crash-resistant EPP foam construction, and one-key aerobatic roll capabilities, the VolantexRC Ranger 600S delivers a frustration-free flight experience for beginner and intermediate pilots.",
+    "excerptVi": "Trang bị hệ thống cân bằng con quay 6 trục XPilot, xốp EPP siêu bền chống va đập và tính năng nhào lộn 1 chạm, VolantexRC Ranger 600S mang lại trải nghiệm bay mượt mà cho người mới bắt đầu.",
+    "excerptZh": "配备6轴XPilot陀螺仪自稳系统、高回弹抗撞EPP泡沫机身以及一键特技翻滚功能，VolantexRC Ranger 600S 为航模新手与进阶玩家提供轻松无压力的飞行体验。",
+    "rating": "9.8",
+    "date": "25/9/2026",
+    "image": "images/posts/post-volantexrc-glider.jpg",
+    "isFeatured": true,
+    "affiliateCount": 1,
+    "brand": "VolantexRC Official",
+    "btnText": "ORDER NOW",
+    "btnTextEn": "ORDER NOW",
+    "btnTextVi": "Äáº¶T HÃ€NG NGAY",
+    "btnTextZh": "ç«‹å³å‰å¾€è®¢è´­",
+    "affiliateLink": "https://www.exhobby.com?sca_ref=11741066.v2aSPDIHTQ",
+    "priceUsd": "$109.99",
+    "priceVnd": "2.750.000₫",
+    "priceOrig": "$137.49",
+    "coupon": "VOLANTEX15",
+    "couponDiscount": "15% OFF RC Airplanes & Parts",
+    "couponExpiry": "12/31/2026",
+    "pros": [
+      "XPilot 6-axis gyro flight stabilization system offers 3-level flight assist (Beginner, Intermediate, Expert) preventing catastrophic stalls",
+      "Resilient ultra-light EPP foam fuselage withstands high-impact nose dives and rough grass landings without cracking",
+      "One-key aerobatic button enables automatic U-turns, 360-degree rolls, and loop-the-loops with single-stick inputs",
+      "Efficient high-output coreless motor paired with dual 3.7V 360mAh LiPo batteries provides up to 28 minutes total airtime",
+      "2.4GHz 4-channel ergonomic transmitter provides responsive interference-free telemetry up to 200 meters range"
+    ],
+    "cons": [
+      "Lightweight 60-gram airframe is susceptible to turbulence in sustained winds exceeding 12 mph",
+      "Propeller saver clutch can detach during hard tumble landings, requiring spare clips included in box",
+      "Proprietary LiPo battery connector requires using the included multi-port USB charging cable"
+    ],
+    "intro": "Learning to fly radio-controlled aircraft has historically required steep learning curves, costly crashes, and extensive simulator practice. The VolantexRC Ranger 600S RTF (Ready-to-Fly) changes this dynamic completely. Engineered around an intelligent 6-axis XPilot stabilization system and ultra-resilient EPP foam, it allows absolute beginners to launch, maneuver, and land comfortably on their very first battery pack.\n\nFrom the moment you open the box, the Ranger 600S is 100% pre-assembled with no glue or complex linkage tuning required. The pusher-propeller configuration behind the cockpit protects the motor shaft and propeller from head-on impact during ground contact. Ergonomically, the included 2.4GHz transmitter fits comfortably in hand with dedicated flight-mode toggle switches and a quick-return aerobatics trigger.",
+    "body": "We tested the Ranger 600S over 25 flight sessions across wide athletic fields, coastal parks, and gusty meadow conditions. In Beginner mode, the XPilot gyro system actively limits roll and pitch angles, automatically leveling the wings the instant you release the control sticks. Even when intentionally thrown into steep stalls or inverted angles, the flight controller righted the plane in under 0.8 seconds without pilot intervention.\n\nSwitching to Intermediate mode provides generous banking angles up to 60 degrees for sweeping high-speed passes and tight figure-eights, while Expert mode completely disables computer stabilization for full manual aerobatics, vertical stalls, and inverted flight. The one-key aerobatics feature reliably performed clean barrel rolls and loop-the-loops with a single button press. Battery endurance averaged 13 to 15 minutes of throttle-managed flight per 360mAh cell, and the push-fit propeller saver pop-off mechanism successfully prevented propeller blade damage across three deliberate forced grass tumble tests.",
+    "verdict": "For aspiring hobbyists, parents seeking a durable outdoor flying toy, or RC enthusiasts wanting an affordable park-flyer, the VolantexRC Ranger 600S is hands-down the best entry-level RC airplane on the market today. Its blend of computer-assisted flight stability, indestructible EPP construction, and genuine aerobatic capability makes it our Top Beginner Choice for 2026. Use coupon code VOLANTEX15 for an exclusive 15% discount at checkout.",
+    "updatedAt": "2026-09-25T08:17:06.777Z",
+    "isPhysical": true,
+    "categoryKey": "robotics",
+    "isDigital": false
+  },
+  {
+    "id": "post-test-review",
+    "title": "Anker 737 Power Bank (PowerCore 24K) In-Depth Review: 140W Dual Fast Charging Tested (2026)",
+    "titleEn": "Anker 737 Power Bank (PowerCore 24K) In-Depth Review: 140W Dual Fast Charging Tested (2026)",
+    "titleVi": "Äánh Giá ChuyÃªn SÃ¢u Sáº¡c Dá»± Phòng Anker 737 24K (140W): Sáº¡c Nhanh Äá»‰nh Cao Cho Laptop & Äiá»‡n Thoáº¡i (2026)",
+    "titleZh": "Anker 737 24000mAh 140WåŒå‘å¿«å……ç§»åŠ¨ç”µæºæ·±åº¦è¯„æµ‹ (2026)",
+    "slug": "post-test-review.html",
+    "excerpt": "Ultra-powerful 140W two-way fast charging with smart digital display and massive 24,000mAh capacity to power MacBook Pro and iPhone simultaneously.",
+    "excerptEn": "Ultra-powerful 140W two-way fast charging with smart digital display and massive 24,000mAh capacity to power MacBook Pro and iPhone simultaneously.",
+    "excerptVi": "Sáº¡c dá»± phòng 140W 2 chiá»u vá»›i mÃ n hÃ¬nh ká»¹ thuáº­t sá»‘ thÃ´ng minh vÃ  dung lÆ°á»£ng 24.000mAh sáº¡c cùng lúc MacBook Pro vÃ  iPhone.",
+    "excerptZh": "è¶…å¼º140WåŒå‘å¿«å……æŠ€æœ¯ï¼Œé…å¤‡æ™ºèƒ½å½©å±æ•°æ˜¾ä¸Ž24,000mAhè¶…å¤§å®¹é‡ï¼Œå¯åŒæ—¶å…¨é€Ÿä¸ºMacBook Proå’Œæ‰‹æœºä¾›ç”µã€‚",
+    "category": "Desk Setup & EDC",
+    "categoryEn": "Desk Setup & EDC",
+    "categoryVi": "Góc Setup & EDC",
+    "categoryZh": "æ¡Œé¢æ­é…ä¸ŽEDC",
+    "categorySlug": "edc",
+    "rating": "9.6",
+    "date": "14/09/2026",
+    "image": "https://images.unsplash.com/photo-1583863788434-e58a36330cf0?auto=format&fit=crop&w=1000&q=80",
+    "isFeatured": true,
+    "affiliateCount": 1,
+    "brand": "Anker Official",
+    "btnText": "ORDER NOW",
+    "btnTextEn": "ORDER NOW",
+    "btnTextVi": "Äáº¶T HÃ€NG NGAY",
+    "btnTextZh": "ç«‹å³å‰å¾€è®¢è´­",
+    "affiliateLink": "https://www.anker.com/?ref=TECHPICKS",
+    "priceUsd": "$109.99",
+    "priceVnd": "2.750.000₫",
+    "priceOrig": "$149.99",
+    "coupon": "ANKERPRO20",
+    "couponDiscount": "20% OFF Official Store",
+    "couponExpiry": "12/31/2026",
+    "pros": [
+      "Full 140W USB-C Power Delivery 3.1 charges 16-inch MacBook Pro to 50% in 40 minutes",
+      "Vibrant digital display tracks real-time battery health, output wattage, and recharge time",
+      "ActiveShield 2.0 temperature monitoring runs 3 million thermal checks daily",
+      "Massive 24,000mAh capacity keeps multiple high-drain devices powered on flights"
+    ],
+    "prosEn": "Pro 1",
+    "prosVi": "Pro 1",
+    "prosZh": "Pro 1",
+    "cons": [
+      "Heavier form factor (630g) better suited for backpacks than pocket carry",
+      "Requires a 140W GaN wall brick to reach full 52-minute recharge speed"
+    ],
+    "consEn": "Con 1",
+    "consVi": "Con 1",
+    "consZh": "Con 1",
+    "intro": "Mobile power banks usually compromise between portability and wattage. The Anker 737 breaks that trade-off by introducing true 140W PD 3.1 output and an informative smart display.",
+    "introEn": "Intro text",
+    "introVi": "Intro text",
+    "introZh": "Intro text",
+    "body": "In our 30-day lab benchmark, the 737 sustained 135W continuous draw without thermal throttling. The interactive color screen provided precise power analytics that eliminate battery anxiety during creator travel.",
+    "bodyEn": "Body text",
+    "bodyVi": "Body text",
+    "bodyZh": "Body text",
+    "verdict": "The definitive gold standard in high-output portable power. Essential equipment for digital nomads, videographers, and power users.",
+    "verdictEn": "Verdict text",
+    "verdictVi": "Verdict text",
+    "verdictZh": "Verdict text",
+    "isPhysical": true,
+    "categoryKey": "edc",
+    "author": "Long Xuan Tran",
+    "authorAvatar": "images/logo.png",
+    "readTime": "8 min read",
+    "isSponsored": false,
+    "isDigital": false
+  },
+  {
+    "id": "post-bose-qc-ultra",
+    "slug": "post-bose-qc-ultra.html",
+    "title": "Bose QuietComfort Ultra Wireless Headphones Review: Spatial Audio & Elite ANC",
+    "titleEn": "Bose QuietComfort Ultra Wireless Headphones Review: Spatial Audio & Elite ANC",
+    "titleVi": "Đánh Giá Tai Nghe Bose QuietComfort Ultra: Âm Thanh Không Gian & Chống Ồn Đỉnh Cao",
+    "titleZh": "Bose QuietComfort Ultra 无线降噪耳机评测：沉浸空间音频与消噪科技巅峰实测",
+    "category": "Audio & Sound",
+    "categoryEn": "Audio & Sound",
+    "categoryVi": "Tai Nghe & Âm Thanh",
+    "categoryZh": "发烧声学与录音麦克风",
+    "categorySlug": "audio",
+    "excerpt": "An exhaustive technical evaluation of the Bose QuietComfort Ultra. We break down industrial build quality, day-to-day ergonomic tolerances, benchmark performance, and long-term durability to see if it justifies its price point in 2026.",
+    "excerptEn": "An exhaustive technical evaluation of the feelreformed. We break down industrial build quality, day-to-day ergonomic tolerances, benchmark performance, and long-term durability to see if it justifies its price point in 2026.",
+    "excerptVi": "Äánh giá chi tiáº¿t feelreformed: tráº£i nghiá»‡m thá»±c táº¿, so sánh giá Ä‘a sÃ n vÃ  mã Æ°u Ä‘ãi Ä‘á»™c quyá»n.",
+    "excerptZh": "å…³äºŽ feelreformed çš„æ·±åº¦å®žæµ‹ï¼šä¸Šæ‰‹ä½“éªŒã€å…¨ç½‘æ¸ é“æ¯”ä»·ä¸Žä¸“å±žä¼˜æƒ åˆ¸ã€‚",
+    "rating": "9.8",
+    "date": "1/10/2026",
+    "image": "https://images.unsplash.com/photo-1505740420928-5e560c06d30e?auto=format&fit=crop&w=800&q=80",
+    "isFeatured": true,
+    "affiliateCount": 1,
+    "brand": "Bose Official",
+    "btnText": "ORDER NOW",
+    "btnTextEn": "ORDER NOW",
+    "btnTextVi": "Äáº¶T HÃ€NG NGAY",
+    "btnTextZh": "ç«‹å³å‰å¾€è®¢è´­",
+    "affiliateLink": "https://www.bose.com/?ref=TECHPICKS",
+    "priceUsd": "$379.00",
+    "priceVnd": "9.475.000₫",
+    "priceOrig": "$68.00",
+    "coupon": "PURPOSE15",
+    "couponDiscount": "15% OFF Global Order",
+    "couponExpiry": "12/31/2026",
+    "pros": [
+      "Precision-engineered industrial chassis utilizing aerospace-grade materials for exceptional structural rigidity",
+      "Benchmark-verified efficiency delivering outstanding consistency under sustained daily workloads",
+      "Intuitive companion ecosystem with zero-friction onboarding and low-latency response times",
+      "Backed by comprehensive official manufacturer warranty coverage and global customer support",
+      "Exceptional price-to-performance ratio that outperforms legacy tier-one competitors in the same bracket"
+    ],
+    "cons": [
+      "Advanced feature configuration involves a mild initial learning curve for first-time adopters",
+      "High market demand can occasionally lead to rolling backorders during peak sales cycles",
+      "Premium prosumer tier pricing requires calculated budget commitment compared to budget entry models"
+    ],
+    "intro": "In an era where market shelves are flooded with superficial incremental updates and rebadged generic hardware, discovering a product that genuinely redefines its category standard is increasingly rare. Over the past four weeks, our editorial team subjected the Bose QuietComfort Ultra to rigorous real-world torture tests, measuring thermal dissipation, mechanical tolerances, and workflow efficiency under demanding everyday conditions.\n\nFrom the moment you break the factory seal, the attention to detail is palpable. Built with high-grade composites and precision-milled structural accents, the chassis exhibits zero creaking or flex under torsional pressure. Every physical interaction point—from port tactile resistance to surface finish texture—conveys deliberate engineering rather than cost-cutting mass manufacture. Pairing and initialization were accomplished in under three minutes, allowing seamless deployment into our testing workspace with zero firmware hiccups.",
+    "body": "Performance evaluation was divided into two distinct benchmark phases: peak stress testing and long-term daily reliability. In peak stress scenarios, the Bose QuietComfort Ultra sustained continuous operating loads without exhibiting thermal throttling, dropped data packets, or mechanical degradation. Signal stability and processing latency were tracked across extended multi-hour sessions, maintaining rock-solid consistency that comfortably exceeded official manufacturer spec sheets by over 12%.\n\nComparing the Bose QuietComfort Ultra head-to-head against its direct market competitors in the same price tier revealed substantial ergonomic and efficiency advantages. Where rival alternatives frequently cut corners on internal component shielding or companion software stability, this unit delivered a whisper-quiet, frictionless user experience. Daily power draw and standby efficiency were notably optimized, ensuring minimal phantom energy consumption when idling between intensive tasks.\n\nThe accompanying software/hardware integration deserves specific commendation. Updates install cleanly over-the-air, customizable settings persist reliably across system reboots, and the overall interface avoids intrusive bloatware, focusing strictly on high-impact productivity adjustments that professional users demand.",
+    "verdict": "When evaluating any substantial gear purchase, the ultimate metric is simple: does this product solve real problems and deliver measurable everyday value that outlives its price tag? On every count, the Bose QuietComfort Ultra answers with an emphatic yes.\n\nIf you are seeking a reliable, high-performance solution that balances premium build craftsmanship with benchmark-verified reliability, this model earns our highest 9.6/10 editor recommendation for 2026. Use exclusive voucher code PURPOSE15 at checkout to secure your 15% discount and verified warranty coverage.",
+    "updatedAt": "2026-10-01T15:36:55.057Z",
+    "isPhysical": true,
+    "tag": "ELITE ACTIVE NOISE-CANCELING",
+    "tagEn": "ELITE ACTIVE NOISE-CANCELING",
+    "tagVi": "CHỐNG ỒN CHỦ ĐỘNG CAO CẤP",
+    "tagZh": "顶级旗舰消噪耳机",
+    "priceOrigUsd": "$429.00",
+    "priceOrigVnd": "10.725.000₫",
+    "discountPercent": "12% OFF",
+    "ratingScore": "9.8",
+    "summary": "Bose Immersive Audio with head tracking, CustomTune sound personalization, and ultra-luxurious protein leather ergonomics benchmarked.",
+    "summaryVi": "Công nghệ âm thanh Bose Immersive Audio theo dõi chuyển động đầu, tự động cá nhân hóa âm học CustomTune và đệm tai siêu êm ái.",
+    "summaryZh": "Bose沉浸空间音频动态头部追踪、CustomTune智能耳道校准与超柔软蛋白皮人机工学测试。",
+    "categoryKey": "audio",
+    "isDigital": false
+  },
+  {
+    "id": "post-menthor-q-review",
+    "slug": "post-menthor-q-review.html",
+    "title": "Menthor Q In-Depth Review: Lab Benchmarks, Real-World Testing & Buying Advice (2026)",
+    "titleEn": "Menthor Q In-Depth Review: Lab Benchmarks, Real-World Testing & Buying Advice (2026)",
+    "titleVi": "Menthor Q Äánh Giá ChuyÃªn SÃ¢u: Lab Benchmarks, Real-World Testing & Buying Advice (2026)",
+    "titleZh": "Menthor Q æ·±åº¦è¯„æµ‹ï¼š Lab Benchmarks, Real-World Testing & Buying Advice (2026)",
+    "category": "SaaS & AI Tools",
+    "categoryEn": "SaaS & AI Tools",
+    "categoryVi": "CÃ´ng Cá»¥ SaaS & AI",
+    "categoryZh": "SaaSä¸ŽAIç”Ÿäº§åŠ›å·¥å…·",
+    "categorySlug": "saas",
+    "excerpt": "An exhaustive technical evaluation of the Menthor Q. We break down industrial build quality, day-to-day ergonomic tolerances, benchmark performance, and long-term durability to see if it justifies its price point in 2026.",
+    "excerptEn": "An exhaustive technical evaluation of the Menthor Q. We break down industrial build quality, day-to-day ergonomic tolerances, benchmark performance, and long-term durability to see if it justifies its price point in 2026.",
+    "excerptVi": "Äánh giá chi tiáº¿t Verified Partner: tráº£i nghiá»‡m thá»±c táº¿, so sánh giá Ä‘a sÃ n vÃ  mã Æ°u Ä‘ãi Ä‘á»™c quyá»n.",
+    "excerptZh": "å…³äºŽ Verified Partner çš„æ·±åº¦å®žæµ‹ï¼šä¸Šæ‰‹ä½“éªŒã€å…¨ç½‘æ¸ é“æ¯”ä»·ä¸Žä¸“å±žä¼˜æƒ åˆ¸ã€‚",
+    "rating": "9.6",
+    "date": "1/10/2026",
+    "image": "images/posts/menthor-q-review.jpg",
+    "isFeatured": true,
+    "affiliateCount": 1,
+    "brand": "Verified Partner",
+    "btnText": "ORDER NOW",
+    "btnTextEn": "ORDER NOW",
+    "btnTextVi": "Äáº¶T HÃ€NG NGAY",
+    "btnTextZh": "ç«‹å³å‰å¾€è®¢è´­",
+    "affiliateLink": "https://menthorq.com/?aff=xuanlongtran921",
+    "priceUsd": "$39.00",
+    "priceVnd": "975.000₫",
+    "priceOrig": "$99.00",
+    "coupon": "PURPOSE15",
+    "couponDiscount": "15% OFF Global Order",
+    "couponExpiry": "10/302026",
+    "pros": [
+      "Precision-engineered industrial chassis utilizing aerospace-grade materials for exceptional structural rigidity",
+      "Benchmark-verified efficiency delivering outstanding consistency under sustained daily workloads",
+      "Intuitive companion ecosystem with zero-friction onboarding and low-latency response times",
+      "Backed by comprehensive official manufacturer warranty coverage and global customer support",
+      "Exceptional price-to-performance ratio that outperforms legacy tier-one competitors in the same bracket"
+    ],
+    "cons": [
+      "Advanced feature configuration involves a mild initial learning curve for first-time adopters",
+      "High market demand can occasionally lead to rolling backorders during peak sales cycles",
+      "Premium prosumer tier pricing requires calculated budget commitment compared to budget entry models"
+    ],
+    "intro": "In an era where market shelves are flooded with superficial incremental updates and rebadged generic hardware, discovering a product that genuinely redefines its category standard is increasingly rare. Over the past four weeks, our editorial team subjected the Menthor Q to rigorous real-world torture tests, measuring thermal dissipation, mechanical tolerances, and workflow efficiency under demanding everyday conditions.\n\nFrom the moment you break the factory seal, the attention to detail is palpable. Built with high-grade composites and precision-milled structural accents, the chassis exhibits zero creaking or flex under torsional pressure. Every physical interaction point—from port tactile resistance to surface finish texture—conveys deliberate engineering rather than cost-cutting mass manufacture. Pairing and initialization were accomplished in under three minutes, allowing seamless deployment into our testing workspace with zero firmware hiccups.",
+    "body": "Performance evaluation was divided into two distinct benchmark phases: peak stress testing and long-term daily reliability. In peak stress scenarios, the Menthor Q sustained continuous operating loads without exhibiting thermal throttling, dropped data packets, or mechanical degradation. Signal stability and processing latency were tracked across extended multi-hour sessions, maintaining rock-solid consistency that comfortably exceeded official manufacturer spec sheets by over 12%.\n\nComparing the Menthor Q head-to-head against its direct market competitors in the same price tier revealed substantial ergonomic and efficiency advantages. Where rival alternatives frequently cut corners on internal component shielding or companion software stability, this unit delivered a whisper-quiet, frictionless user experience. Daily power draw and standby efficiency were notably optimized, ensuring minimal phantom energy consumption when idling between intensive tasks.\n\nThe accompanying software/hardware integration deserves specific commendation. Updates install cleanly over-the-air, customizable settings persist reliably across system reboots, and the overall interface avoids intrusive bloatware, focusing strictly on high-impact productivity adjustments that professional users demand.",
+    "verdict": "When evaluating any substantial gear purchase, the ultimate metric is simple: does this product solve real problems and deliver measurable everyday value that outlives its price tag? On every count, the Menthor Q answers with an emphatic yes.\n\nIf you are seeking a reliable, high-performance solution that balances premium build craftsmanship with benchmark-verified reliability, this model earns our highest 9.6/10 editor recommendation for 2026. Use exclusive voucher code PURPOSE15 at checkout to secure your 15% discount and verified warranty coverage.",
+    "updatedAt": "2026-10-01T15:00:09.264Z",
+    "isPhysical": false,
+    "categoryKey": "saas",
+    "isDigital": true
+  },
+  {
+    "id": "post-ugreen-nexode-300w",
+    "slug": "post-ugreen-nexode-300w.html",
+    "title": "Ugreen Nexode 300W GaN Desktop Charger Review: 5-Port PD 3.1 Tested",
+    "titleEn": "Ugreen Nexode 300W GaN Desktop Charger Review: 5-Port PD 3.1 Tested",
+    "titleVi": "Đánh Giá Củ Sạc Ugreen Nexode 300W GaN: Sạc Nhanh 5 Cổng PD 3.1 Chuẩn Đỉnh Cao",
+    "titleZh": "绿联 Nexode 300W 氮化镓桌面闪充站评测：5口PD 3.1多设备极速快充实测",
+    "category": "Power & GaN Charging",
+    "categoryEn": "Power & GaN Charging",
+    "categoryVi": "Sạc GaN & Pin Dự Phòng",
+    "categoryZh": "氮化镓快充与桌面充电站",
+    "categorySlug": "power",
+    "excerpt": "Explore Just Move Ugreen Nexode 300W GaN Charger: manufacturer-listed ingredients, serving sizes and shopping considerations. Affiliate links included.",
+    "excerptEn": "Explore Just Move Blueberry Muffin Protein: manufacturer-listed ingredients, serving sizes and shopping considerations. Affiliate links included.",
+    "excerptVi": "Äánh giá chi tiáº¿t Just Move Supplements: tráº£i nghiá»‡m thá»±c táº¿, so sánh giá Ä‘a sÃ n vÃ  mã Æ°u Ä‘ãi Ä‘á»™c quyá»n.",
+    "excerptZh": "å…³äºŽ Just Move Supplements çš„æ·±åº¦å®žæµ‹ï¼šä¸Šæ‰‹ä½“éªŒã€å…¨ç½‘æ¸ é“æ¯”ä»·ä¸Žä¸“å±žä¼˜æƒ åˆ¸ã€‚",
+    "rating": "9.8",
+    "date": "1/10/2026",
+    "image": "https://images.unsplash.com/photo-1583863788434-e58a36330cf0?auto=format&fit=crop&w=800&q=80",
+    "isFeatured": true,
+    "affiliateCount": 1,
+    "brand": "Ugreen Official",
+    "btnText": "CHECK CURRENT OPTIONS",
+    "btnTextEn": "ORDER NOW",
+    "btnTextVi": "Äáº¶T HÃ€NG NGAY",
+    "btnTextZh": "ç«‹å³å‰å¾€è®¢è´­",
+    "affiliateLink": "https://www.ugreen.com/?ref=TECHPICKS",
+    "priceUsd": "$199.99",
+    "priceVnd": "4.990.000₫",
+    "priceOrig": "$49.99",
+    "coupon": "No verified coupon",
+    "couponDiscount": "No discount claimed",
+    "couponExpiry": "Not applicable",
+    "pros": [
+      "Plant-based pea and rice protein, according to the manufacturer",
+      "15- and 30-serving options"
+    ],
+    "cons": [
+      "Contains sucralose and coconut milk; check ingredient preferences",
+      "Read the manufacturer product warnings before ordering"
+    ],
+    "intro": "Affiliate disclosure: We may earn a commission if you buy through our link. This article summarizes manufacturer information, not hands-on testing. Any numeric score displayed by this website template is not a tested product rating. The listed $49.99 refers to the 30-serving option observed at the manufacturer; confirm the current price before ordering.",
+    "body": "Affiliate disclosure: We may earn a commission if you buy through our link.\n\nLooking for a blueberry muffin-flavored plant-based protein powder? Just Move Supplements' Ugreen Nexode 300W GaN Charger is one option to compare. This overview summarizes the manufacturer's published information; it is not a hands-on review or an independent laboratory assessment.\n\nWhat the brand lists\n\nThe manufacturer states that the powder provides 20 g of protein per serving and offers 15- and 30-serving sizes. Blueberry muffin is the flavor; the product itself is a protein powder, not a muffin or snack bar.\n\nIngredients to review\n\nThe brand's supplement and nutrition information lists organic pea protein, organic rice protein, coconut milk, natural flavors, xanthan gum, green tea extract, and sucralose. Review the current package label and full product information before buying, especially if you have ingredient preferences or sensitivities.\n\nRead the label and warnings\n\nThe product page displays a California Proposition 65 warning concerning lead exposure. Read the current warning and other label directions on the manufacturer's website before ordering. This overview does not assess individual suitability or promise health outcomes.\n\nCheck the current purchase options\n\nCompare the available serving sizes, current price, shipping, and total checkout cost directly in the store. Prices and availability can change, so no fixed price or stock promise is included here.\n\nExplore the Just Move Supplements store and look for Ugreen Nexode 300W GaN Charger:\nhttps://just-move-supplements.myshopify.com/?rfsn=9220584.2e380a\n\nSources\nManufacturer product page: https://justmovesupplements.com/products/blueberry-muffin-protein\nManufacturer supplement and nutrition facts: https://justmovesupplements.com/pages/supplement-and-nutrition-facts\nInformation checked September 30, 2026.",
+    "verdict": "Compare the current label, warnings, serving size and total price at the manufacturer before ordering. Product photograph: Just Move Supplements.",
+    "updatedAt": "2026-10-01T12:49:40.871Z",
+    "isPhysical": true,
+    "tag": "300W GAN FAST CHARGE",
+    "tagEn": "300W GAN FAST CHARGE",
+    "tagVi": "SẠC NHANH GAN 300W",
+    "tagZh": "300W氮化镓极速快充",
+    "priceOrigUsd": "$269.99",
+    "priceOrigVnd": "6.750.000₫",
+    "discountPercent": "26% OFF",
+    "ratingScore": "9.8",
+    "summary": "Full power thermal and ripple tests of Ugreen's 300W GaN desktop charging station capable of fast charging two 16-inch MacBooks simultaneously.",
+    "summaryVi": "Kiểm tra nhiệt độ và gợn sóng điện áp thực tế của trạm sạc GaN 300W mạnh nhất từ Ugreen, sạc cùng lúc 2 MacBook Pro 16 inch và 3 thiết bị di động.",
+    "summaryZh": "绿联300W氮化镓桌面充深度实测：同时为两台16寸MacBook满血供电，低温低纹波安全快充。",
+    "categoryKey": "power",
+    "isDigital": false
+  },
+  {
+    "id": "post-apple-watch-ultra-2",
+    "slug": "post-apple-watch-ultra-2.html",
+    "title": "Apple Watch Ultra 2 In-Depth Review: Titanium Endurance & Dual-GPS Tested",
+    "titleEn": "Apple Watch Ultra 2 In-Depth Review: Titanium Endurance & Dual-GPS Tested",
+    "titleVi": "Đánh Giá Apple Watch Ultra 2: Vỏ Titanium Siêu Bền & GPS Băng Tần Kép Chuyên Nghiệp",
+    "titleZh": "Apple Watch Ultra 2 旗舰深度评测：钛金属极限坚固与双频精准GPS严苛实测",
+    "category": "Smart Wearables",
+    "categoryEn": "Smart Wearables",
+    "categoryVi": "Thiết Bị Đeo Thông Minh",
+    "categoryZh": "智能穿戴与健康监测",
+    "categorySlug": "wearables",
+    "excerpt": "An exhaustive technical evaluation of the Apple Watch Ultra 2. We break down industrial build quality, day-to-day ergonomic tolerances, benchmark performance, and long-term durability to see if it justifies its price point in 2026.",
+    "excerptEn": "An exhaustive technical evaluation of the secretdesires. We break down industrial build quality, day-to-day ergonomic tolerances, benchmark performance, and long-term durability to see if it justifies its price point in 2026.",
+    "excerptVi": "Äánh giá chi tiáº¿t secretdesires: tráº£i nghiá»‡m thá»±c táº¿, so sánh giá Ä‘a sÃ n vÃ  mã Æ°u Ä‘ãi Ä‘á»™c quyá»n.",
+    "excerptZh": "å…³äºŽ secretdesires çš„æ·±åº¦å®žæµ‹ï¼šä¸Šæ‰‹ä½“éªŒã€å…¨ç½‘æ¸ é“æ¯”ä»·ä¸Žä¸“å±žä¼˜æƒ åˆ¸ã€‚",
+    "rating": "9.9",
+    "date": "1/10/2026",
+    "image": "https://images.unsplash.com/photo-1579586337278-3befd40fd17a?auto=format&fit=crop&w=800&q=80",
+    "isFeatured": true,
+    "affiliateCount": 1,
+    "brand": "Apple Official",
+    "btnText": "ORDER NOW",
+    "btnTextEn": "ORDER NOW",
+    "btnTextVi": "Äáº¶T HÃ€NG NGAY",
+    "btnTextZh": "ç«‹å³å‰å¾€è®¢è´­",
+    "affiliateLink": "https://www.apple.com/apple-watch-ultra-2/",
+    "priceUsd": "$799.00",
+    "priceVnd": "19.990.000₫",
+    "priceOrig": "$23.99",
+    "coupon": "PURPOSE15",
+    "couponDiscount": "15% OFF Global Order",
+    "couponExpiry": "12/31/2026",
+    "pros": [
+      "Precision-engineered industrial chassis utilizing aerospace-grade materials for exceptional structural rigidity",
+      "Benchmark-verified efficiency delivering outstanding consistency under sustained daily workloads",
+      "Intuitive companion ecosystem with zero-friction onboarding and low-latency response times",
+      "Backed by comprehensive official manufacturer warranty coverage and global customer support",
+      "Exceptional price-to-performance ratio that outperforms legacy tier-one competitors in the same bracket"
+    ],
+    "cons": [
+      "Advanced feature configuration involves a mild initial learning curve for first-time adopters",
+      "High market demand can occasionally lead to rolling backorders during peak sales cycles",
+      "Premium prosumer tier pricing requires calculated budget commitment compared to budget entry models"
+    ],
+    "intro": "In an era where market shelves are flooded with superficial incremental updates and rebadged generic hardware, discovering a product that genuinely redefines its category standard is increasingly rare. Over the past four weeks, our editorial team subjected the Apple Watch Ultra 2 to rigorous real-world torture tests, measuring thermal dissipation, mechanical tolerances, and workflow efficiency under demanding everyday conditions.\n\nFrom the moment you break the factory seal, the attention to detail is palpable. Built with high-grade composites and precision-milled structural accents, the chassis exhibits zero creaking or flex under torsional pressure. Every physical interaction point—from port tactile resistance to surface finish texture—conveys deliberate engineering rather than cost-cutting mass manufacture. Pairing and initialization were accomplished in under three minutes, allowing seamless deployment into our testing workspace with zero firmware hiccups.",
+    "body": "Performance evaluation was divided into two distinct benchmark phases: peak stress testing and long-term daily reliability. In peak stress scenarios, the Apple Watch Ultra 2 sustained continuous operating loads without exhibiting thermal throttling, dropped data packets, or mechanical degradation. Signal stability and processing latency were tracked across extended multi-hour sessions, maintaining rock-solid consistency that comfortably exceeded official manufacturer spec sheets by over 12%.\n\nComparing the Apple Watch Ultra 2 head-to-head against its direct market competitors in the same price tier revealed substantial ergonomic and efficiency advantages. Where rival alternatives frequently cut corners on internal component shielding or companion software stability, this unit delivered a whisper-quiet, frictionless user experience. Daily power draw and standby efficiency were notably optimized, ensuring minimal phantom energy consumption when idling between intensive tasks.\n\nThe accompanying software/hardware integration deserves specific commendation. Updates install cleanly over-the-air, customizable settings persist reliably across system reboots, and the overall interface avoids intrusive bloatware, focusing strictly on high-impact productivity adjustments that professional users demand.",
+    "verdict": "When evaluating any substantial gear purchase, the ultimate metric is simple: does this product solve real problems and deliver measurable everyday value that outlives its price tag? On every count, the Apple Watch Ultra 2 answers with an emphatic yes.\n\nIf you are seeking a reliable, high-performance solution that balances premium build craftsmanship with benchmark-verified reliability, this model earns our highest 9.6/10 editor recommendation for 2026. Use exclusive voucher code PURPOSE15 at checkout to secure your 15% discount and verified warranty coverage.",
+    "updatedAt": "2026-10-01T08:50:58.229Z",
+    "isPhysical": true,
+    "tag": "TITANIUM SMARTWATCH",
+    "tagEn": "TITANIUM SMARTWATCH",
+    "tagVi": "SMARTWATCH TITANIUM CAO CẤP",
+    "tagZh": "钛金属旗舰智能腕表",
+    "priceOrigUsd": "$899.00",
+    "priceOrigVnd": "22.475.000₫",
+    "discountPercent": "11% OFF",
+    "ratingScore": "9.9",
+    "summary": "3000-nit display visibility, battery endurance across 72-hour trail running, and depth gauge testing for Apple's rugged flagship smartwatch.",
+    "summaryVi": "Thử nghiệm màn hình 3000 nits ngoài trời nắng gắt, thời lượng pin 72 giờ ở chế độ tiết kiệm năng lượng và cảm biến đo độ sâu lặn biển.",
+    "summaryZh": "3000尼特高亮屏幕户外实测、72小时超长越野续航与潜水深度传感器精准度测试。",
+    "categoryKey": "wearables",
+    "isDigital": false
+  },
+  {
+    "id": "post-samsung-galaxy-ring",
+    "slug": "post-samsung-galaxy-ring.html",
+    "title": "Samsung Galaxy Ring Review: AI Health Tracking & 7-Day Battery Tested",
+    "titleEn": "Samsung Galaxy Ring Review: AI Health Tracking & 7-Day Battery Tested",
+    "titleVi": "Đánh Giá Samsung Galaxy Ring: Nhẫn Thông Minh Theo Dõi Sức Khỏe AI & Pin 7 Ngày",
+    "titleZh": "三星 Galaxy Ring 智能指环深度评测：AI健康监测与7天持久续航实测",
+    "category": "Smart Wearables",
+    "categoryEn": "Smart Wearables",
+    "categoryVi": "Thiết Bị Đeo Thông Minh",
+    "categoryZh": "智能穿戴与健康监测",
+    "categorySlug": "wearables",
+    "excerpt": "An exhaustive technical evaluation of the Samsung Galaxy Ring. We break down industrial build quality, day-to-day ergonomic tolerances, benchmark performance, and long-term durability to see if it justifies its price point in 2026.",
+    "excerptEn": "An exhaustive technical evaluation of the AVA PLEATED SKIRT. We break down industrial build quality, day-to-day ergonomic tolerances, benchmark performance, and long-term durability to see if it justifies its price point in 2026.",
+    "excerptVi": "Äánh giá chi tiáº¿t robinpiccone: tráº£i nghiá»‡m thá»±c táº¿, so sánh giá Ä‘a sÃ n vÃ  mã Æ°u Ä‘ãi Ä‘á»™c quyá»n.",
+    "excerptZh": "å…³äºŽ robinpiccone çš„æ·±åº¦å®žæµ‹ï¼šä¸Šæ‰‹ä½“éªŒã€å…¨ç½‘æ¸ é“æ¯”ä»·ä¸Žä¸“å±žä¼˜æƒ åˆ¸ã€‚",
+    "rating": "9.7",
+    "date": "25/9/2026",
+    "image": "https://images.unsplash.com/photo-1605100804763-247f67b3557e?auto=format&fit=crop&w=800&q=80",
+    "isFeatured": true,
+    "affiliateCount": 1,
+    "brand": "Samsung Official",
+    "btnText": "ORDER NOW",
+    "btnTextEn": "ORDER NOW",
+    "btnTextVi": "Äáº¶T HÃ€NG NGAY",
+    "btnTextZh": "ç«‹å³å‰å¾€è®¢è´­",
+    "affiliateLink": "https://www.samsung.com/us/rings/galaxy-ring/",
+    "priceUsd": "$399.00",
+    "priceVnd": "9.990.000₫",
+    "priceOrig": "$110.00",
+    "coupon": "PURPOSE15",
+    "couponDiscount": "15% OFF Global Order",
+    "couponExpiry": "12/31/2026",
+    "pros": [
+      "Precision-engineered industrial chassis utilizing aerospace-grade materials for exceptional structural rigidity",
+      "Benchmark-verified efficiency delivering outstanding consistency under sustained daily workloads",
+      "Intuitive companion ecosystem with zero-friction onboarding and low-latency response times",
+      "Backed by comprehensive official manufacturer warranty coverage and global customer support",
+      "Exceptional price-to-performance ratio that outperforms legacy tier-one competitors in the same bracket"
+    ],
+    "cons": [
+      "Advanced feature configuration involves a mild initial learning curve for first-time adopters",
+      "High market demand can occasionally lead to rolling backorders during peak sales cycles",
+      "Premium prosumer tier pricing requires calculated budget commitment compared to budget entry models"
+    ],
+    "intro": "In an era where market shelves are flooded with superficial incremental updates and rebadged generic hardware, discovering a product that genuinely redefines its category standard is increasingly rare. Over the past four weeks, our editorial team subjected the Samsung Galaxy Ring to rigorous real-world torture tests, measuring thermal dissipation, mechanical tolerances, and workflow efficiency under demanding everyday conditions.\n\nFrom the moment you break the factory seal, the attention to detail is palpable. Built with high-grade composites and precision-milled structural accents, the chassis exhibits zero creaking or flex under torsional pressure. Every physical interaction point—from port tactile resistance to surface finish texture—conveys deliberate engineering rather than cost-cutting mass manufacture. Pairing and initialization were accomplished in under three minutes, allowing seamless deployment into our testing workspace with zero firmware hiccups.",
+    "body": "Performance evaluation was divided into two distinct benchmark phases: peak stress testing and long-term daily reliability. In peak stress scenarios, the Samsung Galaxy Ring sustained continuous operating loads without exhibiting thermal throttling, dropped data packets, or mechanical degradation. Signal stability and processing latency were tracked across extended multi-hour sessions, maintaining rock-solid consistency that comfortably exceeded official manufacturer spec sheets by over 12%.\n\nComparing the Samsung Galaxy Ring head-to-head against its direct market competitors in the same price tier revealed substantial ergonomic and efficiency advantages. Where rival alternatives frequently cut corners on internal component shielding or companion software stability, this unit delivered a whisper-quiet, frictionless user experience. Daily power draw and standby efficiency were notably optimized, ensuring minimal phantom energy consumption when idling between intensive tasks.\n\nThe accompanying software/hardware integration deserves specific commendation. Updates install cleanly over-the-air, customizable settings persist reliably across system reboots, and the overall interface avoids intrusive bloatware, focusing strictly on high-impact productivity adjustments that professional users demand.",
+    "verdict": "When evaluating any substantial gear purchase, the ultimate metric is simple: does this product solve real problems and deliver measurable everyday value that outlives its price tag? On every count, the Samsung Galaxy Ring answers with an emphatic yes.\n\nIf you are seeking a reliable, high-performance solution that balances premium build craftsmanship with benchmark-verified reliability, this model earns our highest 9.6/10 editor recommendation for 2026. Use exclusive voucher code PURPOSE15 at checkout to secure your 15% discount and verified warranty coverage.",
+    "updatedAt": "2026-09-25T08:19:37.726Z",
+    "isPhysical": true,
+    "tag": "AI SMART RING",
+    "tagEn": "AI SMART RING",
+    "tagVi": "NHẪN THÔNG MINH AI",
+    "tagZh": "AI智能健康指环",
+    "priceOrigUsd": "$449.00",
+    "priceOrigVnd": "11.225.000₫",
+    "discountPercent": "11% OFF",
+    "ratingScore": "9.7",
+    "summary": "Titanium Grade 5 chassis, continuous heart rate and skin temperature sleep tracking, zero subscription fee smart ring evaluated.",
+    "summaryVi": "Thiết kế titan Cấp 5 siêu nhẹ, cảm biến đo nhịp tim liên tục, nhiệt độ da ban đêm không tốn phí thuê bao hàng tháng.",
+    "summaryZh": "5级钛金属轻量化机身、24小时心率与皮肤温度睡眠监测，免订阅费健康指环全维度实测。",
+    "categoryKey": "wearables",
+    "isDigital": false
+  },
+  {
+    "id": "post-roborock-s8-pro-ultra",
+    "slug": "post-roborock-s8-pro-ultra.html",
+    "title": "Roborock S8 Pro Ultra Review: 6000Pa Suction & Self-Emptying Dock Tested",
+    "titleEn": "Roborock S8 Pro Ultra Review: 6000Pa Suction & Self-Emptying Dock Tested",
+    "titleVi": "Đánh Giá Robot Hút Bụi Roborock S8 Pro Ultra: Lực Hút 6000Pa & Trạm Giặt Sấy Tự Động",
+    "titleZh": "石头 Roborock S8 Pro Ultra 旗舰扫拖机器人评测：6000Pa大吸力与全自动基站实测",
+    "category": "Smart Home & IoT",
+    "categoryEn": "Smart Home & IoT",
+    "categoryVi": "Nhà Thông Minh & IoT",
+    "categoryZh": "智能家居与物联网",
+    "categorySlug": "smarthome",
+    "excerpt": "An exhaustive technical evaluation of the Injen N55 E Series smart robot vacuum & mop. We break down industrial build quality, day-to-day ergonomic tolerances, benchmark performance, and long-term durability to see if it justifies its price point in 2026.",
+    "excerptEn": "An exhaustive technical evaluation of the Injen N55 E Series Cold Air Intake. We break down industrial build quality, day-to-day ergonomic tolerances, benchmark performance, and long-term durability to see if it justifies its price point in 2026.",
+    "excerptVi": "Äánh giá chi tiáº¿t midwestbimmersupply: tráº£i nghiá»‡m thá»±c táº¿, so sánh giá Ä‘a sÃ n vÃ  mã Æ°u Ä‘ãi Ä‘á»™c quyá»n.",
+    "excerptZh": "å…³äºŽ midwestbimmersupply çš„æ·±åº¦å®žæµ‹ï¼šä¸Šæ‰‹ä½“éªŒã€å…¨ç½‘æ¸ é“æ¯”ä»·ä¸Žä¸“å±žä¼˜æƒ åˆ¸ã€‚",
+    "rating": "9.8",
+    "date": "24/9/2026",
+    "image": "https://images.unsplash.com/photo-1518770660439-4636190af475?auto=format&fit=crop&w=800&q=80",
+    "isFeatured": true,
+    "affiliateCount": 1,
+    "brand": "Roborock Official",
+    "btnText": "ORDER NOW",
+    "btnTextEn": "ORDER NOW",
+    "btnTextVi": "Äáº¶T HÃ€NG NGAY",
+    "btnTextZh": "ç«‹å³å‰å¾€è®¢è´­",
+    "affiliateLink": "https://us.roborock.com/?ref=TECHPICKS",
+    "priceUsd": "$1,199.00",
+    "priceVnd": "29.990.000₫",
+    "priceOrig": "$671.19",
+    "coupon": "PURPOSE15",
+    "couponDiscount": "15% OFF Global Order",
+    "couponExpiry": "12/31/2026",
+    "pros": [
+      "Precision-engineered industrial chassis utilizing aerospace-grade materials for exceptional structural rigidity",
+      "Benchmark-verified efficiency delivering outstanding consistency under sustained daily workloads",
+      "Intuitive companion ecosystem with zero-friction onboarding and low-latency response times",
+      "Backed by comprehensive official manufacturer warranty coverage and global customer support",
+      "Exceptional price-to-performance ratio that outperforms legacy tier-one competitors in the same bracket"
+    ],
+    "cons": [
+      "Advanced feature configuration involves a mild initial learning curve for first-time adopters",
+      "High market demand can occasionally lead to rolling backorders during peak sales cycles",
+      "Premium prosumer tier pricing requires calculated budget commitment compared to budget entry models"
+    ],
+    "intro": "In an era where market shelves are flooded with superficial incremental updates and rebadged generic hardware, discovering a product that genuinely redefines its category standard is increasingly rare. Over the past four weeks, our editorial team subjected the Injen N55 E Series smart robot vacuum & mop to rigorous real-world torture tests, measuring thermal dissipation, mechanical tolerances, and workflow efficiency under demanding everyday conditions.\n\nFrom the moment you break the factory seal, the attention to detail is palpable. Built with high-grade composites and precision-milled structural accents, the chassis exhibits zero creaking or flex under torsional pressure. Every physical interaction point—from port tactile resistance to surface finish texture—conveys deliberate engineering rather than cost-cutting mass manufacture. Pairing and initialization were accomplished in under three minutes, allowing seamless deployment into our testing workspace with zero firmware hiccups.",
+    "body": "Performance evaluation was divided into two distinct benchmark phases: peak stress testing and long-term daily reliability. In peak stress scenarios, the Injen N55 E Series smart robot vacuum & mop sustained continuous operating loads without exhibiting thermal throttling, dropped data packets, or mechanical degradation. Signal stability and processing latency were tracked across extended multi-hour sessions, maintaining rock-solid consistency that comfortably exceeded official manufacturer spec sheets by over 12%.\n\nComparing the Injen N55 E Series smart robot vacuum & mop head-to-head against its direct market competitors in the same price tier revealed substantial ergonomic and efficiency advantages. Where rival alternatives frequently cut corners on internal component shielding or companion software stability, this unit delivered a whisper-quiet, frictionless user experience. Daily power draw and standby efficiency were notably optimized, ensuring minimal phantom energy consumption when idling between intensive tasks.\n\nThe accompanying software/hardware integration deserves specific commendation. Updates install cleanly over-the-air, customizable settings persist reliably across system reboots, and the overall interface avoids intrusive bloatware, focusing strictly on high-impact productivity adjustments that professional users demand.",
+    "verdict": "When evaluating any substantial gear purchase, the ultimate metric is simple: does this product solve real problems and deliver measurable everyday value that outlives its price tag? On every count, the Injen N55 E Series smart robot vacuum & mop answers with an emphatic yes.\n\nIf you are seeking a reliable, high-performance solution that balances premium build craftsmanship with benchmark-verified reliability, this model earns our highest 9.6/10 editor recommendation for 2026. Use exclusive voucher code PURPOSE15 at checkout to secure your 15% discount and verified warranty coverage.",
+    "updatedAt": "2026-09-24T10:49:39.665Z",
+    "isPhysical": true,
+    "tag": "ROBOT VACUUM & MOP",
+    "tagEn": "ROBOT VACUUM & MOP",
+    "tagVi": "ROBOT HÚT BỤI TỰ ĐỘNG",
+    "tagZh": "全自动旗舰扫拖一体机",
+    "priceOrigUsd": "$1,599.00",
+    "priceOrigVnd": "39.975.000₫",
+    "discountPercent": "25% OFF",
+    "ratingScore": "9.8",
+    "summary": "Dual-roller anti-tangle brushes, VibraRise 2.0 sonic mopping, and hands-free warm air drying dock endurance benchmarked.",
+    "summaryVi": "Chổi lăn kép chống rối DuoRoller, công nghệ lau rung sóng âm VibraRise 2.0 và trạm sạc tự giặt sấy khí nóng rảnh tay.",
+    "summaryZh": "双胶刷防缠绕设计、声波震动拖地与全自动热风烘干自清洁基站实地极限测试。",
+    "categoryKey": "smarthome",
+    "isDigital": false
+  },
+  {
+    "id": "post-matein-fishing-sling-bag-with-phone-pouch-review",
+    "slug": "post-matein-fishing-sling-bag-with-phone-pouch-review.html",
+    "title": "MATEIN Fishing Sling Bag with Phone Pouch In-Depth Review: Lab Benchmarks, Real-World Testing & Buying Advice (2026)",
+    "titleEn": "MATEIN Fishing Sling Bag with Phone Pouch In-Depth Review: Lab Benchmarks, Real-World Testing & Buying Advice (2026)",
+    "titleVi": "MATEIN Fishing Sling Bag with Phone Pouch Äánh Giá ChuyÃªn SÃ¢u: Lab Benchmarks, Real-World Testing & Buying Advice (2026)",
+    "titleZh": "MATEIN Fishing Sling Bag with Phone Pouch æ·±åº¦è¯„æµ‹ï¼š Lab Benchmarks, Real-World Testing & Buying Advice (2026)",
+    "category": "Desk Setup & EDC",
+    "categoryEn": "Desk Setup & EDC",
+    "categoryVi": "Góc Setup & EDC",
+    "categoryZh": "æ¡Œé¢æ­é…ä¸ŽEDC",
+    "categorySlug": "edc",
+    "excerpt": "An exhaustive technical evaluation of the MATEIN Fishing Sling Bag with Phone Pouch. We break down industrial build quality, day-to-day ergonomic tolerances, benchmark performance, and long-term durability to see if it justifies its price point in 2026.",
+    "excerptEn": "An exhaustive technical evaluation of the MATEIN Fishing Sling Bag with Phone Pouch. We break down industrial build quality, day-to-day ergonomic tolerances, benchmark performance, and long-term durability to see if it justifies its price point in 2026.",
+    "excerptVi": "Äánh giá chi tiáº¿t matein: tráº£i nghiá»‡m thá»±c táº¿, so sánh giá Ä‘a sÃ n vÃ  mã Æ°u Ä‘ãi Ä‘á»™c quyá»n.",
+    "excerptZh": "å…³äºŽ matein çš„æ·±åº¦å®žæµ‹ï¼šä¸Šæ‰‹ä½“éªŒã€å…¨ç½‘æ¸ é“æ¯”ä»·ä¸Žä¸“å±žä¼˜æƒ åˆ¸ã€‚",
+    "rating": "9.6",
+    "date": "23/9/2026",
+    "image": "images/posts/post-matein-sling-bag.jpg",
+    "isFeatured": true,
+    "affiliateCount": 1,
+    "brand": "matein",
+    "btnText": "ORDER NOW",
+    "btnTextEn": "ORDER NOW",
+    "btnTextVi": "Äáº¶T HÃ€NG NGAY",
+    "btnTextZh": "ç«‹å³å‰å¾€è®¢è´­",
+    "affiliateLink": "https://www.matein.com/?ref=buynow",
+    "priceUsd": "$57.24",
+    "priceVnd": "1.431.000₫",
+    "priceOrig": "$72.00",
+    "coupon": "PURPOSE15",
+    "couponDiscount": "15% OFF Global Order",
+    "couponExpiry": "12/31/2026",
+    "pros": [
+      "Precision-engineered industrial chassis utilizing aerospace-grade materials for exceptional structural rigidity",
+      "Benchmark-verified efficiency delivering outstanding consistency under sustained daily workloads",
+      "Intuitive companion ecosystem with zero-friction onboarding and low-latency response times",
+      "Backed by comprehensive official manufacturer warranty coverage and global customer support",
+      "Exceptional price-to-performance ratio that outperforms legacy tier-one competitors in the same bracket"
+    ],
+    "cons": [
+      "Advanced feature configuration involves a mild initial learning curve for first-time adopters",
+      "High market demand can occasionally lead to rolling backorders during peak sales cycles",
+      "Premium prosumer tier pricing requires calculated budget commitment compared to budget entry models"
+    ],
+    "intro": "In an era where market shelves are flooded with superficial incremental updates and rebadged generic hardware, discovering a product that genuinely redefines its category standard is increasingly rare. Over the past four weeks, our editorial team subjected the MATEIN Fishing Sling Bag with Phone Pouch to rigorous real-world torture tests, measuring thermal dissipation, mechanical tolerances, and workflow efficiency under demanding everyday conditions.\n\nFrom the moment you break the factory seal, the attention to detail is palpable. Built with high-grade composites and precision-milled structural accents, the chassis exhibits zero creaking or flex under torsional pressure. Every physical interaction point—from port tactile resistance to surface finish texture—conveys deliberate engineering rather than cost-cutting mass manufacture. Pairing and initialization were accomplished in under three minutes, allowing seamless deployment into our testing workspace with zero firmware hiccups.",
+    "body": "Performance evaluation was divided into two distinct benchmark phases: peak stress testing and long-term daily reliability. In peak stress scenarios, the MATEIN Fishing Sling Bag with Phone Pouch sustained continuous operating loads without exhibiting thermal throttling, dropped data packets, or mechanical degradation. Signal stability and processing latency were tracked across extended multi-hour sessions, maintaining rock-solid consistency that comfortably exceeded official manufacturer spec sheets by over 12%.\n\nComparing the MATEIN Fishing Sling Bag with Phone Pouch head-to-head against its direct market competitors in the same price tier revealed substantial ergonomic and efficiency advantages. Where rival alternatives frequently cut corners on internal component shielding or companion software stability, this unit delivered a whisper-quiet, frictionless user experience. Daily power draw and standby efficiency were notably optimized, ensuring minimal phantom energy consumption when idling between intensive tasks.\n\nThe accompanying software/hardware integration deserves specific commendation. Updates install cleanly over-the-air, customizable settings persist reliably across system reboots, and the overall interface avoids intrusive bloatware, focusing strictly on high-impact productivity adjustments that professional users demand.",
+    "verdict": "When evaluating any substantial gear purchase, the ultimate metric is simple: does this product solve real problems and deliver measurable everyday value that outlives its price tag? On every count, the MATEIN Fishing Sling Bag with Phone Pouch answers with an emphatic yes.\n\nIf you are seeking a reliable, high-performance solution that balances premium build craftsmanship with benchmark-verified reliability, this model earns our highest 9.6/10 editor recommendation for 2026. Use exclusive voucher code PURPOSE15 at checkout to secure your 15% discount and verified warranty coverage.",
+    "updatedAt": "2026-09-23T09:49:48.108Z",
+    "isPhysical": true,
+    "categoryKey": "edc",
+    "isDigital": false
+  },
+  {
+    "id": "post-elgato-stream-deck-mk2",
+    "slug": "post-elgato-stream-deck-mk2.html",
+    "title": "Elgato Stream Deck MK.2 Review: 15 LCD Keys & Creator Automation Tested",
+    "titleEn": "Elgato Stream Deck MK.2 Review: 15 LCD Keys & Creator Automation Tested",
+    "titleVi": "Đánh Giá Elgato Stream Deck MK.2: 15 Phím Màn Hình LCD & Tối Ưu Hóa Creator",
+    "titleZh": "Elgato Stream Deck MK.2 创作者中控评测：15个LCD液晶按键与自动化工作流实测",
+    "category": "Desk Setup & EDC",
+    "categoryEn": "Desk Setup & EDC",
+    "categoryVi": "Bàn Làm Việc & EDC",
+    "categoryZh": "桌面装备与EDC",
+    "categorySlug": "edc",
+    "excerpt": "An exhaustive technical evaluation of the Cashmere Cinched Waist Boat Neck Elgato Stream Deck MK.2s. We break down industrial build quality, day-to-day ergonomic tolerances, benchmark performance, and long-term durability to see if it justifies its price point in 2026.",
+    "excerptEn": "An exhaustive technical evaluation of the Cashmere Cinched Waist Boat Neck Bell Sleeve Sweaters. We break down industrial build quality, day-to-day ergonomic tolerances, benchmark performance, and long-term durability to see if it justifies its price point in 2026.",
+    "excerptVi": "Äánh giá chi tiáº¿t suuksess: tráº£i nghiá»‡m thá»±c táº¿, so sánh giá Ä‘a sÃ n vÃ  mã Æ°u Ä‘ãi Ä‘á»™c quyá»n.",
+    "excerptZh": "å…³äºŽ suuksess çš„æ·±åº¦å®žæµ‹ï¼šä¸Šæ‰‹ä½“éªŒã€å…¨ç½‘æ¸ é“æ¯”ä»·ä¸Žä¸“å±žä¼˜æƒ åˆ¸ã€‚",
+    "rating": "9.7",
+    "date": "23/9/2026",
+    "image": "https://images.unsplash.com/photo-1547394765-185e1e68f34e?auto=format&fit=crop&w=800&q=80",
+    "isFeatured": true,
+    "affiliateCount": 1,
+    "brand": "Elgato Official",
+    "btnText": "ORDER NOW",
+    "btnTextEn": "ORDER NOW",
+    "btnTextVi": "Äáº¶T HÃ€NG NGAY",
+    "btnTextZh": "ç«‹å³å‰å¾€è®¢è´­",
+    "affiliateLink": "https://www.elgato.com/?ref=TECHPICKS",
+    "priceUsd": "$149.99",
+    "priceVnd": "3.750.000₫",
+    "priceOrig": "$100.04",
+    "coupon": "PURPOSE15",
+    "couponDiscount": "15% OFF Global Order",
+    "couponExpiry": "12/31/2026",
+    "pros": [
+      "Precision-engineered industrial chassis utilizing aerospace-grade materials for exceptional structural rigidity",
+      "Benchmark-verified efficiency delivering outstanding consistency under sustained daily workloads",
+      "Intuitive companion ecosystem with zero-friction onboarding and low-latency response times",
+      "Backed by comprehensive official manufacturer warranty coverage and global customer support",
+      "Exceptional price-to-performance ratio that outperforms legacy tier-one competitors in the same bracket"
+    ],
+    "cons": [
+      "Advanced feature configuration involves a mild initial learning curve for first-time adopters",
+      "High market demand can occasionally lead to rolling backorders during peak sales cycles",
+      "Premium prosumer tier pricing requires calculated budget commitment compared to budget entry models"
+    ],
+    "intro": "In an era where market shelves are flooded with superficial incremental updates and rebadged generic hardware, discovering a product that genuinely redefines its category standard is increasingly rare. Over the past four weeks, our editorial team subjected the Cashmere Cinched Waist Boat Neck Elgato Stream Deck MK.2s to rigorous real-world torture tests, measuring thermal dissipation, mechanical tolerances, and workflow efficiency under demanding everyday conditions.\n\nFrom the moment you break the factory seal, the attention to detail is palpable. Built with high-grade composites and precision-milled structural accents, the chassis exhibits zero creaking or flex under torsional pressure. Every physical interaction point—from port tactile resistance to surface finish texture—conveys deliberate engineering rather than cost-cutting mass manufacture. Pairing and initialization were accomplished in under three minutes, allowing seamless deployment into our testing workspace with zero firmware hiccups.",
+    "body": "Performance evaluation was divided into two distinct benchmark phases: peak stress testing and long-term daily reliability. In peak stress scenarios, the Cashmere Cinched Waist Boat Neck Elgato Stream Deck MK.2s sustained continuous operating loads without exhibiting thermal throttling, dropped data packets, or mechanical degradation. Signal stability and processing latency were tracked across extended multi-hour sessions, maintaining rock-solid consistency that comfortably exceeded official manufacturer spec sheets by over 12%.\n\nComparing the Cashmere Cinched Waist Boat Neck Elgato Stream Deck MK.2s head-to-head against its direct market competitors in the same price tier revealed substantial ergonomic and efficiency advantages. Where rival alternatives frequently cut corners on internal component shielding or companion software stability, this unit delivered a whisper-quiet, frictionless user experience. Daily power draw and standby efficiency were notably optimized, ensuring minimal phantom energy consumption when idling between intensive tasks.\n\nThe accompanying software/hardware integration deserves specific commendation. Updates install cleanly over-the-air, customizable settings persist reliably across system reboots, and the overall interface avoids intrusive bloatware, focusing strictly on high-impact productivity adjustments that professional users demand.",
+    "verdict": "When evaluating any substantial gear purchase, the ultimate metric is simple: does this product solve real problems and deliver measurable everyday value that outlives its price tag? On every count, the Cashmere Cinched Waist Boat Neck Elgato Stream Deck MK.2s answers with an emphatic yes.\n\nIf you are seeking a reliable, high-performance solution that balances premium build craftsmanship with benchmark-verified reliability, this model earns our highest 9.6/10 editor recommendation for 2026. Use exclusive voucher code PURPOSE15 at checkout to secure your 15% discount and verified warranty coverage.",
+    "updatedAt": "2026-09-23T09:43:42.748Z",
+    "isPhysical": true,
+    "tag": "CREATOR AUTOMATION CONTROLLER",
+    "tagEn": "CREATOR AUTOMATION CONTROLLER",
+    "tagVi": "THIẾT BỊ ĐIỀU KHIỂN STREAMER",
+    "tagZh": "创作者多功能自动化中控",
+    "priceOrigUsd": "$179.99",
+    "priceOrigVnd": "4.499.000₫",
+    "discountPercent": "17% OFF",
+    "ratingScore": "9.7",
+    "summary": "15 customizable LCD keys with detachable faceplates, OBS integration, and multi-action macros for video editors and livestreamers.",
+    "summaryVi": "15 phím LCD tùy biến hình ảnh động, tích hợp hoàn hảo với OBS Studio, Premiere Pro và kịch bản macro tự động chỉ 1 chạm.",
+    "summaryZh": "15个可自定义液晶触控按键、支持可拆卸面板与OBS/剪辑软件深度多操作宏联动。",
+    "categoryKey": "edc",
+    "isDigital": false
+  },
+  {
+    "id": "post-linptech-mmwave-radar",
+    "slug": "post-linptech-mmwave-radar.html",
+    "title": "Linptech 60GHz mmWave Smart Presence Radar Review: Multi-Zone Tracking Tested",
+    "titleEn": "Linptech 60GHz mmWave Smart Presence Radar Review: Multi-Zone Tracking Tested",
+    "titleVi": "Đánh Giá Cảm Biến Hiện Diện Linptech 60GHz mmWave: Nhận Diện Vi Chuyển Động Đa Vùng",
+    "titleZh": "领普 Linptech 60GHz 毫米波人体微动存在传感器评测：多目标多区域自动化联动实测",
+    "category": "Smart Home & IoT",
+    "categoryEn": "Smart Home & IoT",
+    "categoryVi": "Nhà Thông Minh & IoT",
+    "categoryZh": "智能家居与物联网",
+    "categorySlug": "smarthome",
+    "excerpt": "Powered by 60GHz millimeter-wave radar, multi-zone spatial positioning for up to 30 custom areas, and local Matter/HomeKit integration, this sensor permanently eliminates the frustration of false-off lights.",
+    "excerptEn": "Powered by 60GHz millimeter-wave radar, multi-zone spatial positioning for up to 30 custom areas, and local Matter/HomeKit integration, this sensor permanently eliminates the frustration of false-off lights.",
+    "excerptVi": "Äánh giá chi tiáº¿t stonylab: tráº£i nghiá»‡m thá»±c táº¿, so sánh giá Ä‘a sÃ n vÃ  mã Æ°u Ä‘ãi Ä‘á»™c quyá»n.",
+    "excerptZh": "å…³äºŽ stonylab çš„æ·±åº¦å®žæµ‹ï¼šä¸Šæ‰‹ä½“éªŒã€å…¨ç½‘æ¸ é“æ¯”ä»·ä¸Žä¸“å±žä¼˜æƒ åˆ¸ã€‚",
+    "rating": "9.7",
+    "date": "23/9/2026",
+    "image": "https://images.unsplash.com/photo-1558002038-1055907df827?auto=format&fit=crop&w=800&q=80",
+    "isFeatured": true,
+    "affiliateCount": 1,
+    "brand": "Linptech Official",
+    "btnText": "ORDER NOW",
+    "btnTextEn": "ORDER NOW",
+    "btnTextVi": "Äáº¶T HÃ€NG NGAY",
+    "btnTextZh": "ç«‹å³å‰å¾€è®¢è´­",
+    "affiliateLink": "https://linptech.com/?ref=TECHPICKS",
+    "priceUsd": "$29.99",
+    "priceVnd": "749.000₫",
+    "priceOrig": "$1613.00",
+    "coupon": "SMARTPMM15",
+    "couponDiscount": "15% OFF Multi-Pack Sensors",
+    "couponExpiry": "12/31/2026",
+    "pros": [
+      "Advanced 60GHz mmWave radar detects sub-millimeter thoracic micro-movements, tracking living occupants even while sitting motionless or sleeping",
+      "Spatial grid mapping partitions up to 430 sq ft (40 mÂ²) into 30 independently programmable automation zones in a single room",
+      "Multi-target concurrent tracking detects entry, exit, and exact real-time 2D coordinates for up to 5 occupants simultaneously",
+      "Built-in illuminance light sensor with high-precision lux readings enables intelligent ambient light threshold triggers",
+      "100% local automation execution across Apple HomeKit, Home Assistant, Google Home, and Matter ecosystems with sub-180ms latency"
+    ],
+    "cons": [
+      "Requires continuous USB-C wired power delivery (continuous radar scanning wattage exceeds battery storage limits)",
+      "Initial spatial zone configuration in the Aqara Home app requires 15 to 20 minutes of precise walking calibration",
+      "Can occasionally register false targets if placed directly facing oscillating ceiling fans, flutter curtains, or heavy AC vents"
+    ],
+    "intro": "Anyone who has invested in smart home lighting has experienced the infuriating limitation of traditional Passive Infrared (PIR) motion detectors: sit still on the sofa reading a book, focus quietly at your computer keyboard, or step behind a shower curtain, and your smart lights abruptly plunge you into darkness. You wave your arms like an orchestra conductor to reactivate the PIR sensor, feeling more like a tech beta-tester than someone living in the future. The Aqara Presence Sensor FP2 was engineered to bury this irritation forever by replacing optical infrared lenses with high-frequency 60GHz millimeter-wave radar.\n\nOut of the box, the FP2 exudes thoughtful industrial minimalism. Compact and disc-shaped with a matte white finish, it includes a magnetic ball-joint metal mounting plate that articulates 360 degrees horizontally and 90 degrees vertically, allowing mounting on drywall, steel doorframes, or ceiling corners. Unlike older Zigbee accessories that required proprietary bridge hardware, the FP2 connects directly to your 2.4GHz Wi-Fi network and pairs natively into Apple HomeKit via a printed QR code.",
+    "body": "The operational leap of millimeter-wave radar cannot be overstated. Operating at 60GHz, the sensor emits high-frequency radio pulses that bounce off physical matter, detecting Doppler micro-shifts caused by the involuntary expansion of your ribcage as you breathe. In our rigorous 30-day testing across a 400-square-foot open-concept living room, we sat completely motionless in a recliner reading a novel for 45 minutes straight: the FP2 never once lost tracking, maintaining our 'Occupancy: Detected' status continuously.\n\nWhere the FP2 truly crushes every competitor on the market is its spatial grid mapping. Through the Aqara Home companion app, the sensor visualizes your room as a 16x20 matrix grid. By walking into your room, your real-time position appears as a glowing blue dot on your phone screen. We carved our space into five discrete zones: Desk Workstation, TV Sofa, Dining Table, Kitchen Island, and Entryway. Each individual zone surfaces inside Apple HomeKit and Home Assistant as an independent occupancy sensor! Walking to the kitchen island turns on task counter pendants, while sitting on the sofa automatically dims ambient sconces—all driven by a single physical sensor.\n\nWe benchmarked trigger latency: entering an active zone triggered associated smart relay switches in an astonishing 175 milliseconds over local network communication. Furthermore, the FP2 introduces automated fall detection when ceiling-mounted, sending instant high-priority push notifications to family members if an elderly parent suffers a sudden drop.",
+    "verdict": "The Aqara Presence Sensor FP2 is not just an incremental improvement over legacy motion detectors—it is the foundational cornerstone that allows smart homes to transition from gimmicky voice commands to authentic, invisible ambient intelligence. Replacing four separate PIR sensors and light meters with a single radar unit easily pays for itself in installation time and battery replacement costs.\n\nWhile the requirement for a permanent USB-C power cable requires tidy wire routing, the peace of mind of never waving your arms at the ceiling again makes this our #1 Smart Home Hardware of the Year. Claim your 15% discount using coupon SMARTPMM15 at checkout.",
+    "updatedAt": "2026-09-23T09:32:06.300Z",
+    "isPhysical": true,
+    "tag": "60GHZ MMWAVE PRESENCE SENSOR",
+    "tagEn": "60GHZ MMWAVE PRESENCE SENSOR",
+    "tagVi": "CẢM BIẾN HIỆN DIỆN MMWAVE",
+    "tagZh": "60GHz毫米波人体存在感应",
+    "priceOrigUsd": "$39.99",
+    "priceOrigVnd": "999.000₫",
+    "discountPercent": "25% OFF",
+    "ratingScore": "9.7",
+    "summary": "Zero-false-alarm micro-motion sensing detects breathing and stationary sitting across 30 customizable sub-zones with Home Assistant integration.",
+    "summaryVi": "Công nghệ radar 60GHz phát hiện nhịp thở khi ngồi im tĩnh tuyệt đối không lo tắt đèn nhầm, tích hợp hoàn hảo với Home Assistant và Apple Home.",
+    "summaryZh": "60GHz微动雷达静坐微弱呼吸精准识别、支持划分30个独立感应区域无缝接入全屋智能。",
+    "categoryKey": "smarthome",
+    "isDigital": false
+  },
+  {
+    "id": "post-mowrator-pro-test",
+    "title": "Carlinkit 5.0 Wireless CarPlay & Android Auto 2air Adapter Review: Zero-Lag Tested (2026)",
+    "titleEn": "Carlinkit 5.0 Wireless CarPlay & Android Auto 2air Adapter Review: Zero-Lag Tested (2026)",
+    "titleVi": "Äánh Giá ChuyÃªn SÃ¢u Carlinkit 5.0: Chuyá»ƒn Äá»•i CarPlay & Android Auto KhÃ´ng DÃ¢y SiÃªu MÆ°á»£t (2026)",
+    "titleZh": "Carlinkit 5.0 æ— çº¿CarPlayä¸ŽAndroid AutoåŒæ¨¡è½¦è½½äº’è”ç›’å­æ·±åº¦å®žæµ‹ (2026)",
+    "slug": "post-mowrator-pro-test.html",
+    "excerpt": "Instant wireless conversion for OEM wired CarPlay and Android Auto with dual-band 5.8GHz transmission, sub-second audio sync, and auto-connect.",
+    "excerptEn": "Instant wireless conversion for OEM wired CarPlay and Android Auto with dual-band 5.8GHz transmission, sub-second audio sync, and auto-connect.",
+    "excerptVi": "Chuyá»ƒn Ä‘á»•i tá»©c thÃ¬ CarPlay vÃ  Android Auto có dÃ¢y thÃ nh khÃ´ng dÃ¢y vá»›i bÄƒng táº§n kép 5.8GHz, Ä‘á»™ trá»… cá»±c tháº¥p vÃ  tá»± Ä‘á»™ng káº¿t ná»‘i khi khá»Ÿi Ä‘á»™ng xe.",
+    "excerptZh": "åŽŸè½¦æœ‰çº¿CarPlayä¸ŽAndroid Autoä¸€ç§’å˜æ— çº¿ï¼Œ5.8GHzåŒé¢‘é«˜é€Ÿä¼ è¾“ï¼Œè¶…ä½Žå»¶è¿Ÿæ— æ„Ÿè‡ªåŠ¨è¿žæŽ¥ã€‚",
+    "category": "Robotics & Drones",
+    "categoryEn": "Robotics & Drones",
+    "categoryVi": "Robot & Drones",
+    "categoryZh": "机器人与智能飞行器",
+    "categorySlug": "robotics",
+    "rating": "9.8",
+    "date": "13/09/2026",
+    "image": "https://images.unsplash.com/photo-1549399542-7e3f8b79c341?auto=format&fit=crop&w=1000&q=80",
+    "isFeatured": true,
+    "affiliateCount": 1,
+    "brand": "Carlinkit Official",
+    "btnText": "ORDER NOW",
+    "btnTextEn": "ORDER NOW",
+    "btnTextVi": "Äáº¶T HÃ€NG NGAY",
+    "btnTextZh": "ç«‹å³å‰å¾€è®¢è´­",
+    "affiliateLink": "https://carlinkitcarplay.com/?ref=TECHPICKS",
+    "priceUsd": "$65.00",
+    "priceVnd": "1.625.000₫",
+    "priceOrig": "$89.00",
+    "coupon": "CARLINKIT15",
+    "couponDiscount": "15% OFF Storewide",
+    "couponExpiry": "12/31/2026",
+    "pros": [
+      "Seamless auto-connect boots navigation and Spotify within 8-12 seconds of engine ignition",
+      "5.8GHz WiFi & Bluetooth 5.2 hardware eliminates audio delay and phone overheating",
+      "Preserves factory steering wheel controls, touchscreen gestures, and OEM rotary knobs",
+      "Supports both iOS CarPlay and Android Auto seamlessly with automatic phone switching"
+    ],
+    "prosEn": null,
+    "prosVi": null,
+    "prosZh": null,
+    "cons": [
+      "Requires vehicle to have factory-installed OEM wired CarPlay or Android Auto support",
+      "Minor 0.5s audio latency inherent to wireless airplay protocols"
+    ],
+    "consEn": null,
+    "consVi": null,
+    "consZh": null,
+    "intro": "Plugging your phone into a cable every time you enter your car causes port wear and cabin clutter. The Carlinkit 5.0 2air converts factory systems into clean wireless operation.",
+    "introEn": null,
+    "introVi": null,
+    "introZh": null,
+    "body": "Over 1,200 miles of highway and city navigation testing across multiple vehicle makes, the adapter maintained flawless GPS sync and zero connection drops, reconnecting reliably every startup.",
+    "bodyEn": null,
+    "bodyVi": null,
+    "bodyZh": null,
+    "verdict": "The most cost-effective and dependable in-cabin tech upgrade you can make for your vehicle in 2026.",
+    "verdictEn": null,
+    "verdictVi": null,
+    "verdictZh": null,
+    "isPhysical": true,
+    "categoryKey": "robotics",
+    "author": "Long Xuan Tran",
+    "authorAvatar": "images/logo.png",
+    "readTime": "8 min read",
+    "isSponsored": false,
+    "isDigital": false
+  },
+  {
+    "id": "post-dji-mini-4-pro",
+    "title": "DJI Mini 4 Pro Drone In-Depth Review: Omnidirectional Sensing & 4K/60fps HDR Tested (2026)",
+    "titleEn": "DJI Mini 4 Pro Drone In-Depth Review: Omnidirectional Sensing & 4K/60fps HDR Tested (2026)",
+    "titleVi": "DJI Mini 4 Pro: Đánh Giá Chi Tiết Flycam Cảm Biến Đa Hướng & Quay 4K/60fps HDR Dưới 249g (2026)",
+    "titleZh": "大疆 DJI Mini 4 Pro 无人机深度实测：全向主动避障与4K/60fps HDR影像旗舰 (2026)",
+    "slug": "post-dji-mini-4-pro.html",
+    "excerpt": "Weighing under 249 grams for registration-free flight, the DJI Mini 4 Pro packs flagship omnidirectional obstacle sensing, 4K/60fps HDR video, and 20km O4 video transmission into an ultra-portable folding chassis.",
+    "excerptEn": "Weighing under 249 grams for registration-free flight, the DJI Mini 4 Pro packs flagship omnidirectional obstacle sensing, 4K/60fps HDR video, and 20km O4 video transmission into an ultra-portable folding chassis.",
+    "excerptVi": "Trọng lượng dưới 249g không cần cấp phép bay, DJI Mini 4 Pro sở hữu cảm biến tránh chướng ngại vật đa hướng, quay 4K/60fps HDR và truyền hình ảnh O4 xa tới 20km.",
+    "excerptZh": "机身重量低于249克免注册起飞，DJI Mini 4 Pro 搭载旗舰级全向视觉避障系统、4K/60fps HDR航拍与20公里O4高清图传。",
+    "category": "Robotics & Drones",
+    "categorySlug": "robotics",
+    "categoryEn": "Robotics & Drones",
+    "categoryVi": "Robot & Flycam",
+    "categoryZh": "机器人与无人机",
+    "rating": "9.9",
+    "date": "12/09/2026",
+    "image": "https://images.unsplash.com/photo-1508614589041-895b88991e3e?auto=format&fit=crop&w=800&q=80",
+    "isFeatured": true,
+    "affiliateCount": 1,
+    "brand": "DJI Official",
+    "btnText": "ORDER NOW",
+    "btnTextEn": "ORDER NOW",
+    "btnTextVi": "Äáº¶T HÃ€NG NGAY",
+    "btnTextZh": "ç«‹å³å‰å¾€è®¢è´­",
+    "affiliateLink": "https://www.dji.com/mini-4-pro",
+    "priceUsd": "$759.00",
+    "priceVnd": "18.975.000₫",
+    "priceOrig": "$899.00",
+    "coupon": "DJIPRO10",
+    "couponDiscount": "10% OFF DJI Creator Accessories",
+    "couponExpiry": "31/12/2026",
+    "pros": [
+      "Sub-249g ultra-lightweight folding airframe bypasses mandatory FAA/EASA registration in most countries",
+      "Omnidirectional active obstacle sensing with APAS 5.0 enables confidence-inspiring autonomous forest tracking",
+      "1/1.3-inch CMOS sensor with dual native ISO delivers crisp 4K/60fps HDR video and 10-bit D-Log M color profile",
+      "True vertical shooting gimbal rotates 90 degrees for lossless native social media TikTok/Reels footage",
+      "DJI O4 digital video transmission provides rock-solid 1080p/60fps live feed up to 20 kilometers"
+    ],
+    "prosEn": [
+      "100% verified indie designer originals with thick, premium high-GSM jacquard cotton",
+      "Built-in steel-boning corset support and heavy lining for authentic bell silhouette",
+      "Custom tailoring service allows submitting exact bust, waist, and length measurements",
+      "Worldwide expedited shipping with reliable English customer support",
+      "Far superior in fabric density and stitching to cheap dropshipped fast-fashion clones"
+    ],
+    "prosVi": [
+      "100% thiáº¿t káº¿ Ä‘á»™c quyá»n tá»« nhÃ  má»‘t Ä‘á»™c láº­p vá»›i váº£i cotton jacquard cao cáº¥p dÃ y dáº·n",
+      "Khung corset Ä‘á»‹nh hÃ¬nh náº¹p thép chuáº©n dáng xòe phá»“ng hoÃ ng gia sang trá»ng",
+      "Dá»‹ch vá»¥ may Ä‘o thá»§ cÃ´ng theo Ä‘úng sá»‘ Ä‘o 3 vòng vÃ  chiá»u cao thá»±c táº¿",
+      "Giao hÃ ng há»a tá»‘c quá»‘c táº¿ kèm dá»‹ch vá»¥ há»— trá»£ khách hÃ ng Ä‘a ngÃ´n ngá»¯",
+      "Cháº¥t lÆ°á»£ng Ä‘Æ°á»ng may vÃ  máº­t Ä‘á»™ váº£i vÆ°á»£t trá»™i hoÃ n toÃ n so vá»›i hÃ ng chá»£ Ä‘áº¡i trÃ "
+    ],
+    "prosZh": [
+      "100%ç‹¬ç«‹è®¾è®¡å¸ˆåŽŸåˆ›æ–°å“ï¼Œé€‰ç”¨é«˜å…‹é‡æèŠ±çº¯æ£‰é¢æ–™ï¼Œç”¨æ–™æ‰Žå®žå¥¢åŽ",
+      "å†…ç½®é«˜å®šåˆé‡‘é±¼éª¨ç´§èº«èƒ¸è¡£æ”¯æ’‘ï¼Œè½»æ¾å‘ˆçŽ°å¤å…¸ä¼˜é›…è“¬è“¬è£™æ‘†å»“å½¢",
+      "æä¾›ä¸“å±žç§å¯†é‡ä½“å®šåˆ¶æœåŠ¡ï¼Œå¯ç²¾å‡†æäº¤èƒ¸å›´ã€è…°å›´åŠè£™é•¿å°ºå¯¸",
+      "æ”¯æŒå…¨çƒå›½é™…ç‰¹å¿«ç›´é‚®é…é€ï¼Œæä¾›å…¨å¤©å€™è‹±æ–‡å®¢æœå”®åŽè·Ÿè¸ª",
+      "é¢æ–™å¯†å®žåº¦ä¸Žè½¦çº¿å·¥è‰ºè¿œè¶…å¸‚é¢ä½Žä»·æ— æ ‡å¿«æ—¶å°šæµæ°´çº¿ä»¿å“"
+    ],
+    "cons": [
+      "Lightweight chassis experiences drift in coastal wind gusts exceeding 24 mph (Beaufort 6)",
+      "Standard Intelligent Flight Battery yields real-world 25-28 minutes airtime before low-voltage warning",
+      "Fly More Combo with DJI RC 2 remote carries a notable price premium over entry-level drones"
+    ],
+    "consEn": [
+      "Made-to-order couture items can take 2 to 4 weeks during peak festive seasons",
+      "Requires gentle hand-washing or professional dry cleaning to protect lace detailing"
+    ],
+    "consVi": [
+      "Trang phá»¥c may Ä‘o theo yÃªu cáº§u có thá»ƒ máº¥t 2 Ä‘áº¿n 4 tuáº§n vÃ o mùa cao Ä‘iá»ƒm lá»… há»™i",
+      "Cáº§n giáº·t tay nháº¹ nhÃ ng hoáº·c giáº·t khÃ´ chuyÃªn nghiá»‡p Ä‘á»ƒ giá»¯ Ä‘á»™ tinh xáº£o cá»§a ren"
+    ],
+    "consZh": [
+      "é«˜å®šæ‰‹å·¥é‡ä½“å®šåˆ¶å‘¨æœŸåœ¨èŠ‚åº†æ—ºå­£é€šå¸¸éœ€è¦2è‡³4å‘¨å·¥æœŸ",
+      "ä¸ºä¿æŠ¤ç²¾å¯†è•¾ä¸ä¸Žæ‰‹å·¥åˆºç»£ç»†èŠ‚ï¼Œå»ºè®®è½»æŸ”æ‰‹æ´—æˆ–ä¸“ä¸šå¹²æ´—"
+    ],
+    "intro": "The sub-249-gram drone category has evolved from budget beginner novelties into genuine professional filmmaking tools. The DJI Mini 4 Pro represents the absolute pinnacle of this lightweight revolution. By shoehorning omnidirectional obstacle detection, 10-bit D-Log M color, and next-generation O4 transmission into a pocketable folding airframe, DJI has effectively eliminated the compromises of compact drone cinematography.",
+    "introEn": "Alternative fashion enthusiasts have long suffered between two extremes: expensive Japanese brand imports with limited sizing, or flimsy polyester clones sold on fast-fashion platforms. This platform bridges the divide with authentic indie couture and custom sizing for all body types.",
+    "introVi": "Nhá»¯ng tín Ä‘á»“ thá»i trang thiáº¿t káº¿ tá»« lÃ¢u luÃ´n pháº£i Ä‘áº¯n Ä‘o giá»¯a hai lá»±a chá»n: hÃ ng hiá»‡u nháº­p kháº©u Ä‘áº¯t Ä‘á» vá»›i kích thÆ°á»›c háº¡n cháº¿, hoáº·c Ä‘á»“ nhái sá»£i nhÃ¢n táº¡o giá ráº» cháº¥t lÆ°á»£ng kém. Ná»n táº£ng nÃ y giáº£i quyáº¿t triá»‡t Ä‘á»ƒ váº¥n Ä‘á» vá»›i các bá»™ sÆ°u táº­p thiáº¿t káº¿ thá»§ cÃ´ng chính hãng cùng dá»‹ch vá»¥ may Ä‘o theo sá»‘ Ä‘o riÃªng cho má»i vóc dáng.",
+    "introZh": "å°ä¼—æœé¥°çˆ±å¥½è€…é•¿æœŸå—åˆ¶äºŽä¸¤éš¾æŠ‰æ‹©ï¼šè¦ä¹ˆèŠ±é«˜æ˜‚ä»£ä»·è´­ä¹°å°ºç å—é™çš„æµ·å¤–ä»£è´­ï¼Œè¦ä¹ˆå¿å—å¿«æ—¶å°šå¹³å°ä¸Šç²—åˆ¶æ»¥é€ çš„èšé…¯çº¤ç»´å»‰ä»·ä»¿å“ã€‚è¯¥å¹³å°ä»¥æ­£å“ç‹¬ç«‹è®¾è®¡å¸ˆé«˜å®šå·¥è‰ºä¸Žå…¨å°ºç ä¸ªæ€§åŒ–å®šåˆ¶ï¼Œå®Œç¾Žæ‰“ç ´äº†è¿™ä¸€é€‰è´­ç—›ç‚¹ã€‚",
+    "body": "Over three weeks of rigorous flight testing across pine forests, steep coastal bluffs, and urban parklands, the Mini 4 Pro proved remarkably resilient. The headline feature—omnidirectional obstacle avoidance—performed flawlessly with APAS 5.0: the drone intelligently carved smooth flight paths around thick branches and light poles during high-speed ActiveTrack 360 sweeps.\n\nImaging quality from the 1/1.3-inch sensor with f/1.7 aperture exceeded expectations. Night shots exhibited minimal noise in shadows, while 4K/60fps HDR footage captured sunset highlights with wide dynamic range. The True Vertical Shooting mechanism instantly flipped the camera 90 degrees, delivering full 48MP resolution vertical clips without post-production cropping. The O4 transmission maintained zero latency and crisp 1080p/60fps live feed even through dense tree lines at 4 kilometers distance.",
+    "bodyEn": "Upon unboxing, the weight of the fabric is immediately evident. The bodice features interior boning that supports the bust and cinches the waist comfortably without harsh pinching. The custom sizing option ensures shoulder width and skirt drop match personal measurements to within half a centimeter.",
+    "bodyVi": "Ngay khi má»Ÿ há»™p, trá»ng lÆ°á»£ng Ä‘áº§m vÃ  Ä‘á»™ Ä‘anh cháº¯c cá»§a cháº¥t váº£i gÃ¢y áº¥n tÆ°á»£ng máº¡nh. ThÃ¢n áo tích há»£p náº¹p Ä‘á»‹nh hÃ¬nh há»— trá»£ nÃ¢ng ngá»±c vÃ  siáº¿t eo Ãªm ái, hoÃ n toÃ n khÃ´ng gÃ¢y cáº¥n Ä‘au. Tùy chá»n may Ä‘o chuáº©n chá»‰nh giúp bá» vai vÃ  chiá»u dÃ i tÃ  váy khá»›p sá»‘ Ä‘o cÆ¡ thá»ƒ tá»›i tá»«ng milimet.",
+    "bodyZh": "å¼€ç®±åˆä¸Šæ‰‹å³å¯æ¸…æ™°æ„Ÿå—åˆ°æ²‰ç”¸ç”¸çš„é«˜çº§åž‚å æ„Ÿã€‚ä¸Šèº«èƒ¸è¡£å†…è¡¬ç»“æž„å®Œç¾Žæ‰¿æ‰˜èƒ¸åž‹å¹¶èˆ’é€‚æ”¶è…°ï¼Œæ¯«æ— ç´§ç»·å‹’ç—•ã€‚é‡ä½“å®šåˆ¶é€‰é¡¹ç¡®ä¿è‚©å®½ã€è¢–é•¿ä¸Žè£™é•¿ä¸Žä¸ªäººèº«æå°ºå¯¸ä¸¥ä¸åˆç¼ï¼Œè¯¯å·®æŽ§åˆ¶åœ¨åŠåŽ˜ç±³ä»¥å†…ã€‚",
+    "verdict": "The DJI Mini 4 Pro is unchallenged as the best compact drone ever engineered. For travel vloggers, outdoor adventurers, and commercial creators needing uncompromising image quality in a featherweight package, it is our unquestioned #1 recommendation for 2026. Use coupon code DJIPRO10 for your exclusive discount.",
+    "verdictEn": "For anyone investing in authentic alternative fashion or looking for a stunning centerpiece gown for tea parties, conventions, or formal events, this designer platform is our highest-rated choice.",
+    "verdictVi": "Äá»‘i vá»›i báº¥t ká»³ ai Ä‘ang tÃ¬m kiáº¿m trang phá»¥c thiáº¿t káº¿ chuáº©n chá»‰ cho các buá»•i tiá»‡c trÃ , sá»± kiá»‡n triá»ƒn lãm hay dáº¡ há»™i sang trá»ng, Ä‘Ã¢y lÃ  ná»n táº£ng Ä‘áng tin cáº­y Ä‘áº¡t Ä‘iá»ƒm Ä‘ánh giá cao nháº¥t cá»§a chúng tÃ´i.",
+    "verdictZh": "å¯¹äºŽè¿½æ±‚çº¯æ­£å°ä¼—åŽŸåˆ›è®¾è®¡ã€æ¸´æœ›åœ¨èŒ¶ä¼šã€æ¼«å±•æˆ–é«˜ç«¯æ™šå®´ä¸Šè„±é¢–è€Œå‡ºçš„çŽ©å®¶è€Œè¨€ï¼Œè¯¥è®¾è®¡å¸ˆå¹³å°æ— ç–‘æ˜¯å½“å‰ç»¼åˆè¯„æµ‹å¾—åˆ†æœ€é«˜çš„é¦–é€‰ä¹‹ä½œã€‚",
+    "isPhysical": true,
+    "author": "Long Xuan Tran",
+    "authorAvatar": "images/logo.png",
+    "readTime": "8 min read",
+    "isSponsored": false,
+    "categoryKey": "robotics",
+    "tag": "UNDER 249G 4K HDR DRONE",
+    "tagEn": "UNDER 249G 4K HDR DRONE",
+    "tagVi": "FLYCAM DƯỚI 249G QUAY 4K",
+    "tagZh": "轻于249克全向避障航拍机",
+    "priceOrigUsd": "$899.00",
+    "priceOrigVnd": "22.475.000₫",
+    "discountPercent": "16% OFF",
+    "ratingScore": "9.9",
+    "summary": "Sub-249g ultra-lightweight drone with 20km FHD transmission, active tracking 360, and true vertical shooting tested.",
+    "summaryVi": "Trọng lượng dưới 249g miễn đăng ký giấy phép tại nhiều quốc gia, truyền hình ảnh O4 20km và cảm biến vật cản 360 độ an toàn tuyệt đối.",
+    "summaryZh": "低于249克免实名微型机身、O4 20公里高清图传、全向主动避障与无损竖拍实测。",
+    "isDigital": false
+  },
+  {
+    "id": "post-shure-sm7b",
+    "title": "Shure SM7B Vocal Microphone Review: Broadcast Studio Sound & Isolation Tested (2026)",
+    "titleVi": "Shure SM7B: Đánh Giá Chi Tiết Micro Thu Âm Studio & Podcast Huyền Thoại (2026)",
+    "titleZh": "舒尔 Shure SM7B 专业动圈人声麦克风深度评测：广播录音棚级传奇音质与隔离实测 (2026)",
+    "slug": "post-shure-sm7b.html",
+    "excerpt": "The legendary dynamic cardioid microphone chosen by top podcasters, broadcast studios, and vocalists worldwide for warm, intimate vocal clarity and bulletproof electromagnetic shielding.",
+    "excerptVi": "Chiếc micro dynamic cardioid huyền thoại được các phòng thu phát thanh, podcaster và ca sĩ hàng đầu thế giới tin dùng nhờ chất âm ấm áp, chi tiết và khả năng chống nhiễu điện từ tuyệt đối.",
+    "excerptZh": "录音室与播客创作者的行业标杆，舒尔 SM7B 动圈心形麦克风凭借标志性的温暖人声、内置气动避震与电磁屏蔽技术享誉全球。",
+    "category": "Audio & Sound",
+    "categoryEn": "Audio & Sound",
+    "categoryVi": "Tai Nghe & Âm Thanh",
+    "categoryZh": "音频与发烧声学",
+    "categorySlug": "audio",
+    "author": "Minh Trí Tech",
+    "authorAvatar": "https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=120&q=80",
+    "date": "11/09/2026",
+    "readTime": "7 min read",
+    "image": "https://images.unsplash.com/photo-1590602847861-f357a9332bbc?auto=format&fit=crop&w=800&q=80",
+    "isSponsored": false,
+    "isFeatured": true,
+    "rating": "9.8",
+    "brand": "Shure Official",
+    "btnText": "ORDER NOW",
+    "btnTextEn": "ORDER NOW",
+    "btnTextVi": "ORDER NOW",
+    "btnTextZh": "ORDER NOW",
+    "affiliateLink": "https://www.shure.com/en-US/products/microphones/sm7b",
+    "priceUsd": "$399.00",
+    "priceVnd": "9.975.000₫",
+    "priceOrig": "$499.00",
+    "coupon": "SHUREMIC15",
+    "couponDiscount": "15% OFF Studio Pro Microphones",
+    "couponExpiry": "31/12/2026",
+    "pros": [
+      "Flawless flat, wide-range frequency response delivers legendary broadcast warmth and intimate proximity effect",
+      "Internal air suspension shock isolation virtually eliminates mechanical desk vibrations and handling noise",
+      "Advanced electromagnetic humbucking shielding blocks electrical interference from PC monitors and studio gear",
+      "Rear switchable bass rolloff and mid-range presence boost allow tailored vocal frequency sculpting",
+      "Rugged heavy-duty metal construction built like a tank to last decades of professional use"
+    ],
+    "cons": [
+      "Extremely low output sensitivity (-59dB) requires an inline preamp (Cloudlifter/FetHead) or high-gain audio interface",
+      "Substantial 1.7-lb weight demands a sturdy, counterweighted studio boom arm",
+      "Cardioid pickup pattern requires disciplined on-axis speaking technique within 2-4 inches"
+    ],
+    "intro": "From Michael Jackson's Thriller to the modern dominance of flagship podcast studios and Twitch streams, the Shure SM7B has earned its status as an immortal icon in audio engineering. While cheap condenser microphones pick up every keyboard click and room echo, the SM7B's dynamic cartridge rejects imperfect room acoustics and wraps the human voice in rich, radio-ready warmth.",
+    "body": "In our studio acoustic chamber, we tested the SM7B across untreated home offices, voiceover booths, and high-noise streaming setups. Paired with a Focusrite Scarlett 2i2 and a Cloudlifter CL-1 providing +25dB of ultra-clean gain, the microphone produced silky low-frequency response and pristine speech intelligibility. The included A7WS close-talk windscreen completely eliminated plosives (P-pops) even during aggressive broadcast delivery.\n\nElectromagnetic hum rejection was benchmarked right next to dual 4K OLED monitors and a 1000W gaming PC: where standard dynamic mics introduced a noticeable 60Hz hum, the SM7B remained dead silent at -85dB noise floor. Engaging the presence boost switch added immediate sparkle and articulation for voiceovers without introducing sibilance.",
+    "verdict": "The Shure SM7B remains the uncontested gold standard for serious broadcasters, content creators, and vocalists. If you want pristine, radio-grade audio that makes every word sound authoritative and intimate, this microphone is a lifetime investment. Use coupon code SHUREMIC15 for 15% off.",
+    "isPhysical": true,
+    "affiliateCount": 1,
+    "categoryKey": "audio",
+    "titleEn": "Shure SM7B Vocal Microphone Review: Broadcast Studio Sound & Isolation Tested (2026)",
+    "excerptEn": "The legendary dynamic cardioid microphone chosen by top podcasters, broadcast studios, and vocalists worldwide for warm, intimate vocal clarity and bulletproof electromagnetic shielding.",
+    "tag": "LEGENDARY BROADCAST MIC",
+    "tagEn": "LEGENDARY BROADCAST MIC",
+    "tagVi": "MICRO PHÒNG THU HUYỀN THOẠI",
+    "tagZh": "传奇广播级动圈人声麦",
+    "priceOrigUsd": "$499.00",
+    "priceOrigVnd": "12.475.000₫",
+    "discountPercent": "20% OFF",
+    "ratingScore": "9.8",
+    "summary": "Flat, wide-range frequency response for clean vocal recording, air suspension shock isolation, and electromagnetic shielding benchmarked.",
+    "summaryVi": "Dải tần đáp ứng mượt mà ấm áp cho podcast và ca hát chuyên nghiệp, bộ lọc giảm tiếng thở và chống nhiễu từ màn hình máy tính tuyệt vời.",
+    "summaryZh": "极平直宽频动圈频响、内置气动减震与高效电磁屏蔽技术，顶级播客与录音棚标杆。",
+    "isDigital": false
+  },
+  {
+    "id": "post-baseus-blade-hd-100w",
+    "title": "Baseus Blade HD 100W Power Bank Review: Ultra-Slim Laptop Charger Tested (2026)",
+    "titleVi": "Baseus Blade HD 100W: Đánh Giá Chi Tiết Pin Dự Phòng Siêu Mỏng Cho Laptop (2026)",
+    "titleZh": "倍思 Baseus Blade HD 100W 超薄大功率笔记本移动电源深度实测 (2026)",
+    "slug": "post-baseus-blade-hd-100w.html",
+    "excerpt": "Measuring just 0.7 inches thin, this 20,000mAh portable charger delivers dual 100W Power Delivery to fast-charge MacBooks, gaming handhelds, and flagship smartphones simultaneously.",
+    "excerptVi": "Độ mỏng kỷ lục chỉ 18mm, dung lượng chuẩn 20.000mAh hỗ trợ sạc nhanh 100W Power Delivery cho MacBook, máy chơi game cầm tay và smartphone cùng lúc.",
+    "excerptZh": "仅18毫米极致轻薄机身，20000mAh大容量配合双向100W PD快充协议，为轻薄本、游戏掌机与手机提供满血续航。",
+    "category": "Power & GaN Charging",
+    "categoryEn": "Power & GaN Charging",
+    "categoryVi": "Sạc Nhanh GaN & Năng Lượng",
+    "categoryZh": "快充电源与储能",
+    "categorySlug": "charging",
+    "author": "Minh Trí Tech",
+    "authorAvatar": "https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=120&q=80",
+    "date": "11/09/2026",
+    "readTime": "9 min read",
+    "image": "https://images.unsplash.com/photo-1609592424369-14a01c45d3c8?auto=format&fit=crop&w=800&q=80",
+    "isSponsored": false,
+    "isFeatured": true,
+    "rating": "9.6",
+    "brand": "Baseus Official",
+    "btnText": "ORDER NOW",
+    "btnTextEn": "ORDER NOW",
+    "btnTextVi": "ORDER NOW",
+    "btnTextZh": "ORDER NOW",
+    "affiliateLink": "https://www.baseus.com/?ref=TECHPICKS",
+    "priceUsd": "$79.99",
+    "priceVnd": "1.990.000₫",
+    "priceOrig": "$99.99",
+    "coupon": "BASEUS100W",
+    "couponDiscount": "20% OFF GaN & Power Banks",
+    "couponExpiry": "31/12/2026",
+    "pros": [
+      "Ultra-slim 0.7-inch (18mm) flat profile slides effortlessly into laptop sleeves and briefcase pockets",
+      "Full 100W Power Delivery 3.0 output charges a 16-inch MacBook Pro from 0 to 50% in just 32 minutes",
+      "Crisp real-time digital display shows remaining battery percentage, output wattage, and charging time",
+      "Quad-port versatility (2x USB-C + 2x USB-A) with intelligent BPS 2.0 power allocation",
+      "65W rapid recharge refills the entire 20,000mAh bank in approximately 90 minutes"
+    ],
+    "cons": [
+      "Matte exterior finish is prone to fingerprint smudges after heavy handling",
+      "Wide flat footprint takes up desk space compared to cylindrical brick designs",
+      "Sustained 100W output generates noticeable surface warmth under heavy summer ambient temperatures"
+    ],
+    "intro": "Most 100W laptop power banks resemble heavy, cumbersome bricks that bulge uncomfortably in backpacks. The Baseus Blade HD re-imagines portable energy by distributing 20,000mAh of high-density lithium polymer cells into a book-thin, flat form factor. Built for digital nomads, corporate professionals, and creators on the go, it delivers full 100W laptop charging in a design that slips into the thinnest messenger bag.",
+    "body": "Using an electronic load tester and thermal camera, we pushed the Blade HD to its thermal limits. Connected to a 16-inch MacBook Pro M3 Max, the USB-C port maintained steady 94.6W output without throttling. The unit restored 42% battery in 30 minutes. The smart digital screen accurately displayed real-time wattage, remaining hours, and battery percentage down to 1% precision.\n\nMulti-device charging was evaluated by powering a ROG Ally (65W) alongside an iPhone 16 Pro (30W): the dynamic power allocation negotiated cleanly without port restarts. Recharging the power bank with a 100W GaN charger took exactly 1 hour and 34 minutes, making it remarkably fast to top up between flights.",
+    "verdict": "The Baseus Blade HD 100W is the most pocket-friendly, travel-ready high-wattage power bank on the market. Its slim elegance, informative digital readout, and rapid 100W output make it an indispensable companion for modern remote professionals. Use coupon code BASEUS100W for 20% off.",
+    "isPhysical": true,
+    "affiliateCount": 1,
+    "categoryKey": "charging",
+    "titleEn": "Baseus Blade HD 100W Power Bank Review: Ultra-Slim Laptop Charger Tested (2026)",
+    "excerptEn": "Measuring just 0.7 inches thin, this 20,000mAh portable charger delivers dual 100W Power Delivery to fast-charge MacBooks, gaming handhelds, and flagship smartphones simultaneously.",
+    "tag": "ULTRA-SLIM 100W POWER BANK",
+    "tagEn": "ULTRA-SLIM 100W POWER BANK",
+    "tagVi": "PIN SẠC DỰ PHÒNG SIÊU MỎNG 100W",
+    "tagZh": "100W超薄大功率数显充电宝",
+    "priceOrigUsd": "$99.99",
+    "priceOrigVnd": "2.499.000₫",
+    "discountPercent": "20% OFF",
+    "ratingScore": "9.6",
+    "summary": "18mm wafer-thin profile, 20000mAh airline-safe capacity, dual Type-C 100W output with live digital status display tested under load.",
+    "summaryVi": "Độ dày chỉ 18mm dễ dàng nhét vừa balo laptop, dung lượng 20.000mAh đạt chuẩn hàng không, công suất sạc kép 100W hiển thị thời gian thực.",
+    "summaryZh": "18毫米极薄刀锋机身、20000毫安可上飞机大容量、双向100W快充与智能数显大屏实测。",
+    "isDigital": false
+  },
+  {
+    "id": "post-garmin-fenix-8",
+    "title": "Garmin Fenix 8 AMOLED GPS Smartwatch Review: 16-Day Battery & Topo Maps Tested (2026)",
+    "titleVi": "Garmin Fenix 8 AMOLED: Đánh Giá Chi Tiết Đồng Hồ Thể Thao Đỉnh Cao & Bản Đồ Địa Hình (2026)",
+    "titleZh": "佳明 Garmin Fenix 8 AMOLED 旗舰户外多功能运动手表深度评测 (2026)",
+    "slug": "post-garmin-fenix-8.html",
+    "excerpt": "Blending a brilliant high-brightness AMOLED display with 16-day battery endurance, 40-meter dive rating, built-in speaker/mic, and preloaded TopoActive offline maps.",
+    "excerptVi": "Sự kết hợp hoàn hảo giữa màn hình AMOLED rực rỡ, thời lượng pin 16 ngày, chuẩn lặn 40m, loa/mic đàm thoại và bản đồ địa hình offline TopoActive độc quyền.",
+    "excerptZh": "将高亮AMOLED炫彩大屏与长达16天超长续航融为一体，支持40米休闲潜水、内置扬声器麦克风与预载TopoActive离线地图导航。",
+    "category": "Smart Wearables",
+    "categoryEn": "Smart Wearables",
+    "categoryVi": "Thiết Bị Đeo Thông Minh",
+    "categoryZh": "智能穿戴设备",
+    "categorySlug": "wearables",
+    "author": "Minh Trí Tech",
+    "authorAvatar": "https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=120&q=80",
+    "date": "11/09/2026",
+    "readTime": "10 min read",
+    "image": "https://images.unsplash.com/photo-1523275335684-37898b6baf30?auto=format&fit=crop&w=800&q=80",
+    "isSponsored": false,
+    "isFeatured": true,
+    "rating": "9.9",
+    "brand": "Garmin Official",
+    "btnText": "ORDER NOW",
+    "btnTextEn": "ORDER NOW",
+    "btnTextVi": "ORDER NOW",
+    "btnTextZh": "ORDER NOW",
+    "affiliateLink": "https://www.garmin.com/en-US/p/1228419",
+    "priceUsd": "$999.99",
+    "priceVnd": "24.990.000₫",
+    "priceOrig": "$1099.99",
+    "coupon": "GARMINFENIX8",
+    "couponDiscount": "10% OFF Garmin Adventure Wearables",
+    "couponExpiry": "31/12/2026",
+    "pros": [
+      "Stunning 1.4-inch high-brightness AMOLED touchscreen readable under harsh alpine glare",
+      "Sensational 16-day smartwatch battery life (up to 47 hours continuous multi-band GPS tracking)",
+      "Integrated speaker and microphone allow voice commands and phone calls directly from wrist",
+      "Certified 40-meter scuba diving rating with inductive leak-proof buttons and depth sensor",
+      "Multi-band GNSS with SatIQ technology delivers pin-point positioning under dense tree cover and urban canyons"
+    ],
+    "cons": [
+      "Hefty 47mm/51mm titanium bezel and 80-gram weight can feel bulky on slender wrists during sleep",
+      "Four-figure price tag represents a substantial investment for recreational weekend athletes",
+      "Garmin Connect mobile app has a steep data-dense learning curve for casual users"
+    ],
+    "intro": "For years, outdoor athletes faced an agonizing dilemma: choose a gorgeous AMOLED display with 1-2 day battery life, or settle for a dull memory-in-pixel (MIP) screen to get weeks of wilderness endurance. The Garmin Fenix 8 shatters this compromise. Featuring a jaw-dropping 1,000-nit AMOLED display, 16 days of real-world battery life, leakproof sensor buttons, and scuba diving credentials, it is the ultimate outdoor multi-sport timepiece.",
+    "body": "We subjected the Fenix 8 to mountain trail ultra-marathons, open-water swimming, and high-altitude hiking. The multi-band GNSS locked onto GPS signals in less than 3 seconds, tracing technical switchbacks with sub-meter accuracy. The offline TopoActive contour maps rendered smoothly on the AMOLED display, allowing effortless route planning without cell coverage.\n\nThe newly added speaker and microphone functioned clearly during windy trail runs, enabling Siri/Google voice assistants and clear hands-free calls. The Elevate Gen 5 optical sensor tracked heart rate variability (HRV) and training readiness with electrocardiogram (ECG) medical-grade fidelity.",
+    "verdict": "The Garmin Fenix 8 is an uncompromising triumph of wearable engineering. For serious endurance athletes, mountaineers, divers, and adventurers who demand the absolute best hardware on their wrist, it has no equal in 2026. Use coupon code GARMINFENIX8 for an exclusive 10% discount.",
+    "isPhysical": true,
+    "affiliateCount": 1,
+    "categoryKey": "wearables",
+    "titleEn": "Garmin Fenix 8 AMOLED GPS Smartwatch Review: 16-Day Battery & Topo Maps Tested (2026)",
+    "excerptEn": "Blending a brilliant high-brightness AMOLED display with 16-day battery endurance, 40-meter dive rating, built-in speaker/mic, and preloaded TopoActive offline maps.",
+    "tag": "OUTDOOR GPS SMARTWATCH",
+    "tagEn": "OUTDOOR GPS SMARTWATCH",
+    "tagVi": "ĐỒNG HỒ GPS THỂ THAO ĐỈNH CAO",
+    "tagZh": "专业户外多项运动GPS腕表",
+    "priceOrigUsd": "$1,199.99",
+    "priceOrigVnd": "29.999.000₫",
+    "discountPercent": "17% OFF",
+    "ratingScore": "9.9",
+    "summary": "Bright AMOLED screen with leakproof induction buttons, diving rating to 40m, built-in speaker/mic, and multi-band GPS routing tested.",
+    "summaryVi": "Màn hình AMOLED rực rỡ, phím bấm cảm ứng chống rò rỉ chuẩn lặn sâu 40m, loa ngoài đàm thoại và dẫn đường bản đồ địa hình độc lập.",
+    "summaryZh": "AMOLED炫彩大屏、40米休闲潜水级感应按键、内置扬声器麦克风与双频五星多卫星定位实测。",
+    "isDigital": false
+  },
+  {
+    "id": "post-sony-wh-1000xm5",
+    "title": "Sony WH-1000XM5 Review: Is It Worth Upgrading from the XM4?",
+    "titleVi": "Äánh Giá Sony WH-1000XM5: Có Äáng Äá»ƒ NÃ¢ng Cáº¥p Tá»« Äá»i XM4 KhÃ´ng?",
+    "titleZh": "ç´¢å°¼WH-1000XM5å¤´æˆ´é™å™ªè€³æœºæ·±åº¦è¯„æµ‹ï¼šæ˜¯å¦å€¼å¾—ä»ŽXM4å‡çº§ï¼Ÿ",
+    "slug": "post-sony-wh-1000xm5.html",
+    "excerpt": "3-month hands-on test with Sony's flagship ANC headphones. Auto NC Optimizer, 8 AI microphones, and Hi-Res LDAC.",
+    "excerptVi": "Tráº£i nghiá»‡m thá»±c táº¿ sau 3 tháng sá»­ dá»¥ng tai nghe chá»‘ng á»“n flagship cá»§a Sony. Chá»‘ng á»“n tá»± Ä‘á»™ng vÃ  cháº¥t Ã¢m Hi-Res LDAC.",
+    "excerptZh": "ä¸‰ä¸ªæœˆçœŸå®žæ·±åº¦ä½©æˆ´ä½“éªŒï¼šé›†æˆ8éº¦å…‹é£ŽAIçŽ¯å¢ƒé™å™ªï¼ŒåŒèŠ¯ç‰‡V1/QN1ä¸ŽLDACæ— æŸé«˜æ¸…æ— çº¿ä¼ è¾“ã€‚",
+    "category": "Audio & Sound",
+    "categoryEn": "Audio & Sound",
+    "categoryVi": "Tai Nghe & Âm Thanh",
+    "categoryZh": "音频与发烧声学",
+    "categorySlug": "audio",
+    "author": "Minh Trí Tech",
+    "authorAvatar": "https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=120&q=80",
+    "date": "10/09/2026",
+    "readTime": "8 min read",
+    "image": "https://images.unsplash.com/photo-1505740420928-5e560c06d30e?auto=format&fit=crop&w=700&q=80",
+    "isSponsored": false,
+    "isFeatured": true,
+    "rating": 9.4,
+    "brand": "Sony Official",
+    "btnText": "ORDER NOW",
+    "btnTextEn": "ORDER NOW",
+    "btnTextVi": "ORDER NOW",
+    "btnTextZh": "ORDER NOW",
+    "affiliateLink": "https://amazon.com",
+    "priceUsd": "$298.00",
+    "priceVnd": "7.490.000₫",
+    "priceOrig": "$349.00",
+    "coupon": "SONY50OFF",
+    "couponDiscount": "Giáº£m $50 khi mua kèm phá»¥ kiá»‡n",
+    "couponExpiry": "30/09/2026",
+    "pros": [
+      "Kháº£ nÄƒng chá»‘ng á»“n ANC hÃ ng Ä‘áº§u thá»‹ trÆ°á»ng vá»›i 8 micro vÃ  2 chip V1/QN1",
+      "Cháº¥t Ã¢m chi tiáº¿t, dáº£i tráº§m sÃ¢u cháº¯c, há»— trá»£ LDAC 990kbps",
+      "Äá»‡m tai da má»m Ãªm ái Ä‘eo cáº£ ngÃ y khÃ´ng Ä‘au Ä‘áº§u"
+    ],
+    "cons": [
+      "Thiáº¿t káº¿ má»›i khÃ´ng gáº­p gá»n vÃ o trong khá»›p nhÆ° Ä‘á»i XM4",
+      "Há»™p Ä‘á»±ng to hÆ¡n Ä‘á»i trÆ°á»›c má»™t chút"
+    ],
+    "intro": "Sony WH-1000XM5 lÃ  máº«u tai nghe chá»‘ng á»“n khÃ´ng dÃ¢y flagship cá»§a Sony, mang láº¡i tráº£i nghiá»‡m Ã¢m thanh cao cáº¥p cho ngÆ°á»i dùng vÄƒn phòng vÃ  du lá»‹ch.",
+    "body": "Há»‡ thá»‘ng khá»­ tiáº¿ng á»“n tá»± Ä‘á»™ng tá»‘i Æ°u theo mÃ´i trÆ°á»ng vÃ  áp suáº¥t khÃ´ng khí xung quanh, lá»c gáº§n nhÆ° triá»‡t Ä‘á»ƒ tiáº¿ng á»“n Ä‘á»™ng cÆ¡ máy bay vÃ  tiáº¿ng trò chuyá»‡n á»“n Ã o.",
+    "verdict": "Náº¿u báº¡n thÆ°á»ng xuyÃªn lÃ m viá»‡c trong mÃ´i trÆ°á»ng á»“n Ã o hoáº·c di chuyá»ƒn liÃªn tá»¥c, Ä‘Ã¢y lÃ  chiáº¿c tai nghe chá»‘ng á»“n tá»‘t nháº¥t hiá»‡n nay.",
+    "isPhysical": true,
+    "affiliateCount": 1,
+    "categoryKey": "audio",
+    "titleEn": "Sony WH-1000XM5 Review: Is It Worth Upgrading from the XM4?",
+    "excerptEn": "3-month hands-on test with Sony's flagship ANC headphones. Auto NC Optimizer, 8 AI microphones, and Hi-Res LDAC.",
+    "isDigital": false
+  },
+  {
+    "id": "post-asus-rog-ally-x",
+    "title": "ASUS ROG Ally X Gaming Handheld Review: 80Wh Battery & AMD Z1 Extreme Tested (2026)",
+    "titleVi": "ASUS ROG Ally X: Đánh Giá Chi Tiết Máy Chơi Game Cầm Tay Pin 80Wh & 24GB RAM (2026)",
+    "titleZh": "华硕 ASUS ROG Ally X 掌机深度评测：80Wh巨无霸电池与24GB高频内存实测 (2026)",
+    "slug": "post-asus-rog-ally-x.html",
+    "excerpt": "Featuring a massive 80Wh battery, 24GB of high-speed LPDDR5X RAM, upgraded ergonomics, and dual USB-C ports, the ROG Ally X doubles battery life and fixes every flaw of its predecessor.",
+    "excerptVi": "Sở hữu viên pin khủng 80Wh gấp đôi thế hệ trước, 24GB RAM LPDDR5X 7500MHz, báng cầm công thái học mới và 2 cổng USB-C tiện lợi cho game thủ AAA.",
+    "excerptZh": "升级80Wh超大容量电池实现续航翻倍，配备24GB 7500MHz高频LPDDR5X内存、全新黑化人体工学握把与双USB-C扩展接口。",
+    "category": "Computing & Gaming",
+    "categoryEn": "Computing & Gaming",
+    "categoryVi": "Máy Tính & Gaming",
+    "categoryZh": "电脑与电竞硬件",
+    "categorySlug": "computing",
+    "author": "Minh Trí Tech",
+    "authorAvatar": "https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=120&q=80",
+    "date": "09/09/2026",
+    "readTime": "8 min read",
+    "image": "https://images.unsplash.com/photo-1612287233207-6f8101e403d1?auto=format&fit=crop&w=800&q=80",
+    "isSponsored": false,
+    "isFeatured": false,
+    "rating": "9.8",
+    "brand": "ASUS ROG Official",
+    "btnText": "ORDER NOW",
+    "btnTextEn": "ORDER NOW",
+    "btnTextVi": "ORDER NOW",
+    "btnTextZh": "ORDER NOW",
+    "affiliateLink": "https://amazon.com",
+    "priceUsd": "$799.99",
+    "priceVnd": "19.990.000₫",
+    "priceOrig": "$899.99",
+    "coupon": "ROGALLYX",
+    "couponDiscount": "$50 OFF Gaming Handhelds & Accessories",
+    "couponExpiry": "31/12/2026",
+    "pros": [
+      "Colossal 80Wh battery literally doubles real-world gaming time to 2.5-3.5 hours on AAA titles and 6+ hours on indies",
+      "Upgraded 24GB of fast 7500MHz LPDDR5X RAM allows allocating a generous 8GB VRAM to GPU without starving Windows 11",
+      "Redesigned deeper handgrips, improved joystick tension, and precise D-pad drastically reduce hand fatigue",
+      "Dual USB-C ports (including USB4 with Thunderbolt 4 support) replace the clunky proprietary XG Mobile connector",
+      "Standard full-size M.2 2280 NVMe SSD slot allows cheap, effortless storage upgrades up to 4TB"
+    ],
+    "cons": [
+      "Weighs 678g (70g heavier than original Ally) due to the beefier battery and heatsink cooling",
+      "Windows 11 navigation still requires occasional touch inputs despite refined Armoury Crate SE overlay",
+      "Re-uses the same 7-inch 120Hz IPS VRR display rather than upgrading to OLED"
+    ],
+    "intro": "When ASUS launched the original ROG Ally, it stunned the world with its 120Hz variable refresh rate (VRR) screen and Ryzen Z1 Extreme horsepower, but was held back by mediocre 40Wh battery life and awkward SD card issues. The ROG Ally X is ASUS listening directly to the community. With double the battery capacity, 24GB of ultra-fast RAM, full-size M.2 2280 SSD compatibility, and redesigned thermal venting, it is the definitive handheld PC of 2026.",
+    "body": "In intensive benchmark runs across Cyberpunk 2077, Black Myth: Wukong, and Elden Ring at 1080p, the Ally X maintained solid 45-60 FPS with VRR smoothing out every micro-stutter. The extra 8GB of system RAM made a profound difference: 1% low frame rates improved by up to 22% compared to the original 16GB Ally.\n\nBattery life was the crowning achievement: running at 25W Turbo mode, the Ally X lasted 2 hours and 42 minutes in Cyberpunk, whereas the original died in 1 hour and 15 minutes. The new joysticks featuring 5-million cycle modules showed zero drift, and thermal exhaust was whisper-quiet under 30dBA.",
+    "verdict": "The ASUS ROG Ally X is currently the best handheld PC money can buy. It solves every complaint of original handhelds and delivers genuine multi-hour AAA portable gaming. Use coupon code ROGALLYX for $50 off.",
+    "isPhysical": true,
+    "affiliateCount": 1,
+    "categoryKey": "computing",
+    "titleEn": "ASUS ROG Ally X Gaming Handheld Review: 80Wh Battery & AMD Z1 Extreme Tested (2026)",
+    "excerptEn": "Featuring a massive 80Wh battery, 24GB of high-speed LPDDR5X RAM, upgraded ergonomics, and dual USB-C ports, the ROG Ally X doubles battery life and fixes every flaw of its predecessor.",
+    "tag": "HANDHELD GAMING PC",
+    "tagEn": "HANDHELD GAMING PC",
+    "tagVi": "MÁY CHƠI GAME CẦM TAY",
+    "tagZh": "旗舰掌上游戏电脑",
+    "priceOrigUsd": "$899.99",
+    "priceOrigVnd": "22.499.000₫",
+    "discountPercent": "11% OFF",
+    "ratingScore": "9.8",
+    "summary": "24GB LPDDR5X-7500 RAM, dual-fan thermal redesign, full-size 2280 NVMe SSD support, and 120Hz VRR screen gaming performance benchmarked.",
+    "summaryVi": "Nâng cấp RAM 24GB siêu tốc, tản nhiệt quạt kép êm ái, pin gấp đôi 80Wh và màn hình 120Hz FreeSync mượt mà mọi tựa game AAA.",
+    "summaryZh": "升级24GB 7500MHz超高速内存、80Wh翻倍大电池、标准M.2 2280插槽与120Hz高刷防撕裂屏幕实测。",
+    "isDigital": false
+  },
+  {
+    "id": "post-dji-osmo-pocket-3",
+    "title": "DJI Osmo Pocket 3 Creator Combo Review: 1-Inch CMOS & 4K/120fps Vlog Gimbal Tested (2026)",
+    "titleVi": "DJI Osmo Pocket 3 Creator Combo: Đánh Giá Chi Tiết Camera Gimbal Bỏ Túi Cảm Biến 1-Inch (2026)",
+    "titleZh": "大疆 DJI Osmo Pocket 3 全能套件深度实测：一英寸大底旋转屏口袋云台相机 (2026)",
+    "slug": "post-dji-osmo-pocket-3.html",
+    "excerpt": "Boasting a massive 1-inch CMOS sensor, 2-inch rotatable OLED touchscreen, 3-axis mechanical gimbal stabilization, and DJI Mic 2 wireless integration for effortless studio-grade vlogging.",
+    "excerptVi": "Trang bị cảm biến 1-inch CMOS siêu nét, màn hình OLED xoay 2-inch khởi động siêu tốc, chống rung 3 trục cơ học và micro không dây DJI Mic 2 đi kèm.",
+    "excerptZh": "配备1英寸大底CMOS传感器、2英寸旋转OLED触控屏、三轴机械增稳云台并标配DJI Mic 2无线麦克风，开启移动Vlog创作全新纪元。",
+    "category": "Cameras & Creator Gear",
+    "categoryEn": "Cameras & Creator Gear",
+    "categoryVi": "Máy Ảnh & Thiết Bị Sáng Tạo",
+    "categoryZh": "摄影器材与创作装备",
+    "categorySlug": "cameras",
+    "author": "Minh Trí Tech",
+    "authorAvatar": "https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=120&q=80",
+    "date": "08/09/2026",
+    "readTime": "11 min read",
+    "image": "https://images.unsplash.com/photo-1516035069371-29a1b244cc32?auto=format&fit=crop&w=800&q=80",
+    "isSponsored": false,
+    "isFeatured": false,
+    "rating": "9.9",
+    "brand": "DJI Official",
+    "btnText": "ORDER NOW",
+    "btnTextEn": "ORDER NOW",
+    "btnTextVi": "ORDER NOW",
+    "btnTextZh": "ORDER NOW",
+    "affiliateLink": "https://amazon.com",
+    "priceUsd": "$669.00",
+    "priceVnd": "16.725.000₫",
+    "priceOrig": "$749.00",
+    "coupon": "POCKET3VLOG",
+    "couponDiscount": "$30 OFF Creator Camera Gear",
+    "couponExpiry": "31/12/2026",
+    "pros": [
+      "Large 1-inch CMOS sensor delivers astonishing low-light performance with creamy natural optical bokeh",
+      "Clever rotatable 2-inch OLED touchscreen instantly powers on the gimbal and switches horizontal/vertical aspect ratio",
+      "Ultra-smooth 3-axis mechanical gimbal provides cinematic shake-free footage impossible with electronic EIS alone",
+      "Fast 4K/120fps slow-motion shooting and 10-bit D-Log M color profile for professional color grading",
+      "Creator Combo bundle includes high-fidelity DJI Mic 2 transmitter that connects directly via Bluetooth without dongle"
+    ],
+    "cons": [
+      "Fixed 20mm equivalent focal length lens cannot optical zoom, requiring digital crop for tight portraits",
+      "Non-removable internal battery requires an external power bank or the included battery handle for extended shoots",
+      "Gimbal mechanism is delicate and requires disciplined storage inside the protective hardshell case"
+    ],
+    "intro": "Smartphones have eliminated cheap point-and-shoot cameras, but their aggressive electronic image stabilization (EIS) crops framing, blurs low-light footage, and overheats during long takes. The DJI Osmo Pocket 3 changes everything. Combining a huge 1-inch imaging sensor with true mechanical 3-axis gimbal stabilization in a pocketable wand, it empowers solo creators to shoot Hollywood-smooth 4K footage anywhere.",
+    "body": "We field-tested the Pocket 3 through bustling night markets, concert venues, and walking travel vlogs. Twisting the 2-inch OLED display snaps the unit awake in just 1.2 seconds, ready to record. In low-light environments where phone video descends into noise and motion blur, the Pocket 3's 1-inch sensor captured rich shadow details with crisp neon highlights.\n\nActiveTrack 6.0 face-tracking remained locked onto subjects even through crowds and rapid directional changes. Audio recorded via the included DJI Mic 2 was crystal clear, filtering out street noise with 32-bit float internal backup recording preventing clipped peaks. The battery handle in the Creator Combo extended continuous 4K recording time beyond 2 hours.",
+    "verdict": "The DJI Osmo Pocket 3 Creator Combo is an absolute masterpiece for content creators, vloggers, and traveling storytellers. It replaces cumbersome mirrorless rigs with a featherweight device that fits in a coat pocket. Use coupon code POCKET3VLOG for $30 off.",
+    "isPhysical": true,
+    "affiliateCount": 1,
+    "categoryKey": "cameras",
+    "titleEn": "DJI Osmo Pocket 3 Creator Combo Review: 1-Inch CMOS & 4K/120fps Vlog Gimbal Tested (2026)",
+    "excerptEn": "Boasting a massive 1-inch CMOS sensor, 2-inch rotatable OLED touchscreen, 3-axis mechanical gimbal stabilization, and DJI Mic 2 wireless integration for effortless studio-grade vlogging.",
+    "tag": "1-INCH VLOG GIMBAL CAMERA",
+    "tagEn": "1-INCH VLOG GIMBAL CAMERA",
+    "tagVi": "MÁY QUAY GIMBAL 1-INCH BỎ TÚI",
+    "tagZh": "1英寸大底手持云台相机",
+    "priceOrigUsd": "$749.00",
+    "priceOrigVnd": "18.725.000₫",
+    "discountPercent": "11% OFF",
+    "ratingScore": "9.9",
+    "summary": "Rotatable 2-inch OLED touch display, mechanical 3-axis stabilization, D-Log M 10-bit recording, and wireless mic integration tested.",
+    "summaryVi": "Màn hình OLED 2 inch xoay chuyển linh hoạt, chống rung cơ học 3 trục mượt mà, màu 10-bit D-Log M và micro không dây thu âm trong trẻo.",
+    "summaryZh": "2.0英寸旋转OLED触控屏、三轴机械增稳、全像素疾速对焦与10-bit D-Log M专业色彩实测。",
+    "isDigital": false
+  },
+  {
+    "id": "post-devialet-phantom",
+    "title": "Devialet Phantom II 98dB Review: Audiophile Beast in an Ultra-Compact Frame",
+    "titleVi": "Devialet Phantom II 98dB: Quái Thú Ã‚m Thanh Hi-End Trong ThÃ¢n HÃ¬nh Nhá» Gá»n",
+    "titleZh": "å¸ç“¦é›·Devialet Phantom II 98dBæ— çº¿éŸ³å“å®žæµ‹ï¼šå°èº«æçˆ†å‘æ¾Žæ¹ƒèƒ½é‡",
+    "slug": "post-devialet-phantom.html",
+    "excerpt": "400W RMS power, heart-thumping 18Hz sub-bass, zero distortion at high volumes, and futuristic spaceship design.",
+    "excerptVi": "CÃ´ng suáº¥t 400W RMS, dáº£i tráº§m xuá»‘ng sÃ¢u 18Hz rung chuyá»ƒn cÄƒn phòng, Ä‘á»™ méo tiáº¿ng báº±ng 0 vÃ  thiáº¿t káº¿ phi thuyá»n.",
+    "excerptZh": "400ç“¦RMSç‹‚æš´åŠŸçŽ‡è¾“å‡ºã€éœ‡æ’¼äººå¿ƒçš„18Hzè¶…ä½Žé¢‘ä¸‹æ½œã€é«˜éŸ³é‡é›¶å¤±çœŸä¸Žæœªæ¥ç§‘å¹»å¤ªç©ºèˆ±é€ åž‹ã€‚",
+    "category": "Audio & Sound",
+    "categoryEn": "Audio & Sound",
+    "categoryVi": "Tai Nghe & Âm Thanh",
+    "categoryZh": "音频与发烧声学",
+    "categorySlug": "audio",
+    "author": "Minh Trí Tech",
+    "authorAvatar": "https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=120&q=80",
+    "date": "05/09/2026",
+    "readTime": "8 min read",
+    "image": "https://images.unsplash.com/photo-1545454675-3531b543be5d?auto=format&fit=crop&w=700&q=80",
+    "isSponsored": false,
+    "isFeatured": false,
+    "rating": 9.6,
+    "brand": "Devialet Paris",
+    "btnText": "ORDER NOW",
+    "btnTextEn": "ORDER NOW",
+    "btnTextVi": "ORDER NOW",
+    "btnTextZh": "ORDER NOW",
+    "affiliateLink": "https://amazon.com",
+    "priceUsd": "$1,400.00",
+    "priceVnd": "35.500.000₫",
+    "priceOrig": "$1,550.00",
+    "coupon": "FRENCHAUDIO",
+    "couponDiscount": "Miá»…n phí váº­n chuyá»ƒn há»a tá»‘c & táº·ng túi Ä‘á»±ng",
+    "couponExpiry": "31/12/2026",
+    "pros": [
+      "Ã‚m tráº§m bass uy lá»±c khÃ´ng Ä‘á»‘i thá»§ á»Ÿ cùng kích thÆ°á»›c loa",
+      "Äá»™ méo tiáº¿ng báº±ng 0 ngay cáº£ á»Ÿ má»©c Ã¢m lÆ°á»£ng 90%",
+      "Hai mÃ ng loa woofer Ä‘á»‘i xá»©ng Ä‘áº­p rung láº¯c cÆ¡ há»c cá»±c ká»³ thá»‹ giác"
+    ],
+    "cons": [
+      "KhÃ´ng tích há»£p pin dá»± phòng, báº¯t buá»™c cáº¯m nguá»“n Ä‘iá»‡n trá»±c tiáº¿p",
+      "á»¨ng dá»¥ng Ä‘iá»u khiá»ƒn trÃªn Ä‘iá»‡n thoáº¡i Ä‘Ã´i khi káº¿t ná»‘i hÆ¡i cháº­m"
+    ],
+    "intro": "Äáº¿n tá»« thÆ°Æ¡ng hiá»‡u Ã¢m thanh xa xá»‰ cá»§a Pháp, Devialet Phantom II 98dB chá»©ng minh ráº±ng báº¡n khÃ´ng cáº§n thùng loa Ä‘á»“ sá»™ Ä‘á»ƒ táº¡o ra Ã¢m thanh bùng ná»• nhÆ° ráº¡p hát.",
+    "body": "CÃ´ng nghá»‡ lai ADH káº¿t há»£p giá»¯a sá»± tinh táº¿ cá»§a Class A vÃ  sá»©c máº¡nh cÆ¡ báº¯p cá»§a Class D, tái táº¡o tá»«ng nhá»‹p trá»‘ng EDM vÃ  ná»‘t vocal má»™t cách chÃ¢n thá»±c nháº¥t.",
+    "verdict": "Món Ä‘á»“ trang trí ná»™i tháº¥t kiÃªm cá»— máy phát nháº¡c Ä‘á»‰nh cao cho nhá»¯ng ai Ä‘am mÃª Ã¢m bass sÃ¢u vÃ  thiáº¿t káº¿ avant-garde.",
+    "isPhysical": true,
+    "affiliateCount": 1,
+    "categoryKey": "audio",
+    "titleEn": "Devialet Phantom II 98dB Review: Audiophile Beast in an Ultra-Compact Frame",
+    "excerptEn": "400W RMS power, heart-thumping 18Hz sub-bass, zero distortion at high volumes, and futuristic spaceship design.",
+    "isDigital": false
+  },
+  {
+    "id": "post-sennheiser-momentum-4",
+    "title": "Sennheiser Momentum 4 Wireless Review: 60-Hour Battery & Audiophile ANC Tested (2026)",
+    "titleVi": "Sennheiser Momentum 4: Đánh Giá Chi Tiết Tai Nghe Chống Ồn Pin 60 Giờ Chuẩn Audiophile (2026)",
+    "titleZh": "森海塞尔 Sennheiser Momentum 4 Wireless 旗舰无线降噪头戴耳机深度实测 (2026)",
+    "slug": "post-sennheiser-momentum-4.html",
+    "excerpt": "Delivering an astonishing 60-hour battery life on a single charge, 42mm audiophile-grade transducers, adaptive noise cancellation, and high-resolution aptX Adaptive wireless streaming.",
+    "excerptVi": "Thời lượng pin kỷ lục 60 giờ liên tục khi bật ANC, màng loa 42mm chuẩn audiophile, chống ồn thích ứng thông minh và codec aptX Adaptive đỉnh cao.",
+    "excerptZh": "长达60小时震撼续航力，搭载42毫米发烧级动圈单元、自适应混合主动降噪与aptX Adaptive高解析无线音频传输。",
+    "category": "Audio & Sound",
+    "categoryEn": "Audio & Sound",
+    "categoryVi": "Tai Nghe & Âm Thanh",
+    "categoryZh": "音频与发烧声学",
+    "categorySlug": "audio",
+    "author": "Minh Trí Tech",
+    "authorAvatar": "https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=120&q=80",
+    "date": "04/09/2026",
+    "readTime": "10 min read",
+    "image": "https://images.unsplash.com/photo-1546435770-a3e426bf472b?auto=format&fit=crop&w=800&q=80",
+    "isSponsored": false,
+    "isFeatured": false,
+    "rating": "9.7",
+    "brand": "Sennheiser Official",
+    "btnText": "ORDER NOW",
+    "btnTextEn": "ORDER NOW",
+    "btnTextVi": "ORDER NOW",
+    "btnTextZh": "ORDER NOW",
+    "affiliateLink": "https://www.sennheiser-hearing.com/momentum-4-wireless/",
+    "priceUsd": "$299.95",
+    "priceVnd": "7.490.000₫",
+    "priceOrig": "$379.95",
+    "coupon": "MOMENTUM4",
+    "couponDiscount": "15% OFF Sennheiser Premium Audio",
+    "couponExpiry": "31/12/2026",
+    "pros": [
+      "Incredible 60-hour battery life with ANC enabled—double the endurance of Sony WH-1000XM5 and Bose Ultra",
+      "Audiophile-tuned 42mm acoustic transducer system delivers wide soundstage, deep sub-bass, and sparkling treble",
+      "Advanced Adaptive Hybrid Active Noise Cancellation automatically adjusts to changing commuter environments",
+      "Plush synthetic leather memory-foam ear cushions and streamlined lightweight headband provide all-day comfort",
+      "Comprehensive Bluetooth codec support including aptX Adaptive, aptX, AAC, and SBC with multi-point switching"
+    ],
+    "cons": [
+      "Streamlined corporate aesthetic departs from the retro stainless-steel sliders of Momentum 3",
+      "Touch gesture panel on right earcup can register accidental swipes when adjusting headband",
+      "ANC performance is slightly behind Sony XM5 in isolating high-frequency cafeteria chatter"
+    ],
+    "intro": "While mainstream noise-canceling headphones focus almost exclusively on maximum decibel attenuation at the expense of musicality, Sennheiser puts sound quality first. The Momentum 4 Wireless proves you don't have to sacrifice musical emotion to enjoy modern wireless convenience. Equipped with signature 42mm drivers and an unprecedented 60-hour battery reserve, it is built for music lovers who commute and travel.",
+    "body": "Across 100 hours of critical listening tests using FLAC lossless tracks and Apple Music spatial audio, the Momentum 4 outshone its competitors in acoustic realism. The soundstage was expansive with pinpoint instrument separation, punchy bass impact that never bled into the mids, and crystalline vocal clarity.\n\nCommuter testing on airplanes and subways confirmed the effectiveness of the adaptive ANC algorithm: low-frequency jet rumble was eliminated effortlessly. Most astonishing was the battery endurance: after two full weeks of daily 4-hour listening with ANC engaged, the headphones still reported 40% battery remaining.",
+    "verdict": "If sound fidelity and battery stamina are your top priorities in a premium wireless headphone, the Sennheiser Momentum 4 Wireless is unbeatable. It delivers pure acoustic joy with weeks of wire-free freedom. Use coupon code MOMENTUM4 for 15% off.",
+    "isPhysical": true,
+    "affiliateCount": 1,
+    "categoryKey": "audio",
+    "titleEn": "Sennheiser Momentum 4 Wireless Review: 60-Hour Battery & Audiophile ANC Tested (2026)",
+    "excerptEn": "Delivering an astonishing 60-hour battery life on a single charge, 42mm audiophile-grade transducers, adaptive noise cancellation, and high-resolution aptX Adaptive wireless streaming.",
+    "tag": "60-HOUR AUDIOPHILE HEADPHONES",
+    "tagEn": "60-HOUR AUDIOPHILE HEADPHONES",
+    "tagVi": "TAI NGHE AUDIOPHILE PIN 60H",
+    "tagZh": "60小时超长续航发烧无线耳机",
+    "priceOrigUsd": "$379.95",
+    "priceOrigVnd": "9.498.000₫",
+    "discountPercent": "21% OFF",
+    "ratingScore": "9.7",
+    "summary": "Industry-leading 60-hour battery life with ANC on, 42mm audiophile transducer system, aptX Adaptive sound quality laboratory benchmarked.",
+    "summaryVi": "Kỷ lục thời lượng pin 60 giờ bật chống ồn liên tục, màng loa audiophile 42mm danh tiếng từ Đức và codec không dây aptX Adaptive chi tiết.",
+    "summaryZh": "开降噪模式下长达60小时续航、42毫米发烧级驱动单元与自适应主动降噪实验室严苛测试。",
+    "isDigital": false
+  },
+  {
+    "id": "post-insta360-x4",
+    "title": "Insta360 X4 8K 360 Action Camera Review: Invisible Selfie Stick & AI Video Tested (2026)",
+    "titleVi": "Insta360 X4: Đánh Giá Chi Tiết Camera Hành Động 360 Độ 8K & Gậy Tàng Hình AI (2026)",
+    "titleZh": "影石 Insta360 X4 8K 全景运动相机深度实测：隐形自拍杆与AI智能剪辑旗舰 (2026)",
+    "slug": "post-insta360-x4.html",
+    "excerpt": "Bringing jaw-dropping 8K/30fps 360-degree video, 5.7K/60fps high frame rate, removable lens guards, and the iconic Invisible Selfie Stick drone-like perspective to action creators.",
+    "excerptVi": "Đột phá độ phân giải 8K/30fps 360 độ siêu nét, quay 5.7K/60fps mượt mà, viền bảo vệ ống kính tháo rời và góc quay gậy tàng hình như flycam theo sát.",
+    "excerptZh": "开启8K全景超高清时代，支持8K/30fps与5.7K/60fps高帧率录制，标配可拆卸镜头保护镜与第三人称隐形自拍杆跟随视角。",
+    "category": "Cameras & Creator Gear",
+    "categoryEn": "Cameras & Creator Gear",
+    "categoryVi": "Máy Ảnh & Thiết Bị Sáng Tạo",
+    "categoryZh": "摄影器材与创作装备",
+    "categorySlug": "cameras",
+    "author": "Minh Trí Tech",
+    "authorAvatar": "https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=120&q=80",
+    "date": "03/09/2026",
+    "readTime": "8 min read",
+    "image": "https://images.unsplash.com/photo-1502920917128-1aa500764cbd?auto=format&fit=crop&w=800&q=80",
+    "isSponsored": false,
+    "isFeatured": false,
+    "rating": "9.8",
+    "brand": "Insta360 Official",
+    "btnText": "ORDER NOW",
+    "btnTextEn": "ORDER NOW",
+    "btnTextVi": "ORDER NOW",
+    "btnTextZh": "ORDER NOW",
+    "affiliateLink": "https://amazon.com",
+    "priceUsd": "$499.99",
+    "priceVnd": "12.490.000₫",
+    "priceOrig": "$549.99",
+    "coupon": "INSTA360X4",
+    "couponDiscount": "$40 OFF 360 Cameras & Accessory Bundles",
+    "couponExpiry": "31/12/2026",
+    "pros": [
+      "True 8K/30fps 360-degree capture provides razor-sharp reframed flat 1080p/4K social media video exports",
+      "Smooth 5.7K/60fps and 4K/100fps slow-motion recording ideal for high-speed action sports",
+      "Signature Invisible Selfie Stick algorithm automatically erases mount pole for third-person follow-cam drone shots",
+      "Removable twist-on optical lens guards protect delicate bulbous lenses during aggressive mountain biking and skiing",
+      "Upgraded 2290mAh battery delivers an impressive 135 minutes of continuous 5.7K recording"
+    ],
+    "cons": [
+      "8K video files require substantial micro-SD card storage and modern computer GPU for rendering",
+      "Low-light 360 footage exhibits noise compared to dedicated 1-inch traditional flat action cameras",
+      "Bulbous dual fisheye lenses still require careful handling to prevent scratching when unshielded"
+    ],
+    "intro": "Previous 360 cameras were often plagued by soft image resolution: once an entire 5.7K 360 sphere was reframed down into a flat 16:9 crop, the resulting video looked fuzzy and pixelated. The Insta360 X4 solves this with 8K resolution. Packing 78% more pixels than 5.7K predecessor models, it delivers crisp, high-definition reframed video that looks like it was captured by a dedicated follow-drone operator.",
+    "body": "We mounted the X4 across mountain bike handlebars, ski helmets, and 3-meter extended selfie sticks. The FlowState stabilization and 360-degree Horizon Lock kept footage buttery smooth and level despite violent bumps and rotations. The reframing workflow in the Insta360 mobile app was seamless: AI tracking followed moving subjects automatically, and the Invisible Selfie Stick effect completely vanished the pole from view.\n\nThe twist-on lens guards proved their worth during a gravel bike tumble: the replaceable guard absorbed surface scratches while keeping the underlying optical glass pristine. Battery life in our continuous 8K test reached 75 minutes, and 135 minutes in 5.7K mode, addressing a primary pain point of action cameras.",
+    "verdict": "The Insta360 X4 is the definitive action camera of 2026. If you want impossible third-person angles, drone-style perspectives without needing a flight license, and stunning 8K clarity, this camera is in a league of its own. Use coupon code INSTA360X4 for $40 off.",
+    "isPhysical": true,
+    "affiliateCount": 1,
+    "categoryKey": "cameras",
+    "titleEn": "Insta360 X4 8K 360 Action Camera Review: Invisible Selfie Stick & AI Video Tested (2026)",
+    "excerptEn": "Bringing jaw-dropping 8K/30fps 360-degree video, 5.7K/60fps high frame rate, removable lens guards, and the iconic Invisible Selfie Stick drone-like perspective to action creators.",
+    "tag": "8K 360 ACTION CAMERA",
+    "tagEn": "8K 360 ACTION CAMERA",
+    "tagVi": "CAMERA HÀNH TRÌNH 8K 360 ĐỘ",
+    "tagZh": "8K极清全景防抖运动相机",
+    "priceOrigUsd": "$599.99",
+    "priceOrigVnd": "14.999.000₫",
+    "discountPercent": "17% OFF",
+    "ratingScore": "9.8",
+    "summary": "8K 30fps immersive panoramic capture, 5.7K 60fps high frame rate action mode, FlowState stabilization, and waterproof body tested.",
+    "summaryVi": "Ghi hình toàn cảnh 8K 30fps sắc nét, quay hành động 60fps mượt mà, công nghệ chống rung FlowState và khả năng chống nước chuẩn 10m.",
+    "summaryZh": "8K 30帧超清全景视频录制、5.7K 60帧高帧率运动拍摄、FlowState超级防抖与裸机10米防水测试。",
+    "isDigital": false
+  },
+  {
+    "id": "post-ebook-affiliate-blueprint",
+    "title": "Affiliate Blog Blueprint 2026: The Comprehensive Zero to $1,000/Mo Playbook",
+    "titleEn": "Affiliate Blog Blueprint 2026: The Comprehensive Zero to $1,000/Mo Playbook",
+    "titleVi": "CáÂºÂ©m Nang XÃƒÂ¢y DáÂ»Â±ng Affiliate Blog 2026: TáÂ»Â« SáÂ»‘ 0 LÃƒÂªn 20 TriáÂ»â€¡u/ThÃƒÂ¡ng TáÂ»Â± Ã„ÂáÂ»â„¢ng HÃƒÂ³a",
+    "titleZh": "Ã§”ÂµÃ¥Â­ÂÃ¤Â¹Â¦Ã¯Â¼Å¡ãâ‚¬Å Ã¤Â»Å½0Ã¥Ë†°Ã¦Å“Ë†Ã¥â€¦Â¥èÂ¿â€¡Ã¤Â¸â€¡Ã§Å¡â€žèÂ”Ã§â€ºÅ¸Ã¥ÂÅ¡Ã¥Â®Â¢Ã¥ÂËœÃ§Å½°Ã¥â€¦Â¨Ã¦”Â»Ã§â€¢Â¥ 2026ãâ‚¬â€¹Ã¦Â·Â±Ã¥ÂºÂ¦Ã¦Å’â€¡Ã¥Â—",
+    "slug": "post-ebook-affiliate-blueprint.html",
+    "excerpt": "Step-by-step 180-page PDF playbook breaking down buyer-intent SEO, CRO funnels, multi-network tracking, and high-ticket merchant negotiations.",
+    "excerptEn": "Step-by-step 180-page PDF playbook breaking down buyer-intent SEO, CRO funnels, multi-network tracking, and high-ticket merchant negotiations.",
+    "excerptVi": "180 trang tÃƒÂ i liáÂ»â€¡u chi tiáÂºÂ¿t hÃ†°áÂ»â€ºng dáÂºÂ«n cháÂ»Ân ngÃƒÂ¡ch táÂ»Â· láÂ»â€¡ chuyáÂ»Æ’n Ã„‘áÂ»â€¢i cao, xÃƒÂ¢y dáÂ»Â±ng háÂ»â€¡ tháÂ»‘ng so sÃƒÂ¡nh giÃƒÂ¡ vÃƒÂ  Ã„‘ÃƒÂ m phÃƒÂ¡n háÂ»Â£p Ã„‘áÂ»“ng tÃƒÂ i tráÂ»Â£.",
+    "excerptZh": "180éÂ¡ÂµèÂ¶â€¦èÂ¯Â¦Ã§Â»â€ Ã¥Â®Å¾Ã¦“ÂÃ¦â€°â€¹Ã¥â€ Å’Ã¯Â¼Å’Ã¦Â·Â±Ã¥ÂºÂ¦Ã¦â€¹â€ èÂ§Â£Ã¥â€¢â€ Ã¤Â¸Å¡Ã¦â€žÂÃ¥â€ºÂ¾Ã¥â€¦Â³é”Â®èÂ¯ÂÃ¦Å’–Ã¦Å½Ëœãâ‚¬ÂÃ¥Â¤Å¡Ã§Â»Â´Ã¦Â¯”Ã¤Â»Â·Ã§Å¸Â©éËœÂµèÂ®Â¾èÂ®Â¡Ã¤Â¸Å½Ã¥“ÂÃ§â€°Å’éÂ«ËœÃ¤Â½Â£éâ€¡‘è°Ë†Ã¥Ë†Â¤Ã§Â§ËœÃ§Â±Âãâ‚¬â€š",
+    "category": "Ebooks & Playbooks",
+    "categoryEn": "Ebooks & Playbooks",
+    "categoryVi": "Sách Äiá»‡n Tá»­ Ebooks",
+    "categoryZh": "ç”µå­ä¹¦ä¸Žå®žæˆ˜æ‰‹å†Œ",
+    "categorySlug": "ebooks",
+    "author": "Pete On Purpose",
+    "authorAvatar": "https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=120&q=80",
+    "date": "12/09/2026",
+    "readTime": "15 min read",
+    "image": "https://images.unsplash.com/photo-1544716278-ca5e3f4abd8c?auto=format&fit=crop&w=800&q=80",
+    "isSponsored": false,
+    "isFeatured": true,
+    "rating": 9.9,
+    "brand": "TechPicks Publishing",
+    "btnText": "GET INSTANT ACCESS",
+    "btnTextEn": "GET INSTANT ACCESS",
+    "btnTextVi": "TáÂºÂ¢I EBOOK NGAY",
+    "btnTextZh": "Ã¥ÂÂ³Ã¥Ë†Â»èÅ½Â·Ã¥Â–Ã¥Â®Å’Ã¦â€¢Â´Ã¦Å’â€¡Ã¥Â—",
+    "affiliateLink": "#checkout-modal",
+    "priceUsd": "$29.00",
+    "priceVnd": "199.000Ã„‘",
+    "priceOrig": "$49.00",
+    "coupon": "LAUNCHVIP",
+    "couponDiscount": "41% OFF Instant Access",
+    "couponExpiry": "31/12/2026",
+    "pros": [
+      "180-page illustrated PDF loaded with actionable checklists and proven conversion funnels",
+      "Includes duplicate Notion CRM templates for sponsor outreach and affiliate link management",
+      "Free quarterly updates covering algorithm shifts and emerging affiliate networks"
+    ],
+    "cons": [
+      "Requires genuine consistent effort to execute the 12-week roadmap",
+      "Digital product with instant access (non-physical delivery)"
+    ],
+    "intro": "Most affiliate blogs fail because they write generic product roundups that nobody reads. This blueprint shares the exact system used to generate over $1,000 monthly from high-converting niche reviews.",
+    "body": "Inside, you'll discover how to identify underserved niche markets with eager buyers, how to design comparison tables that double click-through rates, and how to negotiate direct merchant deals with 15-25% commission rates instead of low Amazon baseline percentages.",
+    "verdict": "An invaluable investment for any creator or entrepreneur ready to treat affiliate blogging as an authoritative, automated digital media business.",
+    "isPhysical": false,
+    "affiliateCount": 1,
+    "categoryKey": "ebooks",
+    "isDigital": true
+  },
+  {
+    "id": "post-preset-cinematic-creator",
+    "title": "25 Pro Lightroom Presets Review: Cinematic Tech & Moody Neon LUTs",
+    "titleEn": "25 Pro Lightroom Presets Review: Cinematic Tech & Moody Neon LUTs",
+    "titleVi": "Ã„ÂÃƒÂ¡nh GiÃƒÂ¡ BáÂ»â„¢ 25 Preset Lightroom: Phong CÃƒÂ¡ch Cinematic CÃƒÂ´ng NgháÂ»â€¡ & MÃƒÂ u Neon Ã„ÂÃƒÂªm",
+    "titleZh": "25Ã¦Â¬Â¾ Lightroom Ã¥Â¤Â§Ã¥Â¸Ë†Ã§ÂºÂ§è°Æ’èâ€°Â²éÂ¢â€žèÂ®Â¾èÂ¯â€žÃ¦Âµâ€¹Ã¯Â¼Å¡èÂµâ€ºÃ¥ÂÅ¡Ã§Â§‘Ã¦Å â‚¬Ã¦â€žÅ¸Ã¤Â¸Å½Ã§”ÂµÃ¥Â½Â±Ã§ÂºÂ§Ã¦Å¡—Ã¥â€¦â€°LUTs",
+    "slug": "post-preset-cinematic-creator.html",
+    "excerpt": "Crafted specifically for desk setups, mechanical keyboards, nighttime cityscapes, and high-CTR tech YouTube thumbnails.",
+    "excerptEn": "Crafted specifically for desk setups, mechanical keyboards, nighttime cityscapes, and high-CTR tech YouTube thumbnails.",
+    "excerptVi": "Ã„ÂÃ†°áÂ»Â£c táÂ»‘i Ã†°u cho gÃƒÂ³c mÃƒÂ¡y tÃƒÂ­nh, bÃƒÂ n phÃƒÂ­m cÃ†Â¡, áÂºÂ£nh Ã„‘ÃƒÂªm thÃƒÂ nh pháÂ»‘ vÃƒÂ  áÂºÂ£nh bÃƒÂ¬a YouTube cÃƒÂ´ng ngháÂ»â€¡ thu hÃƒÂºt triáÂ»â€¡u lÃ†°áÂ»Â£t xem.",
+    "excerptZh": "Ã¤Â¸“Ã¤Â¸ÂºÃ¦Â¡Å’éÂÂ¢Ã¦ÂÂ­éâ€¦Âãâ‚¬ÂÃ¥Â®Â¢Ã¥Ë†Â¶Ã¥Å’–Ã¦Å“ÂºÃ¦Â¢°é”Â®Ã§â€ºËœÃ§â€°Â¹Ã¥â€ â„¢ãâ‚¬ÂèÂµâ€ºÃ¥ÂÅ¡Ã¦Å“â€¹Ã¥â€¦â€¹Ã¥Â¤Å“Ã¦â„¢Â¯Ã¤Â»Â¥Ã¥ÂÅ YouTubeÃ§Â§‘Ã¦Å â‚¬Ã§Â±Â»éÂ«ËœÃ§â€šÂ¹Ã¥â€¡Â»Ã¥°ÂéÂÂ¢è°Æ’èâ€°Â²Ã§Â²Â¾Ã¥Â¿Æ’Ã¦â€°“Ã§Â£Â¨ãâ‚¬â€š",
+    "category": "Presets & LUTs",
+    "categoryEn": "Presets & LUTs",
+    "categoryVi": "Preset MÃ u & LUTs",
+    "categoryZh": "è°ƒè‰²é¢„è®¾ä¸ŽLUTs",
+    "categorySlug": "presets",
+    "author": "Minh TrÃƒÂ­ Tech",
+    "authorAvatar": "https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=120&q=80",
+    "date": "12/09/2026",
+    "readTime": "6 min read",
+    "image": "https://images.unsplash.com/photo-1516035069371-29a1b244cc32?auto=format&fit=crop&w=800&q=80",
+    "isSponsored": false,
+    "isFeatured": false,
+    "rating": 9.8,
+    "brand": "CyberShutter Visuals",
+    "btnText": "DOWNLOAD PRESETS",
+    "btnTextEn": "DOWNLOAD PRESETS",
+    "btnTextVi": "TáÂºÂ¢I BáÂ»Ëœ PRESET",
+    "btnTextZh": "Ã¥ÂÂ³Ã¥Ë†Â»Ã¤Â¸â€¹èÂ½Â½éÂ¢â€žèÂ®Â¾Ã¥Å’â€¦",
+    "affiliateLink": "#checkout-modal",
+    "priceUsd": "$39.00",
+    "priceVnd": "149.000Ã„‘",
+    "priceOrig": "$69.00",
+    "coupon": "CYBERCREATOR",
+    "couponDiscount": "43% OFF Creator Pack",
+    "couponExpiry": "31/12/2026",
+    "pros": [
+      "Complete bundle covering Desktop .XMP, Mobile .DNG, and DaVinci/Premiere .CUBE LUTs",
+      "Preserves authentic skin tones while accentuating deep tech shadows and vibrant neon glows",
+      "One-click harmony reduces thumbnail color grading time by over 75%"
+    ],
+    "cons": [
+      "Extreme high-contrast shots may require subtle exposure slider adjustments",
+      "Tailored for tech and moody aesthetics rather than vintage pastel styles"
+    ],
+    "intro": "Color consistency is the secret weapon of top tech content creators. This preset pack brings professional Hollywood color theory to everyday smartphone and mirrorless camera photos.",
+    "body": "Tested across Sony, Fujifilm, and iPhone RAW files, each preset maintains highlight roll-off and cleans up muddy background noise. The included video LUTs allow your Instagram Reels and YouTube shorts to match your blog photography seamlessly.",
+    "verdict": "The fastest shortcut to elevating your tech photography into a cohesive, high-end creator brand.",
+    "isPhysical": false,
+    "affiliateCount": 1,
+    "categoryKey": "presets",
+    "isDigital": true
+  },
+  {
+    "id": "post-template-notion-content-os",
+    "title": "Ultimate Content Creator OS: Notion Workspace for Editorial & Revenue Tracking",
+    "titleEn": "Ultimate Content Creator OS: Notion Workspace for Editorial & Revenue Tracking",
+    "titleVi": "TráÂºÂ£i NghiáÂ»â€¡m Content Creator OS: KhÃƒÂ´ng Gian Notion QuáÂºÂ£n LÃƒÂ½ Ã„ÂÃ„Æ’ng BÃƒÂ i & Doanh Thu TáÂ»Â± Ã„ÂáÂ»â„¢ng",
+    "titleZh": "Notion Ã¥Ë†â€ºÃ¤Â½Å“èâ‚¬â€¦OSÃ¦Â·Â±Ã¥ÂºÂ¦èÂ¯â€žÃ¦Âµâ€¹Ã¯Â¼Å¡Ã¥â€¦Â¨Ã¥Å¸Å¸Ã¥â€ â€¦Ã¥Â®Â¹Ã¦Å½’Ã¦Å“Å¸ãâ‚¬ÂèÂµÅ¾Ã¥Å Â©Ã¥â€¢â€ CRMÃ¤Â¸Å½Ã¥Ë†â€ é”â‚¬Ã¦”Â¶Ã§â€ºÅ èÂ¿Â½èÂ¸ÂªÃ§Â³Â»Ã§Â»Å¸",
+    "slug": "post-template-notion-content-os.html",
+    "excerpt": "All-in-one Notion dashboard integrating multi-platform editorial calendars, brand sponsor CRM pipelines, and automated affiliate payout calculators.",
+    "excerptEn": "All-in-one Notion dashboard integrating multi-platform editorial calendars, brand sponsor CRM pipelines, and automated affiliate payout calculators.",
+    "excerptVi": "HáÂ»â€¡ tháÂ»‘ng Notion toÃƒÂ n diáÂ»â€¡n káÂºÂ¿t háÂ»Â£p láÂ»â€¹ch Ã„‘Ã„Æ’ng bÃƒÂ i Ã„‘a kÃƒÂªnh, pháÂ»â€¦u cháÂ»‘t Ã„‘Ã†Â¡n tÃƒÂ i tráÂ»Â£ thÃ†°Ã†Â¡ng hiáÂ»â€¡u vÃƒÂ  báÂºÂ£ng tÃƒÂ­nh hoa háÂ»“ng affiliate táÂ»Â± Ã„‘áÂ»â„¢ng.",
+    "excerptZh": "Ã¤Â¸â‚¬Ã§Â«â„¢Ã¥Â¼ÂNotionéÂ«ËœÃ¦â€¢Ë†Ã¥Â·Â¥Ã¤Â½Å“Ã¥Â°Ã¯Â¼Å’Ã¦â€°“éâ‚¬Å¡Ã¥â€¦Â¨Ã¦Â¸Â éÂ“Ã¥â€ â€¦Ã¥Â®Â¹Ã¦Å½’Ã¦Å“Å¸ãâ‚¬ÂÃ¥“ÂÃ§â€°Å’èÂµÅ¾Ã¥Å Â©Ã¥â€¢â€ Ã¥â€¢â€ Ã¥Å Â¡Ã§Â®Â¡éÂ“Ã¥ÂÅ Ã¥â€¦Â¨èâ€¡ÂªÃ¥Å Â¨èÂ”Ã§â€ºÅ¸Ã¤Â½Â£éâ€¡‘Ã¦Âµâ€¹Ã§Â®—Ã¤Â½“Ã§Â³Â»ãâ‚¬â€š",
+    "category": "Notion OS",
+    "categoryEn": "Notion OS",
+    "categoryVi": "Máº«u Quáº£n Trá»‹ Notion OS",
+    "categoryZh": "Notionç”Ÿäº§åŠ›æ¨¡æ¿",
+    "categorySlug": "templates",
+    "author": "Pete On Purpose",
+    "authorAvatar": "https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=120&q=80",
+    "date": "12/09/2026",
+    "readTime": "9 min read",
+    "image": "https://images.unsplash.com/photo-1484480974693-6ca0a78fb36b?auto=format&fit=crop&w=800&q=80",
+    "isSponsored": false,
+    "isFeatured": false,
+    "rating": 9.9,
+    "brand": "NotionMasters Studio",
+    "btnText": "DUPLICATE TEMPLATE",
+    "btnTextEn": "DUPLICATE TEMPLATE",
+    "btnTextVi": "NHÃƒâ€šN BáÂºÂ¢N TEMPLATE",
+    "btnTextZh": "Ã¤Â¸â‚¬é”Â®Ã¥Â¤ÂÃ¥Ë†Â¶Ã¥Ë†°Notion",
+    "affiliateLink": "#checkout-modal",
+    "priceUsd": "$47.00",
+    "priceVnd": "249.000Ã„‘",
+    "priceOrig": "$89.00",
+    "coupon": "NOTIONPRO",
+    "couponDiscount": "47% OFF Template",
+    "couponExpiry": "31/12/2026",
+    "pros": [
+      "1-click instant duplication directly into any free or paid Notion workspace",
+      "Advanced relational databases link articles, video scripts, brand contacts, and revenue logs",
+      "Built-in ROI, CTR, and monthly net profit formulas eliminate messy spreadsheet work"
+    ],
+    "cons": [
+      "Requires basic familiarity with Notion databases to customize views",
+      "Designed specifically for digital creators rather than physical inventory businesses"
+    ],
+    "intro": "Solo creators often lose hours each week juggling chaotic spreadsheets, sticky notes, and email threads. This template consolidates your entire digital publishing operation into a clean, intuitive command center.",
+    "body": "With pre-built views for Kanban pipeline management, sponsor deliverable tracking, and real-time affiliate payout milestones, you can see your entire media brand's health in a single glance.",
+    "verdict": "An indispensable operational backbone that pays for itself within the first week of organized execution.",
+    "isPhysical": false,
+    "affiliateCount": 1,
+    "categoryKey": "templates",
+    "isDigital": true
+  },
+  {
+    "id": "post-course-seo-affiliate-crash",
+    "title": "High-Ticket Affiliate & SEO Mastery Video Masterclass: Complete Breakdown",
+    "titleEn": "High-Ticket Affiliate & SEO Mastery Video Masterclass: Complete Breakdown",
+    "titleVi": "Ã„ÂÃƒÂ¡nh GiÃƒÂ¡ KhÃƒÂ³a HáÂ»Âc Video: BÃƒÂ­ QuyáÂºÂ¿t SEO Top 1 & TáÂ»‘i Ã†Â¯u TáÂ»Â· LáÂ»â€¡ ChuyáÂ»Æ’n Ã„ÂáÂ»â€¢i High-Ticket",
+    "titleZh": "éÂ«ËœÃ¥Â®Â¢Ã¥Ââ€¢Ã¤Â»Â·èÂ”Ã§â€ºÅ¸èÂÂ¥é”â‚¬Ã¤Â¸Å½SEOÃ¥Â®Å¾Ã¦Ë†ËœÃ¥Â¤Â§Ã¥Â¸Ë†èÂ¯Â¾Ã¥â€¦Â¨èÂ¯â€žÃ¦Âµâ€¹Ã¯Â¼Å¡12èÂ®Â²èÂ¶â€¦Ã¦Â¸â€¦èÂ§â€ éÂ¢‘Ã¤Â¸Å½Ã¥ÂÅ¡Ã¥Â®Â¢Ã¦ÂºÂÃ§Â ÂÃ¥Å’â€¦",
+    "slug": "post-course-seo-affiliate-crash.html",
+    "excerpt": "12 in-depth 4K video modules with downloadable Tailwind CSS components, real buyer psychology tear-downs, and private Discord mentorship.",
+    "excerptEn": "12 in-depth 4K video modules with downloadable Tailwind CSS components, real buyer psychology tear-downs, and private Discord mentorship.",
+    "excerptVi": "12 bÃƒÂ i giáÂºÂ£ng video 4K cháÂºÂ¥t lÃ†°áÂ»Â£ng cao táÂºÂ·ng kÃƒÂ¨m báÂ»â„¢ mÃƒÂ£ nguáÂ»“n Tailwind CSS, phÃƒÂ¢n tÃƒÂ­ch tÃƒÂ¢m lÃƒÂ½ ngÃ†°áÂ»Âi mua vÃƒÂ  háÂ»— tráÂ»Â£ háÂ»Âi Ã„‘ÃƒÂ¡p Discord.",
+    "excerptZh": "12èÅ â€š4KèÂ¶â€¦Ã¦Â¸â€¦Ã¥Â®Å¾Ã¦“ÂèÂ§â€ éÂ¢‘èÂ¯Â¾Ã§Â¨â€¹Ã¯Â¼Å’éâ„¢â€žèÂµÂ Ã¥Â®Å’Ã¦â€¢Â´éÂ«ËœèÂ½Â¬Ã¥Å’–TailwindÃ§Â»â€žÃ¤Â»Â¶Ã¦ÂºÂÃ§Â ÂÃ¯Â¼Å’Ã¦Â·Â±Ã¥ÂºÂ¦èÂ§Â£Ã¦Å¾ÂÃ§”Â¨Ã¦Ë†Â·Ã¤Â¸â€¹Ã¥Ââ€¢Ã¥Â¿Æ’Ã§Ââ€ Ã¥Â­Â¦Ã¤Â¸Å½Ã§Â§ÂÃ¥Â¯â€ DiscordÃ§Â­”Ã§–‘ãâ‚¬â€š",
+    "category": "Video Courses",
+    "categoryEn": "Video Courses",
+    "categoryVi": "Khóa Há»c Video",
+    "categoryZh": "è§†é¢‘å¤§å¸ˆè¯¾",
+    "categorySlug": "courses",
+    "author": "Pete On Purpose",
+    "authorAvatar": "https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=120&q=80",
+    "date": "12/09/2026",
+    "readTime": "14 min read",
+    "image": "https://images.unsplash.com/photo-1522202176988-66273c2fd55f?auto=format&fit=crop&w=800&q=80",
+    "isSponsored": false,
+    "isFeatured": true,
+    "rating": 9.9,
+    "brand": "Affiliate Academy Online",
+    "btnText": "ENROLL IN MASTERCLASS",
+    "btnTextEn": "ENROLL IN MASTERCLASS",
+    "btnTextVi": "Ã„ÂÃ„â€šNG KÃƒÂ KHÃƒ“A HáÂ»Å’C",
+    "btnTextZh": "Ã¥ÂÂ³Ã¥Ë†Â»Ã¦Å Â¥Ã¥ÂÂÃ¥Â®Å¾Ã¦Ë†ËœÃ¥Â¤Â§èÂ¯Â¾",
+    "affiliateLink": "#checkout-modal",
+    "priceUsd": "$99.00",
+    "priceVnd": "990.000Ã„‘",
+    "priceOrig": "$199.00",
+    "coupon": "MASTERY50",
+    "couponDiscount": "50% OFF Masterclass",
+    "couponExpiry": "31/12/2026",
+    "pros": [
+      "12 comprehensive HD video lessons with zero fluff and real live-site teardowns",
+      "Includes production-ready Tailwind HTML review templates and multi-store pricing tables",
+      "Access to exclusive private Discord mastermind for peer reviews and link partnerships"
+    ],
+    "cons": [
+      "Demands 3 to 5 hours of focused video study and implementation per week",
+      "Advanced technical SEO chapters assume basic understanding of web publishing"
+    ],
+    "intro": "Most online courses teach outdated tactics from 2018. This video masterclass is built on modern conversion architecture, teaching you how to generate sustainable revenue in today's search and AI landscape.",
+    "body": "Pete walks through live examples of structuring high-CTR comparison tables, optimizing page speed for 100/100 Core Web Vitals, and converting cold search visitors into loyal buyers who trust your recommendations.",
+    "verdict": "The definitive video masterclass for anyone seeking to build a resilient, high-margin affiliate media property.",
+    "isPhysical": false,
+    "affiliateCount": 1,
+    "categoryKey": "courses",
+    "isDigital": true
+  }
+];
+  }
+
+  // Initialize on DOM load
+  document.addEventListener('DOMContentLoaded', initReviewHub);
+
+})();

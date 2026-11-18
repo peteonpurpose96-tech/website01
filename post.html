@@ -1,0 +1,749 @@
+﻿<!DOCTYPE html>
+<html lang="en" class="scroll-smooth">
+<head>
+  <meta charset="UTF-8">
+  <script>
+    (function() {
+      try {
+        var t = localStorage.getItem('blog_theme');
+        if (t === 'light') {
+          document.documentElement.classList.remove('dark');
+          document.documentElement.style.backgroundColor = '#f8fafc';
+        } else {
+          document.documentElement.classList.add('dark');
+          document.documentElement.style.backgroundColor = '#07080e';
+        }
+      } catch (e) {}
+    })();
+  </script>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Reviews & Guides: Hands-On Tests & Smart Buying Playbook | TechPicks Review</title>
+  <meta name="description" content="In-depth tech & lifestyle reviews, real teardowns, benchmark specs, and exclusive discount promo codes on TechPicks Review.">
+  
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      darkMode: 'class',
+      theme: {
+        extend: {
+          fontFamily: {
+            sans: ['"Plus Jakarta Sans"', '"Be Vietnam Pro"', 'system-ui', '-apple-system', 'sans-serif'],
+            display: ['"Plus Jakarta Sans"', '"Be Vietnam Pro"', 'sans-serif'],
+            mono: ['"JetBrains Mono"', 'Fira Code', 'monospace']
+          },
+          colors: {
+            brand: {
+              50: '#f0fdfa',
+              100: '#e0f2fe',
+              200: '#bae6fd',
+              300: '#7dd3fc',
+              400: '#38bdf8',
+              500: '#06b6d4',
+              600: '#0284c7',
+              700: '#0369a1',
+              800: '#075985',
+              900: '#0c4a6e',
+              950: '#082f49',
+            },
+            // Legacy purple alias mapped to futuristic cyan/sky/slate
+            purple: {
+              50: '#f0f9ff',
+              100: '#e0f2fe',
+              200: '#bae6fd',
+              300: '#7dd3fc',
+              400: '#38bdf8',
+              500: '#06b6d4',
+              600: '#0284c7',
+              700: '#0369a1',
+              800: '#1e293b',
+              900: '#0f172a',
+              950: '#020617',
+            },
+            // Legacy pink alias mapped to electric neon cyan / arctic sky
+            pink: {
+              50: '#ecfeff',
+              100: '#cffafe',
+              200: '#a5f3fc',
+              300: '#67e8f9',
+              400: '#22d3ee',
+              500: '#06b6d4',
+              600: '#0891b2',
+              700: '#0e7490',
+              800: '#155e75',
+              900: '#164e63',
+              950: '#083344',
+            },
+            slate: {
+              800: '#131722',
+              850: '#0f131c',
+              900: '#090b10',
+              950: '#050609'
+            }
+          }
+        }
+      }
+    }
+  </script>
+
+  <script src="https://unpkg.com/lucide@latest"></script>
+    <!-- Google Fonts Preconnect & Stylesheet -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Be+Vietnam+Pro:ital,wght@0,300;0,400;0,500;0,600;0,700;0,800;0,900;1,400;1,600&family=Outfit:wght@400;500;600;700;800;900&family=Plus+Jakarta+Sans:ital,wght@0,400;0,500;0,600;0,700;0,800;1,400;1,600&family=Space+Grotesk:wght@500;600;700;800&family=JetBrains+Mono:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="css/custom.css?v=20261116_noflash_v3?v=20261116_noflash_v3">
+  <script src="js/i18n.js?v=20261116_noflash_v3"></script>
+  <script src="js/article-i18n.js?v=20261116_noflash_v3"></script>
+  <!-- Favicon & Brand Icons -->
+  <link rel="icon" type="image/png" href="images/favicon.png?v=20261116_noflash_v3">
+  <link rel="apple-touch-icon" href="images/logo.png?v=20261116_noflash_v3">
+</head>
+<body class="bg-[#faf7ff] text-slate-900 dark:bg-[#07080e] dark:text-purple-100  min-h-screen flex flex-col">
+
+  <!-- Reading Progress Bar -->
+  <div id="reading-progress"></div>
+
+  <!-- Top Projects Ticker Bar -->
+  <div class="bg-slate-100 dark:bg-[#0a0d14] text-slate-700 dark:text-slate-300 text-xs py-1.5 px-3 sm:px-6 border-b border-slate-200 dark:border-slate-800/80 relative z-30 transition-colors">
+    <div class="max-w-[1560px] mx-auto flex items-center justify-between gap-2 sm:gap-4">
+      
+      <!-- 1. Left Fixed Badge -->
+      <div class="flex-shrink-0 flex items-center pr-2.5 sm:pr-3 border-r border-slate-200 dark:border-slate-800/80 z-20">
+        <div class="inline-flex items-center gap-1.5 px-2.5 py-0.5 sm:py-1 rounded-full text-[10px] font-black bg-gradient-to-r from-cyan-500 via-sky-500 to-blue-600 text-white  text-[10px] font-black uppercase tracking-wider shadow-sm shadow-cyan-500/25 border border-cyan-400/40 select-none">
+          <i data-lucide="sparkles" class="w-3 h-3 text-amber-300"></i>
+          <span class="whitespace-nowrap hidden sm:inline" data-i18n="top_bar_featured_badge">FEATURED PROJECTS</span>
+          <span class="whitespace-nowrap sm:hidden" data-i18n="top_bar_featured_badge_short">FEATURED</span>
+        </div>
+      </div>
+
+      <!-- 2. Self-Contained Marquee Window -->
+      <div class="flex-1 relative overflow-hidden min-w-0 cursor-pointer group py-0.5">
+        <div class="absolute left-0 top-0 bottom-0 w-8 sm:w-12 bg-gradient-to-r from-slate-100 dark:from-[#0a0d14] to-transparent z-10 pointer-events-none"></div>
+        <div class="absolute right-0 top-0 bottom-0 w-8 sm:w-12 bg-gradient-to-l from-slate-100 dark:from-[#0a0d14] to-transparent z-10 pointer-events-none"></div>
+        <div class="top-bar-ticker-track animate-top-ticker items-center"></div>
+      </div>
+
+      <!-- 3. Right Controls -->
+      <div class="hidden md:flex items-center gap-2 text-xs font-semibold flex-shrink-0 pl-2.5 sm:pl-3 border-l border-slate-200 dark:border-slate-800/80 z-20">
+        <a href="sponsor.html" class="flex items-center gap-1.5 px-2.5 py-1 rounded-xl bg-white dark:bg-[#141926] hover:bg-cyan-950/60 text-slate-700 dark:text-cyan-300 border border-slate-200 dark:border-slate-800 hover:border-cyan-500/40 transition-all  font-bold text-[11px] whitespace-nowrap shadow-xs">
+          <i data-lucide="award" class="w-3.5 h-3.5 text-pink-400 group-hover:text-white"></i>
+          <span data-i18n="sponsor_booking_link">Sponsorship Inquiries</span>
+        </a>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- Header Navigation: TechPicks Review -->
+  <header class="sticky top-0 z-40 bg-white/95 dark:bg-[#07080e]/95 backdrop-blur-xl border-b border-slate-200 dark:border-slate-800/80 transition-colors">
+    <div class="max-w-[1560px] mx-auto px-3 sm:px-4 lg:px-6 xl:px-8 h-16 sm:h-20 py-2 flex items-center justify-between gap-1.5 sm:gap-3 xl:gap-5">
+      
+      <!-- Brand Logo -->
+      <a href="index.html" class="flex-shrink-0 flex items-center gap-2 sm:gap-3.5 group min-w-0">
+        <img src="images/logo.png?v=20261116_noflash_v3" alt="TechPicks Logo" class="w-9 h-9 sm:w-12 sm:h-12 xl:w-14 xl:h-14 rounded-xl sm:rounded-2xl object-cover shadow-lg shadow-cyan-500/30 group-hover:scale-105 transition-transform flex-shrink-0">
+        <div class="flex flex-col justify-center min-w-0">
+          <div class="flex items-center gap-1 sm:gap-2 leading-none">
+            <span class="font-black text-xl sm:text-2xl lg:text-[2rem] xl:text-[2.2rem] tracking-tight text-slate-900 dark:text-white font-display">Tech<span class="text-gradient-purple">Picks</span></span>
+            <span class="font-black text-[9px] sm:text-xs px-1.5 sm:px-2 py-0.5 rounded-md sm:rounded-xl bg-purple-100/90 dark:bg-purple-950/90 text-purple-700 dark:text-slate-300 uppercase tracking-wider border border-purple-300/60 dark:border-purple-700/60 shadow-xs">Review</span>
+          </div>
+          <span class="hidden 2xl:block text-[11px] font-extrabold tracking-[0.18em] text-purple-600 dark:text-purple-400 uppercase mt-1" data-i18n="header_subtitle">Tech Reviews & Curated Buying Playbook</span>
+        </div>
+      </a>
+
+      <!-- Desktop Nav Links -->
+      <nav class="hidden lg:flex items-center gap-1 xl:gap-2 text-xs xl:text-sm font-semibold flex-shrink-0">
+        <a href="index.html" class="whitespace-nowrap flex-shrink-0 px-2.5 xl:px-3 py-1.5 rounded-xl text-slate-600 dark:text-slate-300 hover:text-cyan-600 dark:hover:text-cyan-400 hover:bg-purple-50 dark:hover:bg-purple-900/30 transition-all" data-i18n="nav_home">Home</a>
+        <a href="post.html" class="whitespace-nowrap flex-shrink-0 px-2.5 xl:px-3 py-1.5 rounded-xl bg-cyan-50 dark:bg-cyan-950/60 text-cyan-700 dark:text-cyan-300 font-bold border border-cyan-200 dark:border-cyan-800 transition-colors flex items-center gap-1">
+          <span data-i18n="nav_reviews">Reviews & Guides</span>
+          <span class="bg-gradient-to-r from-cyan-500 to-blue-600 text-white  text-[9px] px-1.5 py-0.5 rounded-full font-black shadow-xs">LAB</span>
+        </a>
+        
+
+        <a href="shop.html" class="whitespace-nowrap flex-shrink-0 px-2.5 xl:px-3 py-1.5 rounded-xl text-slate-600 dark:text-slate-300 hover:text-cyan-600 dark:hover:text-cyan-400 hover:bg-purple-50 dark:hover:bg-purple-900/30 transition-all flex items-center gap-1">
+          <i data-lucide="shopping-bag" class="w-3.5 h-3.5 text-purple-500"></i>
+          <span data-i18n="nav_shop">Curated Store</span>
+        </a>
+        <a href="sponsor.html" class="whitespace-nowrap flex-shrink-0 px-2.5 xl:px-3 py-1.5 rounded-xl text-slate-600 dark:text-slate-300 hover:text-cyan-600 dark:hover:text-cyan-400 dark:hover:text-purple-300 hover:bg-purple-50 dark:hover:bg-purple-900/30 transition-all" data-i18n="nav_sponsor">Sponsorships</a>
+      </nav>
+
+      <!-- Search Trigger -->
+      <button 
+        type="button" 
+        class="search-trigger-btn flex-shrink-0 flex items-center justify-center sm:justify-start gap-2 p-2 sm:px-3 sm:py-2 xl:px-3.5 rounded-xl sm:rounded-2xl bg-slate-100 dark:bg-[#0e121d] hover:bg-slate-200/70 dark:hover:bg-[#141926] border border-slate-200 dark:border-slate-800 hover:border-cyan-500/50 text-xs font-semibold text-slate-600 dark:text-slate-300 transition-all shadow-xs hover:scale-[1.02] cursor-pointer group w-9 h-9 sm:w-36 md:w-40 lg:w-36 xl:w-48 2xl:w-60 text-left"
+        title="Search reviews, products (⌘K)"
+      >
+        <i data-lucide="search" class="w-4 h-4 sm:w-3.5 sm:h-3.5 text-purple-500 group-hover:scale-110 transition-transform flex-shrink-0"></i>
+        <span class="hidden sm:inline truncate text-slate-500 dark:text-slate-400 font-medium text-xs" data-i18n="search_placeholder_short">Search reviews...</span>
+        <kbd class="hidden xl:inline-flex items-center px-1.5 py-0.5 text-[9px] font-extrabold text-purple-600 dark:text-purple-400 bg-white dark:bg-purple-950 border border-slate-200 dark:border-slate-800 rounded-md shadow-2xs ml-auto flex-shrink-0">⌘K</kbd>
+      </button>
+
+      <div class="flex-shrink-0 flex items-center gap-1.5 sm:gap-2">
+        <!-- Currency Selector (Desktop / Tablet) -->
+        <div class="hidden sm:block relative">
+          <button id="currency-dropdown-btn" class="flex items-center gap-1 px-2 sm:px-2.5 py-1.5 rounded-xl border border-slate-200 dark:border-slate-800 bg-slate-100 dark:bg-[#0e121d] hover:border-cyan-500/50 text-xs font-bold text-slate-700 dark:text-slate-200 transition-all shadow-xs" title="Select Currency">
+            <span id="current-currency-flag">🇺🇸</span>
+            <span id="current-currency-code">USD</span>
+            <span id="current-currency-symbol" class="text-purple-600 dark:text-purple-400 font-extrabold">($)</span>
+            <i data-lucide="chevron-down" class="w-3 h-3 opacity-70"></i>
+          </button>
+          <div id="currency-dropdown-menu" class="hidden absolute right-0 mt-2 w-36 bg-white dark:bg-[#0e121d] rounded-2xl shadow-2xl border border-slate-200 dark:border-slate-800 py-2 z-50">
+            <div class="px-3 py-1 text-[10px] font-bold text-slate-400 uppercase tracking-wider">Currency</div>
+            <button class="currency-option w-full text-left px-3.5 py-2 text-xs flex items-center justify-between hover:bg-purple-50 dark:hover:bg-purple-900/40" data-currency="USD">
+              <span class="flex items-center gap-2"><span>🇺🇸</span> <span class="font-bold">USD</span></span>
+              <span class="text-purple-600 dark:text-purple-400 font-bold">$</span>
+            </button>
+            <button class="currency-option w-full text-left px-3.5 py-2 text-xs flex items-center justify-between hover:bg-purple-50 dark:hover:bg-purple-900/40" data-currency="VND">
+              <span class="flex items-center gap-2"><span>🇻🇳</span> <span class="font-bold">VND</span></span>
+              <span class="text-purple-600 dark:text-purple-400 font-bold">₫</span>
+            </button>
+          </div>
+        </div>
+
+        <!-- Language Selector (Desktop / Tablet) -->
+        <div class="hidden sm:block relative">
+          <button id="lang-dropdown-btn" class="flex items-center gap-1 px-2 sm:px-2.5 py-1.5 rounded-xl border border-slate-200 dark:border-slate-800 bg-slate-100 dark:bg-[#0e121d] hover:border-cyan-500/50 text-xs font-bold text-slate-700 dark:text-slate-200 transition-all shadow-xs">
+            <span id="current-lang-flag">🇺🇸</span>
+            <span id="current-lang-text">ENG</span>
+            <i data-lucide="chevron-down" class="w-3 h-3 opacity-70"></i>
+          </button>
+          <div id="lang-dropdown-menu" class="hidden absolute right-0 mt-2 w-44 bg-white dark:bg-[#0e121d] rounded-2xl shadow-2xl border border-slate-200 dark:border-slate-800 py-2 z-50">
+            <button class="lang-option w-full text-left px-3.5 py-2 text-xs flex items-center gap-2.5 hover:bg-purple-50 dark:hover:bg-purple-900/40" data-lang="en">
+              <span class="text-base">🇺🇸</span> <span>English (US)</span>
+            </button>
+            <button class="lang-option w-full text-left px-3.5 py-2 text-xs flex items-center gap-2.5 hover:bg-purple-50 dark:hover:bg-purple-900/40" data-lang="vi">
+              <span class="text-base">🇻🇳</span> <span>Tiếng Việt</span>
+            </button>
+            <button class="lang-option w-full text-left px-3.5 py-2 text-xs flex items-center gap-2.5 hover:bg-purple-50 dark:hover:bg-purple-900/40" data-lang="zh">
+              <span class="text-base">🇨🇳</span> <span>简体中文</span>
+            </button>
+          </div>
+        </div>
+
+        <!-- Dark Mode Toggle -->
+        <button class="theme-toggle p-2 rounded-xl text-slate-600 dark:text-slate-300 hover:bg-purple-100 dark:hover:bg-purple-950/60 transition-colors flex-shrink-0" aria-label="Toggle theme">
+          <i data-lucide="sun" class="w-4 h-4 hidden dark:block text-amber-300"></i>
+          <i data-lucide="moon" class="w-4 h-4 block dark:hidden text-purple-700"></i>
+        </button>
+
+        <!-- Hamburger Menu Button -->
+        <button id="mobile-menu-btn" class="lg:hidden p-2 rounded-xl text-slate-700 dark:text-slate-300 hover:bg-purple-100 dark:hover:bg-purple-900/40 flex-shrink-0" aria-label="Open mobile menu">
+          <i data-lucide="menu" class="w-5 h-5"></i>
+        </button>
+      </div>
+
+    </div>
+
+    <!-- Mobile Dropdown Menu -->
+    <div id="mobile-menu" class="hidden lg:hidden border-t border-purple-200 dark:border-purple-900/60 bg-white/95 dark:bg-[#0e0722]/95 backdrop-blur-xl px-4 py-4 space-y-3 shadow-2xl">
+      <!-- Mobile Quick Search -->
+      <div>
+        <button 
+          type="button" 
+          class="search-trigger-btn w-full flex items-center gap-2.5 px-4 py-2.5 rounded-2xl bg-purple-50/90 dark:bg-[#150d2e] border border-purple-200/90 dark:border-purple-800 text-xs font-semibold text-slate-700 dark:text-purple-200 text-left cursor-pointer hover:border-purple-400 transition-all shadow-xs"
+        >
+          <i data-lucide="search" class="w-4 h-4 text-purple-500 flex-shrink-0"></i>
+          <span class="truncate" data-i18n="search_placeholder_short">Search reviews...</span>
+          <kbd class="ml-auto px-2 py-0.5 text-[10px] font-extrabold bg-white dark:bg-purple-950 text-purple-600 dark:text-purple-400 rounded-lg border border-slate-200 dark:border-slate-800 shadow-2xs">⌘K</kbd>
+        </button>
+      </div>
+
+      <!-- Mobile Quick Currency & Language Selector -->
+      <div class="p-3 rounded-2xl bg-purple-50/80 dark:bg-purple-950/40 border border-purple-200/80 dark:border-purple-900/50 space-y-2.5">
+        <div class="flex items-center justify-between">
+          <span class="text-[11px] font-extrabold text-purple-700 dark:text-slate-300 uppercase tracking-wider">Currency</span>
+          <div class="flex items-center gap-1.5">
+            <button class="currency-option px-2.5 py-1 rounded-lg text-xs font-bold transition-all border border-slate-200 dark:border-slate-800/80" data-currency="USD">
+              🇺🇸 USD ($)
+            </button>
+            <button class="currency-option px-2.5 py-1 rounded-lg text-xs font-bold transition-all border border-slate-200 dark:border-slate-800/80" data-currency="VND">
+              🇻🇳 VND (₫)
+            </button>
+          </div>
+        </div>
+        <div class="flex items-center justify-between pt-2 border-t border-purple-200/60 dark:border-purple-900/40">
+          <span class="text-[11px] font-extrabold text-purple-700 dark:text-slate-300 uppercase tracking-wider">Language</span>
+          <div class="flex items-center gap-1.5">
+            <button class="lang-option px-2 py-1 rounded-lg text-xs font-bold transition-all border border-slate-200 dark:border-slate-800/80" data-lang="en">
+              🇺🇸 ENG
+            </button>
+            <button class="lang-option px-2 py-1 rounded-lg text-xs font-bold transition-all border border-slate-200 dark:border-slate-800/80" data-lang="vi">
+              🇻🇳 VIE
+            </button>
+            <button class="lang-option px-2 py-1 rounded-lg text-xs font-bold transition-all border border-slate-200 dark:border-slate-800/80" data-lang="zh">
+              🇨🇳 CHN
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <a href="index.html" class="block py-2 text-sm font-semibold text-slate-700 dark:text-purple-200" data-i18n="nav_home">Home</a>
+      <a href="post.html" class="block py-2 text-sm font-bold text-purple-600 dark:text-purple-400" data-i18n="nav_reviews">Reviews & Guides</a>
+      <a href="shop.html" class="block py-2 text-sm font-semibold text-slate-700 dark:text-purple-200" data-i18n="nav_shop">Curated Store</a>
+      <a href="sponsor.html" class="block py-2 text-sm font-semibold text-slate-700 dark:text-purple-200" data-i18n="nav_sponsor">Sponsorships</a>
+    </div>
+  </header>
+
+  <!-- HERO SECTION: Reviews & Guides Portal -->
+  <section class="relative pt-8 pb-7 sm:pt-14 sm:pb-12 bg-slate-50 dark:bg-[#07080e] border-b border-slate-200 dark:border-slate-800/80 transition-colors">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
+      
+      <div class="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-cyan-50 dark:bg-cyan-950/80 border border-cyan-200 dark:border-cyan-500/40 text-cyan-700 dark:text-cyan-300 text-[11px] sm:text-xs font-bold uppercase tracking-wider mb-3.5 shadow-xs">
+        <i data-lucide="sparkles" class="w-3.5 h-3.5 sm:w-4 sm:h-4 text-pink-500"></i>
+        <span data-i18n="reviews_hub_badge">BENCHMARK LAB & EDITORIAL REVIEWS</span>
+      </div>
+
+      <h1 class="text-2xl sm:text-4xl lg:text-5xl font-extrabold text-slate-900 dark:text-white tracking-tight font-display max-w-4xl mx-auto leading-tight" data-i18n="reviews_hub_title">
+        In-Depth Gear Reviews & Expert Buying Playbook
+      </h1>
+      
+      <p class="mt-2.5 sm:mt-4 text-xs sm:text-base text-slate-600 dark:text-slate-400 max-w-2xl mx-auto leading-relaxed" data-i18n="reviews_hub_desc">
+        Hands-on durability testing, real benchmark specs, price comparisons across stores, and exclusive verified coupon codes.
+      </p>
+
+      <!-- Dynamic Summary Counter Badge -->
+      <div class="mt-5 sm:mt-6 flex flex-wrap items-center justify-center gap-2 sm:gap-3 text-xs font-bold text-slate-600 dark:text-slate-300">
+        <span class="px-3 py-1 rounded-xl bg-white dark:bg-[#0e121d] border border-slate-200 dark:border-slate-800 shadow-xs flex items-center gap-1.5 text-[11px] sm:text-xs">
+          <i data-lucide="file-text" class="w-3.5 h-3.5 text-purple-500"></i>
+          <span id="hero-total-posts-count">36+</span> <span data-i18n="reviews_pill_posts">Published In-Depth Reviews</span>
+        </span>
+        <span class="px-3 py-1 rounded-xl bg-white dark:bg-[#0e121d] border border-slate-200 dark:border-slate-800 shadow-xs flex items-center gap-1.5 text-[11px] sm:text-xs">
+          <i data-lucide="layers" class="w-3.5 h-3.5 text-pink-500"></i>
+          <span data-i18n="reviews_pill_categories">14 Curated Categories (Physical & Digital)</span>
+        </span>
+        <span class="px-3 py-1 rounded-xl bg-white dark:bg-[#0e121d] border border-slate-200 dark:border-slate-800 shadow-xs flex items-center gap-1.5 text-[11px] sm:text-xs">
+          <i data-lucide="check-circle" class="w-3.5 h-3.5 text-emerald-500"></i>
+          <span data-i18n="reviews_pill_affiliate">100% Verified Partners & Deals</span>
+        </span>
+      </div>
+
+    </div>
+  </section>
+
+  <main id="reviews-section" class="w-full max-w-7xl mx-auto px-3.5 sm:px-6 lg:px-8 py-6 sm:py-10 flex-1 min-w-0">
+    
+    <!-- CONTROLS TOOLBAR: Search, Category Tabs, Sorting & Per-Page -->
+    <div class="bg-white/80 dark:bg-[#0e121d]/80 backdrop-blur-md rounded-3xl p-4 sm:p-6 border border-slate-200 dark:border-slate-800 shadow-sm mb-8 sm:mb-10 space-y-4 sm:space-y-5">
+      
+      <!-- Top Row: Search Input & Dropdown Selectors -->
+      <div class="flex flex-col md:flex-row items-stretch md:items-center justify-between gap-3 sm:gap-4">
+        
+        <!-- Search Input -->
+        <div class="relative w-full md:w-80 lg:w-96">
+          <i data-lucide="search" class="w-4 h-4 text-purple-500 absolute left-4 top-1/2 -translate-y-1/2"></i>
+          <input 
+            type="text" 
+            id="review-search-input" 
+            placeholder="Search by product name, brand, model..." 
+            data-i18n-placeholder="reviews_search_placeholder"
+            class="w-full pl-11 pr-4 py-2.5 rounded-xl bg-white dark:bg-[#0e121d] border border-slate-200 dark:border-slate-800 text-xs font-semibold text-slate-900 dark:text-slate-200 placeholder-slate-400 focus:outline-none focus:border-cyan-500 focus:ring-2 focus:ring-cyan-500/20 transition-all"
+          >
+        </div>
+
+        <!-- Right Side: Category Dropdown, Sorting & Items Per Page -->
+        <div class="grid grid-cols-2 sm:grid-cols-3 items-center justify-end gap-2 sm:gap-3 w-full md:w-auto min-w-0">
+          
+          <!-- Category Select Dropdown (Full width on mobile) -->
+          <div class="col-span-2 sm:col-span-1 flex items-center gap-1.5 sm:gap-2 min-w-0">
+            <span class="text-xs font-bold text-slate-500 dark:text-slate-300 whitespace-nowrap hidden sm:inline">Category:</span>
+            <select id="review-category-select" class="w-full min-w-0 px-2.5 sm:px-3 py-2 rounded-xl bg-white dark:bg-[#0e121d] border border-slate-200 dark:border-slate-800 text-xs font-bold text-slate-900 dark:text-slate-200 focus:outline-none focus:border-cyan-500 focus:ring-2 focus:ring-cyan-500/20 cursor-pointer truncate ">
+              <option value="all">All Reviews (36)</option>
+              <option value="physical">Physical Gear (31)</option>
+              <option value="digital">Digital Downloads (5)</option>
+              <optgroup label="PHYSICAL HARDWARE">
+                <option value="audio">Audio & Sound (8)</option>
+                <option value="smarthome">Smart Home & IoT (5)</option>
+                <option value="edc">Desk Setup & EDC (5)</option>
+                <option value="wearables">Smart Wearables (3)</option>
+                <option value="robotics">Robotics & Drones (3)</option>
+                <option value="cameras">Cameras & Video (3)</option>
+                <option value="computing">Computing & Gaming (2)</option>
+                <option value="power">Power & GaN Charging (2)</option>
+              </optgroup>
+              <optgroup label="DIGITAL TOOLS & AI">
+                <option value="saas">SaaS & AI Tools (1)</option>
+                <option value="ebooks">Ebooks & Guides (1)</option>
+                <option value="presets">Presets & LUTs (1)</option>
+                <option value="templates">Notion OS (1)</option>
+                <option value="courses">Video Courses (1)</option>
+              </optgroup>
+            </select>
+          </div>
+
+          <!-- Sort Dropdown -->
+          <div class="col-span-1 flex items-center gap-1.5 sm:gap-2 min-w-0">
+            <span class="text-xs font-bold text-slate-500 dark:text-slate-300 whitespace-nowrap hidden sm:inline" data-i18n="reviews_sort_label">Sort:</span>
+            <select id="review-sort-select" class="w-full min-w-0 px-2 sm:px-3 py-2 rounded-xl bg-white dark:bg-[#0e121d] border border-slate-200 dark:border-slate-800 text-xs font-bold text-slate-900 dark:text-slate-200 focus:outline-none focus:border-cyan-500 focus:ring-2 focus:ring-cyan-500/20 truncate ">
+              <option value="newest" data-i18n="reviews_sort_newest">📅 Newest</option>
+              <option value="rating" data-i18n="reviews_sort_rating">Top Rated</option>
+              <option value="price-asc" data-i18n="reviews_sort_price_asc">💵 Low &rarr; High</option>
+              <option value="price-desc" data-i18n="reviews_sort_price_desc">💎 High &rarr; Low</option>
+            </select>
+          </div>
+
+          <!-- Items Per Page -->
+          <div class="col-span-1 flex items-center gap-1.5 sm:gap-2 min-w-0">
+            <span class="text-xs font-bold text-slate-500 dark:text-slate-300 whitespace-nowrap hidden sm:inline" data-i18n="reviews_per_page_label">Show:</span>
+            <select id="review-per-page-select" class="w-full min-w-0 px-2 sm:px-3 py-2 rounded-xl bg-white dark:bg-[#0e121d] border border-slate-200 dark:border-slate-800 text-xs font-bold text-slate-900 dark:text-slate-200 focus:outline-none focus:border-cyan-500 focus:ring-2 focus:ring-cyan-500/20 truncate ">
+              <option value="6" data-i18n="reviews_per_page_6">6 / page</option>
+              <option value="9" data-i18n="reviews_per_page_9">9 / page</option>
+              <option value="12" data-i18n="reviews_per_page_12">12 / page</option>
+            </select>
+          </div>
+
+        </div>
+
+      </div>
+
+      <!-- Bottom Row: Category Filter Tabs with Mobile Swipe -->
+      <div class="w-full max-w-full min-w-0 flex items-center gap-2 pt-3 border-t border-slate-200 dark:border-slate-800/80 overflow-x-auto no-scrollbar pb-1 sm:pb-0 sm:flex-wrap" id="category-filter-tabs">
+        <button data-cat="all" class="cat-pill active flex-shrink-0 whitespace-nowrap px-3.5 sm:px-4 py-2 rounded-xl text-xs font-bold  bg-gradient-to-r from-cyan-500 via-sky-500 to-blue-600 text-white shadow-md shadow-cyan-500/25 border border-cyan-400/50 scale-105 transition-all cursor-pointer">
+          <span data-i18n="reviews_cat_all">All Reviews</span> (<span id="count-cat-all">36</span>)
+        </button>
+        <button data-cat="physical" class="cat-pill flex-shrink-0 whitespace-nowrap px-3.5 sm:px-4 py-2 rounded-xl text-xs font-bold  bg-white dark:bg-[#0e121d] text-cyan-700 dark:text-cyan-300 border border-cyan-500/40 hover:border-cyan-400 hover:bg-cyan-950/30 transition-all cursor-pointer">
+          <span data-i18n="shop_tab_physical">Physical Gear</span> (<span id="count-cat-physical">31</span>)
+        </button>
+        <button data-cat="digital" class="cat-pill flex-shrink-0 whitespace-nowrap px-3.5 sm:px-4 py-2 rounded-xl text-xs font-bold  bg-white dark:bg-[#0e121d] text-emerald-700 dark:text-emerald-300 border border-emerald-500/40 hover:border-emerald-400 hover:bg-emerald-950/30 transition-all cursor-pointer">
+          <span data-i18n="shop_tab_digital">Digital Downloads</span> (<span id="count-cat-digital">5</span>)
+        </button>
+        <button data-cat="audio" class="cat-pill flex-shrink-0 whitespace-nowrap px-3.5 sm:px-4 py-2 rounded-xl text-xs font-medium  bg-white dark:bg-[#0e121d] text-slate-700 dark:text-slate-300 hover:border-cyan-500/60 hover:text-cyan-400 hover:bg-cyan-950/20 border border-slate-200 dark:border-slate-800 transition-all cursor-pointer">
+          <span data-i18n="reviews_cat_audio">Audio & Sound</span> (<span id="count-cat-audio">8</span>)
+        </button>
+        <button data-cat="smarthome" class="cat-pill flex-shrink-0 whitespace-nowrap px-3.5 sm:px-4 py-2 rounded-xl text-xs font-medium  bg-white dark:bg-[#0e121d] text-slate-700 dark:text-slate-300 hover:border-cyan-500/60 hover:text-cyan-400 hover:bg-cyan-950/20 border border-slate-200 dark:border-slate-800 transition-all cursor-pointer">
+          <span data-i18n="reviews_cat_smarthome">Smart Home & IoT</span> (<span id="count-cat-smarthome">5</span>)
+        </button>
+        <button data-cat="edc" class="cat-pill flex-shrink-0 whitespace-nowrap px-3.5 sm:px-4 py-2 rounded-xl text-xs font-medium  bg-white dark:bg-[#0e121d] text-slate-700 dark:text-slate-300 hover:border-cyan-500/60 hover:text-cyan-400 hover:bg-cyan-950/20 border border-slate-200 dark:border-slate-800 transition-all cursor-pointer">
+          <span data-i18n="reviews_cat_edc">Desk Setup & EDC</span> (<span id="count-cat-edc">5</span>)
+        </button>
+        <button data-cat="wearables" class="cat-pill flex-shrink-0 whitespace-nowrap px-3.5 sm:px-4 py-2 rounded-xl text-xs font-medium  bg-white dark:bg-[#0e121d] text-slate-700 dark:text-slate-300 hover:border-cyan-500/60 hover:text-cyan-400 hover:bg-cyan-950/20 border border-slate-200 dark:border-slate-800 transition-all cursor-pointer">
+          <span data-i18n="reviews_cat_wearables">Smart Wearables</span> (<span id="count-cat-wearables">3</span>)
+        </button>
+        <button data-cat="robotics" class="cat-pill flex-shrink-0 whitespace-nowrap px-3.5 sm:px-4 py-2 rounded-xl text-xs font-medium  bg-white dark:bg-[#0e121d] text-slate-700 dark:text-slate-300 hover:border-cyan-500/60 hover:text-cyan-400 hover:bg-cyan-950/20 border border-slate-200 dark:border-slate-800 transition-all cursor-pointer">
+          <span data-i18n="reviews_cat_robotics">Robotics & Drones</span> (<span id="count-cat-robotics">3</span>)
+        </button>
+        <button data-cat="cameras" class="cat-pill flex-shrink-0 whitespace-nowrap px-3.5 sm:px-4 py-2 rounded-xl text-xs font-medium  bg-white dark:bg-[#0e121d] text-slate-700 dark:text-slate-300 hover:border-cyan-500/60 hover:text-cyan-400 hover:bg-cyan-950/20 border border-slate-200 dark:border-slate-800 transition-all cursor-pointer">
+          <span data-i18n="reviews_cat_cameras">Cameras & Creator Gear</span> (<span id="count-cat-cameras">3</span>)
+        </button>
+        <button data-cat="computing" class="cat-pill flex-shrink-0 whitespace-nowrap px-3.5 sm:px-4 py-2 rounded-xl text-xs font-medium  bg-white dark:bg-[#0e121d] text-slate-700 dark:text-slate-300 hover:border-cyan-500/60 hover:text-cyan-400 hover:bg-cyan-950/20 border border-slate-200 dark:border-slate-800 transition-all cursor-pointer">
+          <span data-i18n="reviews_cat_computing">Computing & Gaming</span> (<span id="count-cat-computing">2</span>)
+        </button>
+        <button data-cat="power" class="cat-pill flex-shrink-0 whitespace-nowrap px-3.5 sm:px-4 py-2 rounded-xl text-xs font-medium  bg-white dark:bg-[#0e121d] text-slate-700 dark:text-slate-300 hover:border-cyan-500/60 hover:text-cyan-400 hover:bg-cyan-950/20 border border-slate-200 dark:border-slate-800 transition-all cursor-pointer">
+          <span data-i18n="reviews_cat_power">Power & GaN Charging</span> (<span id="count-cat-power">2</span>)
+        </button>
+        <button data-cat="saas" class="cat-pill flex-shrink-0 whitespace-nowrap px-3.5 sm:px-4 py-2 rounded-xl text-xs font-medium  bg-white dark:bg-[#0e121d] text-slate-700 dark:text-slate-300 hover:border-cyan-500/60 hover:text-cyan-400 hover:bg-cyan-950/20 border border-slate-200 dark:border-slate-800 transition-all cursor-pointer">
+          <span data-i18n="reviews_cat_saas">SaaS & AI Tools</span> (<span id="count-cat-saas">1</span>)
+        </button>
+        <button data-cat="ebooks" class="cat-pill flex-shrink-0 whitespace-nowrap px-3.5 sm:px-4 py-2 rounded-xl text-xs font-medium  bg-white dark:bg-[#0e121d] text-slate-700 dark:text-slate-300 hover:border-cyan-500/60 hover:text-cyan-400 hover:bg-cyan-950/20 border border-slate-200 dark:border-slate-800 transition-all cursor-pointer">
+          <span data-i18n="reviews_cat_ebooks">Ebooks & Playbooks</span> (<span id="count-cat-ebooks">1</span>)
+        </button>
+        <button data-cat="presets" class="cat-pill flex-shrink-0 whitespace-nowrap px-3.5 sm:px-4 py-2 rounded-xl text-xs font-medium  bg-white dark:bg-[#0e121d] text-slate-700 dark:text-slate-300 hover:border-cyan-500/60 hover:text-cyan-400 hover:bg-cyan-950/20 border border-slate-200 dark:border-slate-800 transition-all cursor-pointer">
+          <span data-i18n="reviews_cat_presets">Presets & LUTs</span> (<span id="count-cat-presets">1</span>)
+        </button>
+        <button data-cat="templates" class="cat-pill flex-shrink-0 whitespace-nowrap px-3.5 sm:px-4 py-2 rounded-xl text-xs font-medium  bg-white dark:bg-[#0e121d] text-slate-700 dark:text-slate-300 hover:border-cyan-500/60 hover:text-cyan-400 hover:bg-cyan-950/20 border border-slate-200 dark:border-slate-800 transition-all cursor-pointer">
+          <span data-i18n="reviews_cat_templates">Notion OS</span> (<span id="count-cat-templates">1</span>)
+        </button>
+        <button data-cat="courses" class="cat-pill flex-shrink-0 whitespace-nowrap px-3.5 sm:px-4 py-2 rounded-xl text-xs font-medium  bg-white dark:bg-[#0e121d] text-slate-700 dark:text-slate-300 hover:border-cyan-500/60 hover:text-cyan-400 hover:bg-cyan-950/20 border border-slate-200 dark:border-slate-800 transition-all cursor-pointer">
+          <span data-i18n="reviews_cat_courses">Video Courses</span> (<span id="count-cat-courses">1</span>)
+        </button>
+      </div>
+
+    </div>
+
+    <!-- SPOTLIGHT PINNED FEATURED REVIEW BANNER -->
+    <div id="spotlight-review-container" class="mb-8 sm:mb-10">
+      <!-- Populated dynamically with the top featured review -->
+    </div>
+
+    <!-- REVIEWS GRID CONTAINER -->
+    <div class="mb-10 sm:mb-12">
+      <!-- Status & Count Info -->
+      <div class="flex items-center justify-between mb-5 sm:mb-6">
+        <div>
+          <h2 class="text-xl sm:text-2xl font-black text-slate-900 dark:text-white font-display">
+            <span id="active-filter-heading">Curated Review Catalog</span> (<span id="active-filter-name">All Reviews</span>)
+          </h2>
+          <p id="pagination-status-summary" class="text-xs text-purple-600 dark:text-purple-400 mt-0.5">
+            Loading curated reviews...
+          </p>
+        </div>
+      </div>
+
+      <!-- The Grid (Cards) -->
+      <div id="reviews-grid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5 sm:gap-7">
+        <!-- Cards injected dynamically by reviewPaginationEngine -->
+      </div>
+
+      <!-- Empty State -->
+      <div id="reviews-empty-state" class="hidden p-8 sm:p-12 text-center bg-white dark:bg-[#0e121d] rounded-3xl border border-purple-200 dark:border-slate-200 dark:border-slate-800/80 my-6">
+        <i data-lucide="inbox" class="w-12 h-12 text-purple-400 mx-auto mb-3"></i>
+        <h3 class="text-base font-bold text-slate-900 dark:text-white" data-i18n="reviews_empty_title">No matching reviews found</h3>
+        <p class="text-xs text-slate-500 dark:text-slate-400 mt-1 max-w-md mx-auto" data-i18n="reviews_empty_desc">Try searching with different keywords or click 'All Reviews' to view the entire catalog.</p>
+        <button onclick="resetFilters()" class="mt-4 px-5 py-2.5 rounded-xl bg-purple-600 hover:bg-purple-700 text-white font-bold text-xs shadow-md transition-all cursor-pointer" data-i18n="reviews_reset_btn">View All Reviews</button>
+      </div>
+    </div>
+
+    <!-- PAGINATION CONTROLS -->
+    <div id="pagination-section" class="pt-6 border-t border-slate-200 dark:border-slate-800/80 flex flex-col sm:flex-row items-center justify-between gap-4">
+      
+      <!-- Left info -->
+      <div class="text-xs font-medium text-slate-500 dark:text-slate-300" id="pagination-bottom-info">
+        Page 1 of 2
+      </div>
+
+      <!-- Center / Right Pagination Buttons -->
+      <div class="flex items-center gap-1.5 sm:gap-2" id="pagination-buttons">
+        <!-- Dynamic pagination pills: Prev, 1, 2, 3, Next -->
+      </div>
+
+    </div>
+
+  </main>
+
+  <!-- GET IN TOUCH / CONTACT SECTION -->
+  <section class="py-16 bg-slate-50 dark:bg-[#07080e] border-t border-slate-200 dark:border-slate-800/80">
+    <div class="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
+      
+      <!-- Section Header -->
+      <div class="mb-8">
+        <h2 class="text-2xl sm:text-3xl font-black text-slate-900 dark:text-white font-display" data-i18n="contact_heading">Get in Touch</h2>
+        <p class="text-xs sm:text-sm text-slate-500 dark:text-slate-400 mt-1" data-i18n="contact_subtitle">Questions, partnerships, or feedback — we'd love to hear from you.</p>
+      </div>
+
+      <!-- Main Card Grid -->
+      <div class="rounded-3xl overflow-hidden shadow-2xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-[#0e121d] grid grid-cols-1 lg:grid-cols-12">
+        
+        <!-- Left Column: Emerald Gradient Card -->
+        <div class="lg:col-span-5 bg-gradient-to-br from-emerald-600 via-emerald-700 to-teal-800 p-8 sm:p-10 text-white flex flex-col justify-between relative overflow-hidden">
+          <div class="absolute -top-16 -right-16 w-56 h-56 rounded-full bg-white/10 blur-xl pointer-events-none"></div>
+          <div class="absolute -bottom-16 -left-16 w-56 h-56 rounded-full bg-teal-900/30 blur-xl pointer-events-none"></div>
+
+          <div class="relative z-10 space-y-6">
+            <div class="w-12 h-12 rounded-2xl bg-white/15 backdrop-blur-md flex items-center justify-center border border-white/20 text-white shadow-inner">
+              <i data-lucide="life-buoy" class="w-6 h-6"></i>
+            </div>
+
+            <div class="space-y-2">
+              <h3 class="text-2xl sm:text-3xl font-black leading-tight" data-i18n-html="contact_left_title">
+                We're here<br/>to help you save
+              </h3>
+              <p class="text-xs sm:text-sm text-emerald-100 leading-relaxed font-light" data-i18n="contact_left_desc">
+                Our team reviews every message personally. Whether it's a coupon issue, partnership idea, or feedback — we've got you.
+              </p>
+            </div>
+
+            <div class="space-y-4 pt-2">
+              <div class="flex items-start gap-3.5">
+                <div class="w-8 h-8 rounded-full bg-white/15 flex items-center justify-center shrink-0 text-white">
+                  <i data-lucide="clock" class="w-4 h-4"></i>
+                </div>
+                <div>
+                  <h4 class="text-xs font-bold text-white" data-i18n="contact_bullet1_title">Reply within 24 hours</h4>
+                  <p class="text-[11px] text-emerald-100/90" data-i18n="contact_bullet1_sub">Mon – Fri, 9am – 6pm PT</p>
+                </div>
+              </div>
+
+              <div class="flex items-start gap-3.5">
+                <div class="w-8 h-8 rounded-full bg-white/15 flex items-center justify-center shrink-0 text-white">
+                  <i data-lucide="shield-check" class="w-4 h-4"></i>
+                </div>
+                <div>
+                  <h4 class="text-xs font-bold text-white" data-i18n="contact_bullet2_title">Your info is safe</h4>
+                  <p class="text-[11px] text-emerald-100/90" data-i18n="contact_bullet2_sub">We never share your details</p>
+                </div>
+              </div>
+
+              <div class="flex items-start gap-3.5">
+                <div class="w-8 h-8 rounded-full bg-white/15 flex items-center justify-center shrink-0 text-white">
+                  <i data-lucide="message-square" class="w-4 h-4"></i>
+                </div>
+                <div>
+                  <h4 class="text-xs font-bold text-white" data-i18n="contact_bullet3_title">Partnership inquiries</h4>
+                  <p class="text-[11px] text-emerald-100/90" data-i18n="contact_bullet3_sub">Open to store & brand partners</p>
+                </div>
+              </div>
+
+              <div class="flex items-start gap-3.5">
+                <div class="w-8 h-8 rounded-full bg-white/15 flex items-center justify-center shrink-0 text-white">
+                  <i data-lucide="mail" class="w-4 h-4"></i>
+                </div>
+                <div>
+                  <h4 class="text-xs font-bold text-white break-words">support@techpicks.pro</h4>
+                  <p class="text-[11px] text-emerald-100/90" data-i18n="contact_bullet4_sub">Direct email always welcome</p>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div class="relative z-10 pt-6 mt-6 border-t border-emerald-500/40">
+            <div class="flex items-center gap-3">
+              <div class="w-7 h-7 rounded-full bg-white/20 flex items-center justify-center shrink-0 text-white">
+                <i data-lucide="check" class="w-4 h-4"></i>
+              </div>
+              <div class="text-[11px]">
+                <p class="font-bold text-white tracking-wide" data-i18n="contact_partner_title">Official Marketing Partner</p>
+                <p class="text-emerald-100/90 leading-tight" data-i18n="contact_partner_note">TechPicks Hub • 2205 Lorina Ave, Corcoran, CA 93212, USA</p>
+              </div>
+            </div>
+          </div>
+
+        </div>
+
+        <!-- Right Column: Contact Form -->
+        <div class="lg:col-span-7 p-8 sm:p-10 bg-white dark:bg-[#0c061a] flex flex-col justify-between">
+          <div>
+            <div class="mb-6">
+              <h3 class="text-xl font-extrabold text-slate-900 dark:text-white" data-i18n="contact_form_title">Send us a message</h3>
+              <p class="text-xs text-slate-500 dark:text-slate-300/60 mt-1" data-i18n="contact_form_required">Fields marked * are required</p>
+            </div>
+
+            <form id="get-in-touch-form" class="space-y-4" onsubmit="handleContactSubmit(event)">
+              <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                <div>
+                  <label class="block text-xs font-bold text-slate-700 dark:text-purple-200 mb-1.5" data-i18n="contact_name_label">
+                    Your Name <span class="text-slate-400 font-normal" data-i18n="contact_optional">(optional)</span>
+                  </label>
+                  <input type="text" id="contact-name" name="name" placeholder="Jane Smith" data-i18n-placeholder="contact_name_placeholder" class="w-full px-3.5 py-2.5 rounded-xl border border-slate-200 dark:border-slate-200 dark:border-slate-800/80 bg-white dark:bg-purple-950/30 text-slate-900 dark:text-white text-xs focus:ring-2 focus:ring-emerald-500 outline-none transition-all" />
+                </div>
+
+                <div>
+                  <label class="block text-xs font-bold text-slate-700 dark:text-purple-200 mb-1.5" data-i18n="contact_email_label">
+                    Email Address <span class="text-rose-500">*</span>
+                  </label>
+                  <input type="email" id="contact-email" name="email" required placeholder="you@example.com" data-i18n-placeholder="contact_email_placeholder" class="w-full px-3.5 py-2.5 rounded-xl border border-slate-200 dark:border-slate-200 dark:border-slate-800/80 bg-white dark:bg-purple-950/30 text-slate-900 dark:text-white text-xs focus:ring-2 focus:ring-emerald-500 outline-none transition-all" />
+                </div>
+              </div>
+
+              <div>
+                <label class="block text-xs font-bold text-slate-700 dark:text-purple-200 mb-1.5" data-i18n="contact_subject_label">
+                  Subject <span class="text-slate-400 font-normal" data-i18n="contact_optional">(optional)</span>
+                </label>
+                <input type="text" id="contact-subject" name="subject" placeholder="e.g. Partnership, coupon issue, feedback..." data-i18n-placeholder="contact_subject_placeholder" class="w-full px-3.5 py-2.5 rounded-xl border border-slate-200 dark:border-slate-200 dark:border-slate-800/80 bg-white dark:bg-purple-950/30 text-slate-900 dark:text-white text-xs focus:ring-2 focus:ring-emerald-500 outline-none transition-all" />
+              </div>
+
+              <div>
+                <label class="block text-xs font-bold text-slate-700 dark:text-purple-200 mb-1.5" data-i18n="contact_message_label">
+                  Message <span class="text-rose-500">*</span>
+                </label>
+                <textarea id="contact-message" name="message" required rows="4" placeholder="Tell us how we can help..." data-i18n-placeholder="contact_message_placeholder" class="w-full px-3.5 py-2.5 rounded-xl border border-slate-200 dark:border-slate-200 dark:border-slate-800/80 bg-white dark:bg-purple-950/30 text-slate-900 dark:text-white text-xs focus:ring-2 focus:ring-emerald-500 outline-none transition-all resize-none"></textarea>
+              </div>
+
+              <button type="submit" id="contact-submit-btn" class="w-full py-3 px-6 rounded-xl bg-emerald-600 hover:bg-emerald-500 active:scale-[0.99] text-white font-bold text-xs flex items-center justify-center gap-2 shadow-lg shadow-emerald-600/25 transition-all cursor-pointer">
+                <i data-lucide="send" class="w-4 h-4"></i>
+                <span data-i18n="contact_submit_btn">Send Message</span>
+              </button>
+            </form>
+          </div>
+
+          <div class="mt-4 pt-3 text-center border-t border-slate-100 dark:border-purple-900/30">
+            <p class="text-[11px] text-slate-400 dark:text-slate-300/50" data-i18n="contact_reply_guarantee">
+              We typically reply within 24 hours · Your info is never shared
+            </p>
+          </div>
+        </div>
+
+      </div>
+
+    </div>
+  </section>
+
+  <!-- FOOTER -->
+  <footer class="bg-white dark:bg-[#07080e] border-t border-purple-200/50 dark:border-purple-900/40 mt-auto py-12">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-8 mb-10">
+        
+        <div class="space-y-3">
+          <div class="flex items-center gap-2">
+            <img src="images/logo.png?v=20261116_noflash_v3" alt="TechPicks Logo" class="w-8 h-8 rounded-xl object-cover shadow-md flex-shrink-0">
+            <span class="font-extrabold text-lg text-slate-900 dark:text-white font-display">TechPicks Review</span>
+          </div>
+          <p class="text-xs text-slate-500 dark:text-slate-400 leading-relaxed" data-i18n="footer_desc">
+            Independent technology, mechanical watch, automotive performance, and everyday carry gear testing platform with transparent affiliate disclosures.
+          </p>
+                  <!-- Social Media Channels -->
+          <div class="pt-2">
+            <span class="text-[10px] font-bold uppercase tracking-wider text-slate-400 dark:text-purple-400 block mb-2" data-i18n="footer_social_title">Follow Us</span>
+            <div class="flex items-center gap-2.5">
+              <a href="https://www.facebook.com/techpickshub" target="_blank" rel="noopener noreferrer" class="w-8 h-8 rounded-lg bg-slate-100 hover:bg-[#1877F2] dark:bg-[#141926] dark:hover:bg-[#1877F2] border border-slate-200 dark:border-slate-800 flex items-center justify-center text-slate-600 dark:text-slate-300 hover:text-white dark:hover:text-white transition-all transform hover:-translate-y-0.5 shadow-sm group" title="Facebook: TechPicks Hub" aria-label="Facebook">
+                <svg class="w-4 h-4 fill-current" viewBox="0 0 24 24"><path d="M24 12.073c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 5.99 4.388 10.954 10.125 11.854v-8.385H7.078v-3.47h3.047V9.43c0-3.007 1.792-4.669 4.533-4.669 1.312 0 2.686.235 2.686.235v2.953H15.83c-1.491 0-1.956.925-1.956 1.874v2.25h3.328l-.532 3.47h-2.796v8.385C19.612 23.027 24 18.062 24 12.073z"/></svg>
+              </a>
+              <a href="https://www.instagram.com/techpickshub/" target="_blank" rel="noopener noreferrer" class="w-8 h-8 rounded-lg bg-slate-100 hover:bg-gradient-to-tr hover:from-[#f09433] hover:via-[#dc2743] hover:to-[#bc1888] dark:bg-[#141926] border border-slate-200 dark:border-slate-800 flex items-center justify-center text-slate-600 dark:text-slate-300 hover:text-white dark:hover:text-white transition-all transform hover:-translate-y-0.5 shadow-sm group" title="Instagram: @techpickshub" aria-label="Instagram">
+                <svg class="w-4 h-4 fill-current" viewBox="0 0 24 24"><path d="M12 2.163c3.204 0 3.584.012 4.85.07 3.252.148 4.771 1.691 4.919 4.919.058 1.265.069 1.645.069 4.849 0 3.205-.012 3.584-.069 4.849-.149 3.225-1.664 4.771-4.919 4.919-1.266.058-1.644.07-4.85.07-3.204 0-3.584-.012-4.849-.07-3.26-.149-4.771-1.699-4.919-4.92-.058-1.265-.07-1.644-.07-4.849 0-3.204.013-3.583.07-4.849.149-3.227 1.664-4.771 4.919-4.919 1.266-.057 1.645-.069 4.849-.069zm0-2.163c-3.259 0-3.667.014-4.947.072-4.358.2-6.78 2.618-6.98 6.98-.059 1.281-.073 1.689-.073 4.948 0 3.259.014 3.668.072 4.948.2 4.358 2.618 6.78 6.98 6.98 1.281.058 1.689.072 4.948.072 3.259 0 3.668-.014 4.948-.072 4.354-.2 6.782-2.618 6.979-6.98.059-1.28.073-1.689.073-4.948 0-3.259-.014-3.667-.072-4.947-.196-4.354-2.617-6.78-6.979-6.98-1.281-.059-1.69-.073-4.949-.073zm0 5.838c-3.403 0-6.162 2.759-6.162 6.162s2.759 6.163 6.162 6.163 6.162-2.759 6.162-6.163c0-3.403-2.759-6.162-6.162-6.162zm0 10.162c-2.209 0-4-1.79-4-4 0-2.209 1.791-4 4-4s4 1.791 4 4c0 2.21-1.791 4-4 4zm6.406-11.845c-.796 0-1.441.645-1.441 1.44s.645 1.44 1.441 1.44c.795 0 1.439-.645 1.439-1.44s-.644-1.44-1.439-1.44z"/></svg>
+              </a>
+              <a href="mailto:support@techpicks.pro" class="w-8 h-8 rounded-lg bg-slate-100 hover:bg-emerald-600 dark:bg-[#141926] dark:hover:bg-emerald-600 border border-slate-200 dark:border-slate-800 flex items-center justify-center text-slate-600 dark:text-slate-300 hover:text-white dark:hover:text-white transition-all transform hover:-translate-y-0.5 shadow-sm" title="Email: support@techpicks.pro" aria-label="Email">
+                <svg class="w-4 h-4 fill-none stroke-current stroke-2" viewBox="0 0 24 24" stroke-linecap="round" stroke-linejoin="round"><rect width="20" height="16" x="2" y="4" rx="2"/><path d="m22 7-8.97 5.7a1.94 1.94 0 0 1-2.06 0L2 7"/></svg>
+              </a>
+            </div>
+          </div>
+        </div>
+
+        <div>
+          <h4 class="text-xs font-bold uppercase tracking-wider text-slate-900 dark:text-white mb-3" data-i18n="footer_categories">Navigation</h4>
+          <ul class="space-y-2 text-xs text-slate-600 dark:text-slate-400">
+            <li><a href="index.html" class="hover:text-cyan-500 dark:hover:text-cyan-400" data-i18n="nav_home">Home</a></li>
+            <li><a href="post.html" class="hover:text-cyan-500 dark:hover:text-cyan-400 font-bold text-purple-600 dark:text-purple-400" data-i18n="nav_reviews">Reviews & Guides</a></li>
+            <li><a href="shop.html" class="hover:text-cyan-500 dark:hover:text-cyan-400" data-i18n="nav_shop">Curated Store</a></li>
+            <li><a href="sponsor.html" class="hover:text-cyan-500 dark:hover:text-cyan-400" data-i18n="nav_sponsor">Sponsorships</a></li>
+          </ul>
+        </div>
+
+        <div>
+          <h4 class="text-xs font-bold uppercase tracking-wider text-slate-900 dark:text-white mb-3" data-i18n="footer_models">Revenue Models</h4>
+          <ul class="space-y-2 text-xs text-slate-600 dark:text-slate-400">
+            <li data-i18n="footer_model_affiliate">• Performance Affiliate Partnerships</li>
+            <li data-i18n="footer_model_ads">• IAB Standard Display Advertising</li>
+            <li data-i18n="footer_model_sponsor">• Sponsored Hands-On Benchmarks</li>
+            <li data-i18n="footer_model_digital">• Curated Direct Gear & EDC Drops</li>
+          </ul>
+        </div>
+
+        <div>
+          <h4 class="text-xs font-bold uppercase tracking-wider text-slate-900 dark:text-white mb-3" data-i18n="footer_compliance">Compliance & Standards</h4>
+          <p class="text-[11px] text-slate-500 dark:text-slate-400 leading-relaxed" data-i18n="footer_compliance_text">
+            Fully compliant with FTC guidelines and Google Search Quality standards for independent testing, transparent affiliate disclosures, and consumer trust.
+          </p>
+        </div>
+
+        <!-- Contact Column (Exact Match to User Reference) -->
+        <div>
+          <h4 class="text-xs font-bold uppercase tracking-wider text-slate-900 dark:text-white mb-3" data-i18n="footer_contact_title">Contact</h4>
+          <p class="text-xs font-semibold text-slate-700 dark:text-purple-200 mb-1" data-i18n="footer_mailing_addr_label">Mailing Address:</p>
+          <p class="text-xs text-slate-600 dark:text-slate-400 leading-relaxed mb-3">
+            2205 Lorina Ave, Corcoran, CA 93212, USA
+          </p>
+          <div class="flex items-center gap-2 text-xs text-slate-600 dark:text-slate-400 mb-4">
+            <i data-lucide="mail" class="w-3.5 h-3.5 text-emerald-600 dark:text-emerald-400 shrink-0"></i>
+            <a href="mailto:support@techpicks.pro" class="text-[11.5px] sm:text-xs hover:underline hover:text-emerald-600 dark:hover:text-emerald-400 break-words font-medium">support@techpicks.pro</a>
+          </div>
+          <div class="pt-3 border-t border-slate-200 dark:border-slate-800/80">
+            <span class="text-[10px] font-bold uppercase tracking-wider text-slate-400 dark:text-purple-400 block mb-1.5" data-i18n="footer_partner_label">OFFICIAL MARKETING PARTNER</span>
+            <div class="flex items-center gap-2.5 p-2 rounded-xl bg-slate-50 dark:bg-purple-950/40 border border-slate-200 dark:border-purple-800/40">
+              <div class="w-7 h-7 rounded-lg bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 flex items-center justify-center shrink-0">
+                <i data-lucide="check-circle" class="w-4 h-4"></i>
+              </div>
+              <div>
+                <p class="text-xs font-bold text-slate-800 dark:text-purple-100 leading-tight">TechPicks Lab LLC</p>
+                <p class="text-[10px] text-slate-500 dark:text-slate-300/60 leading-tight" data-i18n="footer_partner_sub">TechPicks Hub is a marketing division</p>
+              </div>
+            </div>
+          </div>
+        </div>
+
+      </div>
+
+      <div class="pt-6 border-t border-slate-200 dark:border-slate-800/80 flex flex-col sm:flex-row items-center justify-between gap-4 text-xs text-slate-400">
+        <p data-i18n="footer_copyright">© 2026 TechPicks Review. All rights reserved.</p>
+        <div class="flex gap-4">
+          <a href="#" class="hover:underline" data-i18n="footer_privacy">Privacy Policy</a>
+          <a href="#" class="hover:underline" data-i18n="footer_terms">Terms of Service</a>
+          <a href="sponsor.html" class="hover:underline" data-i18n="footer_partnerships">Brand Partnerships</a>
+        </div>
+      </div>
+
+    </div>
+  </footer>
+
+  <div id="toast"></div>
+
+  <!-- Scripts -->
+  <script src="js/app.js?v=20261116_noflash_v3"></script>
+  <script src="js/review-pagination.js?v=20261116_noflash_v3"></script>
+</body>
+</html>
