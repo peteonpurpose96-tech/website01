@@ -1,4 +1,4 @@
-﻿// Multilingual (vi, en-US, zh) & Multi-Currency (USD $, VND ₫) Engine for TechPicks Review
+// Multilingual (vi, en-US, zh) & Multi-Currency (USD $, VND ₫) Engine for CouponHiker
 // Authoritative Content Monetization & Conversion Architecture
 
 const translations = {
@@ -405,7 +405,7 @@ const translations = {
     contact_bullet3_sub: "Mở rộng liên kết với các nhãn hàng & đối tác",
     contact_bullet4_sub: "Luôn hoan nghênh gửi email trực tiếp",
     contact_partner_title: "Đối Tác Tiếp Thị Chính Thức",
-    contact_partner_note: "TechPicks Hub • 2205 Lorina Ave, Corcoran, CA 93212, USA",
+    contact_partner_note: "CouponHiker Hub • 2205 Lorina Ave, Corcoran, CA 93212, USA",
     contact_form_title: "Gửi tin nhắn cho chúng tôi",
     contact_form_required: "Các trường có dấu * là bắt buộc",
     contact_name_label: "Họ và Tên",
@@ -434,12 +434,12 @@ const translations = {
     footer_contact_title: "Liên Hệ",
     footer_mailing_addr_label: "Địa Chỉ Thư Tín:",
     footer_partner_label: "ĐỐI TÁC TIẾP THỊ CHÍNH THỨC",
-    footer_partner_sub: "TechPicks Hub là đơn vị tiếp thị & đánh giá độc lập",
+    footer_partner_sub: "CouponHiker Hub là đơn vị tiếp thị & đánh giá độc lập",
     footer_privacy: "Chính Sách Bảo Mật",
     footer_terms: "Điều Khoản Dịch Vụ",
     footer_partnerships: "Hợp Tác Nhãn Hàng",
     footer_social_title: "Kết Nối Với Chúng Tôi",
-    footer_copyright: "© 2026 TechPicks Review. Mọi quyền được bảo lưu."
+    footer_copyright: "© 2026 CouponHiker. Mọi quyền được bảo lưu."
   },
 
   en: {
@@ -844,7 +844,7 @@ const translations = {
     contact_bullet3_sub: "Open to store & brand partners",
     contact_bullet4_sub: "Direct email always welcome",
     contact_partner_title: "Official Marketing Partner",
-    contact_partner_note: "TechPicks Hub • 2205 Lorina Ave, Corcoran, CA 93212, USA",
+    contact_partner_note: "CouponHiker Hub • 2205 Lorina Ave, Corcoran, CA 93212, USA",
     contact_form_title: "Send us a message",
     contact_form_required: "Fields marked * are required",
     contact_name_label: "Your Name",
@@ -873,12 +873,12 @@ const translations = {
     footer_contact_title: "Contact",
     footer_mailing_addr_label: "Mailing Address:",
     footer_partner_label: "OFFICIAL MARKETING PARTNER",
-    footer_partner_sub: "TechPicks Hub is an independent tech marketing division",
+    footer_partner_sub: "CouponHiker Hub is an independent tech marketing division",
     footer_privacy: "Privacy Policy",
     footer_terms: "Terms of Service",
     footer_partnerships: "Brand Partnerships",
     footer_social_title: "Connect With Us",
-    footer_copyright: "© 2026 TechPicks Review. All rights reserved."
+    footer_copyright: "© 2026 CouponHiker. All rights reserved."
   },
 
   zh: {
@@ -1281,7 +1281,7 @@ const translations = {
     contact_bullet3_sub: "欢迎品牌方与优质商家洽谈",
     contact_bullet4_sub: "随时欢迎直接发送邮件联系",
     contact_partner_title: "官方营销合作伙伴",
-    contact_partner_note: "TechPicks Hub • 2205 Lorina Ave, Corcoran, CA 93212, USA",
+    contact_partner_note: "CouponHiker Hub • 2205 Lorina Ave, Corcoran, CA 93212, USA",
     contact_form_title: "给我们发送留言",
     contact_form_required: "标有 * 的项目为必填项",
     contact_name_label: "您的称呼",
@@ -1310,12 +1310,12 @@ const translations = {
     footer_contact_title: "联系方式",
     footer_mailing_addr_label: "公司通信地址：",
     footer_partner_label: "官方营销合作伙伴",
-    footer_partner_sub: "TechPicks Hub 是独立的科技营销评测分支",
+    footer_partner_sub: "CouponHiker Hub 是独立的科技营销评测分支",
     footer_privacy: "隐私政策",
     footer_terms: "服务条款",
     footer_partnerships: "商务合作",
     footer_social_title: "关注我们",
-    footer_copyright: "© 2026 TechPicks Review. 版权所有。"
+    footer_copyright: "© 2026 CouponHiker. 版权所有。"
   }
 };
 
@@ -1325,8 +1325,8 @@ const _langFromUrl = _urlParams ? _urlParams.get('lang') : null;
 
 // Automatic migration: Reset legacy 'vi' state from previous template to default English & USD
 try {
-  if (!localStorage.getItem('techpicks_v2_lang_init')) {
-    localStorage.setItem('techpicks_v2_lang_init', 'true');
+  if (!localStorage.getItem('couponhiker_v2_lang_init')) {
+    localStorage.setItem('couponhiker_v2_lang_init', 'true');
     if (localStorage.getItem('blog_lang') === 'vi') {
       localStorage.setItem('blog_lang', 'en');
     }

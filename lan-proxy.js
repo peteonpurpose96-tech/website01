@@ -110,7 +110,7 @@ const webProxy = createProxyServer(3002, 3012, 'Website');
 const adminProxy = createProxyServer(3003, 3013, 'Admin CMS');
 
 console.log('==========================================================');
-console.log('  TECHPICKS REVIEW - LAN & LOCALHOST SHARING ACTIVE:');
+console.log('  COUPONHIKER - LAN & LOCALHOST SHARING ACTIVE:');
 console.log(`  LAN IP: ${LAN_IP}`);
 console.log(`  1. WEBSITE:   http://localhost:3002/  |  http://${LAN_IP}:3002/`);
 console.log(`  2. ADMIN CMS: http://localhost:3003/  |  http://${LAN_IP}:3003/`);

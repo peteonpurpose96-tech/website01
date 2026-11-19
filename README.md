@@ -1,4 +1,4 @@
-# 🚀 TechPicks Review - Đánh Giá Công Nghệ & Thiết Bị Thông Minh (Tech & Smart Gadgets Hub)
+# 🚀 CouponHiker - Đánh Giá Công Nghệ & Thiết Bị Thông Minh (Tech & Smart Gadgets Hub)
 
 Website blog chuyên biệt về **Đánh giá Công nghệ, Thiết bị Thông minh & Tối ưu hóa doanh thu (Monetization & CRO)**, tích hợp sẵn toàn bộ 4 trụ cột kiếm tiền hàng đầu hiện nay.
 
@@ -11,7 +11,7 @@ Hệ thống được thiết kế độc lập tại `C:\Web2`, vận hành tr�
 ### 1. Tiếp thị liên kết Công nghệ (Tech Affiliate Marketing)
 - **Nút "Check Price / Xem Giá"**: Nổi bật với hiệu ứng Shimmer tím neon thu hút ánh nhìn, liên kết trực tiếp tới nhà phân phối chính hãng (Apple, Sony, Amazon, Shopee Mall, LazMall).
 - **Bảng so sánh thông số & giá đa sàn (Price & Specs Comparison)**: So sánh giá bán thực tế, cấu hình, quà tặng kèm của từng sàn để khách đưa ra quyết định mua hàng nhanh nhất.
-- **Hộp Voucher / Coupon Code 1-Click Copy**: Tự động sao chép mã giảm giá (ví dụ: `TECHPICKS15`) vào clipboard và tự động mở tab mua sắm.
+- **Hộp Voucher / Coupon Code 1-Click Copy**: Tự động sao chép mã giảm giá (ví dụ: `COUPONHIKER15`) vào clipboard và tự động mở tab mua sắm.
 - **Box Đánh giá Ưu & Nhược Điểm (Pros & Cons)**: Thiết kế trực quan, phân tích điểm mạnh - điểm yếu chi tiết theo chuẩn lab test.
 - **Tuyên bố minh bạch liên kết (FTC & Google Compliance)**: Đầy đủ các thẻ `rel="sponsored nofollow noopener"`.
 
@@ -26,7 +26,7 @@ Hệ thống được thiết kế độc lập tại `C:\Web2`, vận hành tr�
 - **Sponsor Acknowledgement Card**: Hộp ghi nhận đối tác đồng hành kèm link thương hiệu.
 - **Trang Media Kit & Báo Giá Hợp Tác (`sponsor.html`)**:
   - Báo giá tài trợ dành riêng cho các hãng công nghệ & phụ kiện thông minh.
-  - Form đặt gói booking tự động qua email `support@techpicks.pro`.
+  - Form đặt gói booking tự động qua email `support@couponhiker.com`.
 
 ### 4. Cửa hàng sản phẩm số & Phụ kiện tuyển chọn (`shop.html`)
 - **Cửa hàng số**: Trưng bày Preset màu ảnh công nghệ, Setup Checklist, Ebook hướng dẫn SEO Affiliate, Hướng dẫn xây dựng Smart Home.

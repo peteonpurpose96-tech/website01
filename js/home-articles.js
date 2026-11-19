@@ -149,7 +149,7 @@
 
     // Instant SWR Hydration: Display cached articles immediately on reload (0ms delay)
     try {
-      const cached = localStorage.getItem('techpicks_home_articles_cache');
+      const cached = localStorage.getItem('couponhiker_home_articles_cache');
       if (cached) {
         const parsed = JSON.parse(cached);
         if (Array.isArray(parsed) && parsed.length > 0) {
@@ -180,7 +180,7 @@
           allHomeArticles = flat;
           window.allHomeArticles = allHomeArticles;
           const newJson = JSON.stringify(flat);
-          try { localStorage.setItem('techpicks_home_articles_cache', newJson); } catch (e) {}
+          try { localStorage.setItem('couponhiker_home_articles_cache', newJson); } catch (e) {}
 
           // Only re-render if the articles data changed
           if (newJson !== lastRenderedArticlesJson) {

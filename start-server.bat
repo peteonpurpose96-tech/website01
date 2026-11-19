@@ -1,7 +1,7 @@
 @echo off
-title TechPicks Review - Tech & Smart Gadgets Localhost Server
+title CouponHiker - Tech & Smart Gadgets Localhost Server
 echo ========================================================
-echo   Dang khoi dong TECHPICKS REVIEW (Tech & Smart Gadgets)...
+echo   Dang khoi dong COUPONHIKER (Tech & Smart Gadgets)...
 echo   Website Chinh:  http://localhost:3002
 echo   Admin Studio:   http://localhost:3003
 echo ========================================================

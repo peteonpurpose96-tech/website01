@@ -53,10 +53,10 @@ const defaultProductCatalog = {
   },
   'prod-saas-ai-writer-pass': {
     id: 'prod-saas-ai-writer-pass',
-    title: 'TechPicks AI Studio: 1-Year Pro Cloud Subscription',
-    titleEn: 'TechPicks AI Studio: 1-Year Pro Cloud Subscription',
-    titleVi: 'Phần Mềm TechPicks AI Studio: Bản Quyền Cloud 1 Năm Chuyên Nghiệp',
-    titleZh: 'TechPicks AI Studio：专业版一年期云端授权',
+    title: 'CouponHiker AI Studio: 1-Year Pro Cloud Subscription',
+    titleEn: 'CouponHiker AI Studio: 1-Year Pro Cloud Subscription',
+    titleVi: 'Phần Mềm CouponHiker AI Studio: Bản Quyền Cloud 1 Năm Chuyên Nghiệp',
+    titleZh: 'CouponHiker AI Studio：专业版一年期云端授权',
     price: 1490000,
     priceUsd: 149.00,
     priceCny: 1040.00,
@@ -462,7 +462,7 @@ window.simulateSuccessfulPayment = function() {
 
   const emailInput = document.getElementById('buyer-email');
   const buyerEmail = emailInput ? emailInput.value.trim() : 'guest@example.com';
-  const prodTitle = currentProduct ? (currentProduct.title || currentProduct.id) : 'Sản Phẩm Số TechPicks';
+  const prodTitle = currentProduct ? (currentProduct.title || currentProduct.id) : 'Sản Phẩm Số CouponHiker';
   const prodPrice = currentProduct ? formatCurrency(currentProduct.price) : '0đ';
   const memo = (document.getElementById('checkout-step-2') && document.getElementById('checkout-step-2').querySelector('.font-mono')) 
     ? document.getElementById('checkout-step-2').querySelector('.font-mono').innerText.trim() 
@@ -481,12 +481,12 @@ window.simulateSuccessfulPayment = function() {
     })
   }).catch(() => {});
 
-  // 2. Direct Cloud Forwarder to support@techpicks.pro
-  fetch('https://formsubmit.co/ajax/support@techpicks.pro', {
+  // 2. Direct Cloud Forwarder to support@couponhiker.com
+  fetch('https://formsubmit.co/ajax/support@couponhiker.com', {
     method: 'POST',
     headers: { 'Content-Type': 'application/json', 'Accept': 'application/json' },
     body: JSON.stringify({
-      _subject: `💰 [TechPicks Đơn Hàng Mới] ${prodTitle} (${prodPrice})`,
+      _subject: `💰 [CouponHiker Đơn Hàng Mới] ${prodTitle} (${prodPrice})`,
       _replyto: buyerEmail,
       "Tên sản phẩm": prodTitle,
       "Giá bán": prodPrice,
@@ -501,7 +501,7 @@ window.simulateSuccessfulPayment = function() {
     document.getElementById('checkout-step-3').classList.remove('hidden');
     lucide.createIcons();
     if (typeof showToast === 'function') {
-      showToast('🎉 Xác nhận thanh toán thành công! Thông báo đơn hàng đã gửi về support@techpicks.pro');
+      showToast('🎉 Xác nhận thanh toán thành công! Thông báo đơn hàng đã gửi về support@couponhiker.com');
     }
   }, 1000);
 };

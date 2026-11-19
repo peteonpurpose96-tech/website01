@@ -3,10 +3,13 @@
     [int]$AdminPort = 3003,
     [int]$BackendPort = 3012,
     [int]$BackendAdminPort = 3013,
-    [string]$RootPath = "c:\Web2",
-    [string]$AdminPath = "c:\Web2\admin-cms",
+    [string]$RootPath = "",
+    [string]$AdminPath = "",
     [switch]$NoBrowser
 )
+
+if (-not $RootPath) { $RootPath = $PSScriptRoot }
+if (-not $AdminPath) { $AdminPath = Join-Path $RootPath "admin-cms" }
 
 $AdminAccounts = @(
     @{
@@ -86,10 +89,13 @@ if (Test-Path $proxyScript) {
     }
 }
 
-# Create and configure HttpListener on backend ports
+# Create and configure HttpListener
+$bindMainPort = if ($global:ProxyProcess -and -not $global:ProxyProcess.HasExited) { $BackendPort } else { $Port }
+$bindAdminPort = if ($global:ProxyProcess -and -not $global:ProxyProcess.HasExited) { $BackendAdminPort } else { $AdminPort }
+
 $listener = New-Object System.Net.HttpListener
-$mainPrefix = "http://localhost:$BackendPort/"
-$adminPrefix = "http://localhost:$BackendAdminPort/"
+$mainPrefix = "http://localhost:$bindMainPort/"
+$adminPrefix = "http://localhost:$bindAdminPort/"
 
 $listener.Prefixes.Add($mainPrefix)
 $adminStarted = $false
@@ -97,7 +103,7 @@ try {
     $listener.Prefixes.Add($adminPrefix)
     $adminStarted = $true
 } catch {
-    Write-Host "Khong the bind port $BackendAdminPort, Admin CMS se truy cap qua http://localhost:$Port/admin-cms/" -ForegroundColor Yellow
+    Write-Host "Khong the bind port $bindAdminPort, Admin CMS se truy cap qua http://localhost:$bindMainPort/admin-cms/" -ForegroundColor Yellow
 }
 
 try {
@@ -108,7 +114,7 @@ try {
 }
 
 Write-Host "==========================================================" -ForegroundColor Green
-Write-Host "  TECHPICKS REVIEW - SHARE IP MANG NOI BO (LAN & LOCALHOST):" -ForegroundColor Cyan
+Write-Host "  COUPONHIKER - SHARE IP MANG NOI BO (LAN & LOCALHOST):" -ForegroundColor Cyan
 Write-Host "  IP MANG NOI BO (LAN IP): $lanIp" -ForegroundColor Yellow
 Write-Host "  --------------------------------------------------------" -ForegroundColor DarkGray
 Write-Host "  1. WEBSITE CHINH (MAY NAY):    http://localhost:$Port/" -ForegroundColor White
@@ -659,7 +665,7 @@ function Extract-BrandPriceInfo([string]$TargetUrl, [string]$HintKeyword = "") {
     if ($lowerUrl -match "blueprint|ebook|affiliate-guide") {
         return [PSCustomObject]@{
             success = $true
-            brand = "SmartPicks Publishing"
+            brand = "CouponHiker Publishing"
             productTitle = "Affiliate Creator Blueprint 2026 Strategy Playbook"
             salePriceUsd = (Format-UsdPrice 29.00)
             numericPriceUsd = 29.00
@@ -720,11 +726,11 @@ function Extract-BrandPriceInfo([string]$TargetUrl, [string]$HintKeyword = "") {
         }
     }
 
-    if ($lowerUrl -match "saas|ai-writer|smartpicks-ai|license") {
+    if ($lowerUrl -match "saas|ai-writer|smartpicks-ai|couponhiker-ai|license") {
         return [PSCustomObject]@{
             success = $true
-            brand = "SmartPicks Cloud"
-            productTitle = "SmartPicks AI Studio Pro: 1-Year Cloud Unlimited License"
+            brand = "CouponHiker Cloud"
+            productTitle = "CouponHiker AI Studio Pro: 1-Year Cloud Unlimited License"
             salePriceUsd = (Format-UsdPrice 149.00)
             numericPriceUsd = 149.00
             salePriceVnd = (Format-VndPrice 149.00)
@@ -869,7 +875,7 @@ function Sync-HeroHtml {
 }
 
 function Send-CustomerContactEmail($msgObj) {
-    $targetEmail = "support@smartpicksreview.online"
+    $targetEmail = "support@couponhiker.com"
     $emailConfigPath = Join-Path $RootPath "data\email_config.json"
     $emailConfig = $null
     if (Test-Path $emailConfigPath) {
@@ -899,7 +905,7 @@ function Send-CustomerContactEmail($msgObj) {
             $enableSsl = if ($null -ne $emailConfig.smtp.enableSsl) { [bool]$emailConfig.smtp.enableSsl } else { $true }
 
             $mail = New-Object System.Net.Mail.MailMessage
-            $mail.From = New-Object System.Net.Mail.MailAddress($emailConfig.smtp.user, "Smart Picks Review")
+            $mail.From = New-Object System.Net.Mail.MailAddress($emailConfig.smtp.user, "CouponHiker")
             $mail.To.Add($targetEmail)
             if ($msgObj.email -and $msgObj.email -match "@") {
                 $mail.ReplyToList.Add($msgObj.email)
@@ -915,7 +921,7 @@ function Send-CustomerContactEmail($msgObj) {
 <div style="font-family: Arial, sans-serif; max-width: 620px; margin: 0 auto; padding: 24px; border: 1px solid #e4e4e7; border-radius: 16px; background: #ffffff; color: #18181b;">
   <div style="border-bottom: 3px solid $headerColor; padding-bottom: 14px; margin-bottom: 18px;">
     <h2 style="color: $headerColor; margin: 0; font-size: 20px; font-weight: bold;">$headerTitle</h2>
-    <p style="color: #71717a; font-size: 12px; margin: 4px 0 0 0;">Website: Smart Picks Review (SmartPicks Hub LLC)</p>
+    <p style="color: #71717a; font-size: 12px; margin: 4px 0 0 0;">Website: CouponHiker (CouponHiker Hub LLC)</p>
   </div>
   <table style="width: 100%; font-size: 14px; border-collapse: collapse;">
     <tr><td style="padding: 7px 0; color: #71717a; width: 140px;"><strong>Họ tên / Đối tác:</strong></td><td style="padding: 7px 0; color: #18181b; font-weight: bold;">$safeName</td></tr>
@@ -930,7 +936,7 @@ function Send-CustomerContactEmail($msgObj) {
   </div>
   <div style="margin-top: 24px; padding-top: 12px; border-top: 1px solid #f1f5f9; text-align: center;">
     <a href="http://localhost:$AdminPort" style="display: inline-block; padding: 8px 18px; background: $headerColor; color: #ffffff; text-decoration: none; border-radius: 8px; font-size: 12px; font-weight: bold;">Mở Admin CMS Studio Quản Lý</a>
-    <p style="margin-top: 8px; font-size: 11px; color: #94a3b8;">Được gửi tự động đến $targetEmail từ website TechPicks Review</p>
+    <p style="margin-top: 8px; font-size: 11px; color: #94a3b8;">Được gửi tự động đến $targetEmail từ website CouponHiker</p>
   </div>
 </div>
 "@
@@ -1518,7 +1524,7 @@ try {
                             badge = if ($json.brand) { $json.brand } else { "Editor's Choice" }
                             badgeEn = if ($json.brand) { $json.brand } else { "Editor's Choice" }
                             badgeVi = if ($json.brand) { $json.brand } else { "Editor's Choice" }
-                            urlDisplay = "https://smartpicksreview.com/reviews/" + $postSlug
+                            urlDisplay = "https://couponhiker.com/reviews/" + $postSlug
                             postUrl = $fileName
                             affiliateUrl = $cleanAff
                             image = $json.image
@@ -2081,12 +2087,12 @@ try {
                                     tagEn = if ($found.categoryEn) { $found.categoryEn } else { "HOT PRODUCT" }
                                     tagVi = if ($found.categoryVi) { $found.categoryVi } else { "SẢN PHẨM NỔI BẬT" }
                                     tagZh = if ($found.categoryZh) { $found.categoryZh } else { "HOT" }
-                                    brand = if ($found.brand) { $found.brand } else { "SmartPicks" }
+                                    brand = if ($found.brand) { $found.brand } else { "CouponHiker" }
                                     badge = "Editor's Choice"
                                     badgeEn = "Editor's Choice"
                                     badgeVi = "Lựa Chọn Biên Tập Viên"
                                     badgeZh = "编辑特选"
-                                    urlDisplay = if ($found.brand) { $found.brand } else { "SmartPicks" }
+                                    urlDisplay = if ($found.brand) { $found.brand } else { "CouponHiker" }
                                     postUrl = if ($found.slug) { $found.slug } else { "post.html" }
                                     affiliateUrl = if ($found.affiliateLink) { $found.affiliateLink } else { "#" }
                                     image = $found.image
@@ -2281,7 +2287,7 @@ try {
                             badgeZh = "编辑特选"
                             urlDisplay = if ($p.brand) { $p.brand } else { "Verified Partner" }
                             postUrl = if ($p.slug) { if ($p.slug.EndsWith(".html")) { $p.slug } else { $p.slug + ".html" } } else { "post.html" }
-                            affiliateUrl = if ($p.affiliateLink) { $p.affiliateLink } else { "https://techpicks.pro" }
+                            affiliateUrl = if ($p.affiliateLink) { $p.affiliateLink } else { "https://couponhiker.com" }
                             image = $p.image
                             priceUsd = if ($p.usdPrice) { $p.usdPrice } elseif ($p.priceUsd) { $p.priceUsd } else { "$99.00" }
                             priceVnd = if ($p.vndPrice) { $p.vndPrice } elseif ($p.priceVnd) { $p.priceVnd } else { "2.475.000₫" }
@@ -2500,7 +2506,7 @@ try {
         # -------------------------------------------------------------
         # -------------------------------------------------------------
         # API: POST /api/contact
-        # Saves customer contact messages and forwards email to support@smartpicksreview.online
+        # Saves customer contact messages and forwards email to support@couponhiker.com
         # -------------------------------------------------------------
         if ($request.HttpMethod -eq "POST" -and $path -eq "/api/contact") {
             try {
@@ -2537,7 +2543,7 @@ try {
                 }
                 [System.IO.File]::WriteAllText($messagesJsonPath, $updatedJson, [System.Text.Encoding]::UTF8)
 
-                # Dispatch email to support@smartpicksreview.online
+                # Dispatch email to support@couponhiker.com
                 $emailDispatch = Send-CustomerContactEmail $msgObj
 
                 $response.ContentType = "application/json; charset=utf-8"
@@ -2642,7 +2648,7 @@ try {
             $emailConfigPath = Join-Path $RootPath "data\email_config.json"
             if ($request.HttpMethod -eq "GET") {
                 try {
-                    $cfg = @{ targetEmail = "support@smartpicksreview.online"; forwarder = "formsubmit"; smtp = @{ enabled = $false; host = "smtp.gmail.com"; port = 587; user = "support@smartpicksreview.online"; passSet = $false } }
+                    $cfg = @{ targetEmail = "support@couponhiker.com"; forwarder = "formsubmit"; smtp = @{ enabled = $false; host = "smtp.gmail.com"; port = 587; user = "support@couponhiker.com"; passSet = $false } }
                     if (Test-Path $emailConfigPath) {
                         $raw = [System.IO.File]::ReadAllText($emailConfigPath, [System.Text.Encoding]::UTF8)
                         if ($raw) {
@@ -2711,16 +2717,16 @@ try {
 
         # -------------------------------------------------------------
         # API: POST /api/contact/test
-        # Sends a test email to support@smartpicksreview.online
+        # Sends a test email to support@couponhiker.com
         # -------------------------------------------------------------
         if ($request.HttpMethod -eq "POST" -and $path -eq "/api/contact/test") {
             try {
                 $testMsg = [PSCustomObject]@{
                     id = "test-" + ([System.Guid]::NewGuid().ToString().Substring(0, 8))
-                    name = "TechPicks Test System"
-                    email = "support@techpicks.pro"
+                    name = "CouponHiker Test System"
+                    email = "support@couponhiker.com"
                     subject = "Test Email Connection & Delivery"
-                    message = "Xin chao! Day la email thu nghiem tu he thong website TechPicks Review nham kiem tra ket noi gui mail den support@techpicks.pro."
+                    message = "Xin chao! Day la email thu nghiem tu he thong website CouponHiker nham kiem tra ket noi gui mail den support@couponhiker.com."
                     createdAt = (Get-Date).ToString("yyyy-MM-dd HH:mm:ss")
                     sourceUrl = "http://localhost:$AdminPort/"
                 }

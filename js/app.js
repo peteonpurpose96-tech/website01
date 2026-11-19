@@ -420,7 +420,7 @@ function initTopBarTicker() {
   }
 
   try {
-    const cachedTickerRaw = localStorage.getItem('techpicks_ticker_cache');
+    const cachedTickerRaw = localStorage.getItem('couponhiker_ticker_cache');
     if (cachedTickerRaw) {
       const parsed = JSON.parse(cachedTickerRaw);
       if (Array.isArray(parsed) && parsed.length > 0) {
@@ -439,7 +439,7 @@ function initTopBarTicker() {
         const data = await res.json();
         if (Array.isArray(data) && data.length > 0) {
           const newStr = JSON.stringify(data);
-          try { localStorage.setItem('techpicks_ticker_cache', newStr); } catch (e) {}
+          try { localStorage.setItem('couponhiker_ticker_cache', newStr); } catch (e) {}
           if (newStr !== lastTickerJson) {
             lastTickerJson = newStr;
             tickerProjects = data;
@@ -612,9 +612,9 @@ function initSearch() {
       title: 'Official Media Kit & Brand Sponsorship Rates',
       titleVi: 'Báo Giá Tài Trợ Truyền Thông & Media Kit Nhãn Hàng',
       titleZh: '品牌赞助与官方刊例报价单',
-      desc: 'Partner with TechPicks Review: Top-list product features, dedicated reviews, and full-site brand takeovers.',
-      descVi: 'Hợp tác cùng TechPicks Review: Đưa sản phẩm vào top-list, bài review chuyên sâu và bảo trợ thương hiệu.',
-      descZh: '携手 TechPicks Review：入选精选榜单、定制深度单品测评与全站独家品牌曝光。',
+      desc: 'Partner with CouponHiker: Top-list product features, dedicated reviews, and full-site brand takeovers.',
+      descVi: 'Hợp tác cùng CouponHiker: Đưa sản phẩm vào top-list, bài review chuyên sâu và bảo trợ thương hiệu.',
+      descZh: '携手 CouponHiker：入选精选榜单、定制深度单品测评与全站独家品牌曝光。',
       url: 'sponsor.html',
       keywords: ['sponsor', 'media kit', 'advertising', 'báo giá', 'tài trợ', 'quảng cáo', '赞助', '刊例']
     });
@@ -749,7 +749,7 @@ function initSearch() {
             </div>
             <div class="hidden sm:flex items-center gap-1.5 text-[11px] font-bold text-purple-600 dark:text-purple-400">
               <i data-lucide="sparkles" class="w-3.5 h-3.5"></i>
-              <span>TechPicks Articles Search</span>
+              <span>CouponHiker Articles Search</span>
             </div>
           </div>
 
@@ -1799,7 +1799,7 @@ function initHeroPinnedProject() {
 
   // Instant SWR Hydration: Render cached pinned hardware immediately on reload with 0ms delay
   try {
-    const cachedPinned = localStorage.getItem('techpicks_hero_pinned_cache');
+    const cachedPinned = localStorage.getItem('couponhiker_hero_pinned_cache');
     if (cachedPinned) {
       const parsed = JSON.parse(cachedPinned);
       if (Array.isArray(parsed) && parsed.length > 0) {
@@ -1879,7 +1879,7 @@ function initHeroPinnedProject() {
       }
 
       // Brand name & shield
-      const brandName = data.brand || (data.urlDisplay && !data.urlDisplay.startsWith('http') ? data.urlDisplay : (data.badge || 'TechPicks Flagship'));
+      const brandName = data.brand || (data.urlDisplay && !data.urlDisplay.startsWith('http') ? data.urlDisplay : (data.badge || 'CouponHiker Flagship'));
       const elBrandSpan = document.getElementById('hero-pinned-brand-text');
       if (elBrandSpan) {
         elBrandSpan.textContent = brandName;
@@ -2085,7 +2085,7 @@ function initHeroPinnedProject() {
       if (freshList.length > 0) {
         window.heroPinnedList = freshList;
         const newStr = JSON.stringify(freshList);
-        try { localStorage.setItem('techpicks_hero_pinned_cache', newStr); } catch (e) {}
+        try { localStorage.setItem('couponhiker_hero_pinned_cache', newStr); } catch (e) {}
 
         // Only update DOM if the data is genuinely different from what is already rendered
         if (newStr !== lastHeroPinnedJson) {
@@ -2455,11 +2455,11 @@ async function handleContactSubmit(e) {
   } catch (err) {
     console.warn('Backend /api/contact unavailable, falling back to direct cloud forwarder:', err);
     try {
-      await fetch('https://formsubmit.co/ajax/support@techpicksreview.online', {
+      await fetch('https://formsubmit.co/ajax/support@couponhiker.com', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json', 'Accept': 'application/json' },
         body: JSON.stringify({
-          _subject: `[TechPicks Review] Contact from ${name || 'Customer'}: ${subject || 'Inquiry'}`,
+          _subject: `[CouponHiker] Contact from ${name || 'Customer'}: ${subject || 'Inquiry'}`,
           _replyto: email,
           name: name || 'Anonymous',
           email,
@@ -2470,7 +2470,7 @@ async function handleContactSubmit(e) {
       });
       form.reset();
       const lang = (typeof window.getCurrentLanguage === 'function') ? window.getCurrentLanguage() : (localStorage.getItem('blog_lang') || 'en');
-      const successMsg = (typeof translations !== 'undefined' && translations[lang] && translations[lang].contact_success_toast) || (lang === 'vi' ? 'Cảm ơn bạn! Tin nhắn đã được gửi thành công đến support@techpicksreview.online.' : 'Thank you! Your message has been sent successfully to support@techpicksreview.online.');
+      const successMsg = (typeof translations !== 'undefined' && translations[lang] && translations[lang].contact_success_toast) || (lang === 'vi' ? 'Cảm ơn bạn! Tin nhắn đã được gửi thành công đến support@couponhiker.com.' : 'Thank you! Your message has been sent successfully to support@couponhiker.com.');
       if (typeof showToast === 'function') showToast(successMsg);
       else alert(successMsg);
     } catch (fwdErr) {

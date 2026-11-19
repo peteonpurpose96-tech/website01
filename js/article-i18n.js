@@ -1,5 +1,5 @@
 /**
- * TechPicks Review - Reactive Article Translation Engine (article-i18n.js)
+ * CouponHiker - Reactive Article Translation Engine (article-i18n.js)
  * Enables seamless real-time switching between English (US), Tiếng Việt (VN), and 简体中文 (ZH)
  * for all review articles, tables, pros/cons, badges, headings, and CTAs.
  */
@@ -277,7 +277,7 @@
     if (titleH1 && postData) {
       const activeTitle = lang === 'vi' ? (postData.titleVi || postData.title) : (lang === 'zh' ? (postData.titleZh || postData.title) : (postData.titleEn || postData.title));
       titleH1.textContent = activeTitle;
-      document.title = activeTitle + " | TechPicks Review";
+      document.title = activeTitle + " | CouponHiker";
     }
 
     // Excerpt / Subtitle

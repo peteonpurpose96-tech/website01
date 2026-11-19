@@ -1,12 +1,12 @@
 {
-    "targetEmail":  "support@techpicks.pro",
+    "targetEmail":  "support@couponhiker.com",
     "forwarder":  "formsubmit",
     "smtp":  {
                  "enabled":  false,
                  "host":  "smtp.gmail.com",
                  "port":  587,
                  "enableSsl":  true,
-                 "user":  "support@techpicks.pro",
+                 "user":  "support@couponhiker.com",
                  "pass":  "1532004Long@"
              }
 }

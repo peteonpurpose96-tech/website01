@@ -1,8 +1,8 @@
-﻿function buildAiArticleData(keyword, niche, brand, lang, customAffLink, customImage) {
+function buildAiArticleData(keyword, niche, brand, lang, customAffLink, customImage) {
   const kwLower = keyword.toLowerCase();
   const cleanKw = keyword.replace(/[^\w\s\-\.\+]/g, '').trim() || 'Product';
   const brandName = brand || (keyword.split(' ')[0] + ' Official');
-  const brandSlug = (brandName || 'techpicks').toLowerCase().replace(/\s+/g, '-').replace(/[^\w\-]/g, '');
+  const brandSlug = (brandName || 'couponhiker').toLowerCase().replace(/\s+/g, '-').replace(/[^\w\-]/g, '');
   const isEn = lang !== 'vi' && lang !== 'zh'; // Priority: English default
   const cleanSlug = 'post-' + cleanKw.toLowerCase().replace(/\s+/g, '-').replace(/[^\w\-]/g, '') + '-review';
 
@@ -19,10 +19,10 @@
         excerpt: 'Featuring quad independent brushless hub motors, military-grade 2.4GHz remote telemetry, and 80% grade slope climbing, this machine permanently eliminates the physical dangers of steep-terrain lawn maintenance.',
         brand: brandName,
         btnText: 'ORDER NOW',
-        affiliateLink: resolveAffLink(https://.com/?ref=TECHPICKS),
+        affiliateLink: resolveAffLink(https://.com/?ref=COUPONHIKER),
         image: resolveImage('https://images.unsplash.com/photo-1558981806-ec527fa84c39?auto=format&fit=crop&w=1200&q=80'),
         priceUsd: ',499.00', priceVnd: '37.475.000₫', priceOrig: ',799.00',
-        coupon: 'TECHPICKS100', couponDiscount: ' OFF', couponExpiry: '12/31/2026',
+        coupon: 'COUPONHIKER100', couponDiscount: ' OFF', couponExpiry: '12/31/2026',
         rating: 9.8,
         pros: Full 4WD brushless hub-motor drivetrain delivers 160Nm of instant torque to tackle 45-degree (80%) slopes\nErgonomic 2.4GHz remote controller with real-time telemetry screen operates reliably past 250 meters\nHeavy-gauge stamped steel cutting deck with electronic height adjustment\nHigh-capacity swap-and-go 56V lithium battery architecture delivers 2.2 to 2.8 hours of uninterrupted cutting,
         cons: Hefty chassis requires heavy-duty loading ramps for pickup truck or trailer transport\nSubstantial upfront prosumer investment compared to conventional manual walk-behind mowers,
@@ -99,10 +99,10 @@
       excerpt: t_excerpt,
       brand: brandName,
       btnText: 'ORDER NOW',
-      affiliateLink: resolveAffLink(https://.com/?ref=TECHPICKS),
+      affiliateLink: resolveAffLink(https://.com/?ref=COUPONHIKER),
       image: resolveImage(t_img),
       priceUsd: priceU, priceVnd: priceV, priceOrig: priceO,
-      coupon: 'TECHPICKS15', couponDiscount: '15% OFF Global Order', couponExpiry: '12/31/2026',
+      coupon: 'COUPONHIKER15', couponDiscount: '15% OFF Global Order', couponExpiry: '12/31/2026',
       rating: 9.6,
       pros: t_pros,
       cons: t_cons,
@@ -119,10 +119,10 @@
       excerpt: Đánh giá toàn diện về  sau 30 ngày thử nghiệm khắc nghiệt: Chất lượng hoàn thiện, hiệu năng đo đạc thực tế, và phân tích chi phí so với giá trị nhận lại.,
       brand: brandName,
       btnText: 'ĐẶT MUA NGAY',
-      affiliateLink: resolveAffLink(https://.com/?ref=TECHPICKS),
+      affiliateLink: resolveAffLink(https://.com/?ref=COUPONHIKER),
       image: resolveImage(t_img),
       priceUsd: priceU, priceVnd: priceV, priceOrig: priceO,
-      coupon: 'TECHPICKS15', couponDiscount: 'Giảm 15% Toàn Đơn Hàng', couponExpiry: '31/12/2026',
+      coupon: 'COUPONHIKER15', couponDiscount: 'Giảm 15% Toàn Đơn Hàng', couponExpiry: '31/12/2026',
       rating: 9.6,
       pros: Độ hoàn thiện tinh xảo với vật liệu cao cấp, mang lại cảm giác vô cùng chắc chắn\nHiệu năng thực tế xuất sắc, vượt qua các bài kiểm tra áp lực một cách dễ dàng\nThiết kế thông minh, tối ưu hóa trải nghiệm người dùng trong điều kiện sử dụng hàng ngày\nĐộ bền được đánh giá cao, xứng đáng là khoản đầu tư dài hạn,
       cons: Mức giá khởi điểm thuộc phân khúc cao cấp\nCó thể cần thời gian ngắn để làm quen và tối ưu hóa các tính năng nâng cao\nTình trạng khan hàng có thể xảy ra ở một số đại lý bán lẻ,

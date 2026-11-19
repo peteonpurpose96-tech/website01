@@ -1,7 +1,7 @@
 @echo off
-title TechPicks Creator CMS Studio
+title CouponHiker Creator CMS Studio
 echo ========================================================
-echo   Dang khoi dong TECHPICKS CREATOR CMS STUDIO...
+echo   Dang khoi dong COUPONHIKER CREATOR CMS STUDIO...
 echo   Admin Site:     http://localhost:3003
 echo   Website Chinh:  http://localhost:3002
 echo ========================================================

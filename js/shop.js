@@ -1,5 +1,5 @@
 /**
- * TechPicks Review - Shop Hub Engine (shop.js)
+ * CouponHiker - Shop Hub Engine (shop.js)
  * Supports 12 Categories, 20+ Partner Stores, Live Search, Multi-currency, Trilingual & Direct Affiliate Links
  */
 
@@ -214,7 +214,7 @@ const INITIAL_PRODUCTS = [
     "originalPrice": 3725000,
     "originalPriceUsd": 149,
     "image": "https://images.unsplash.com/photo-1558002038-1055907df827?auto=format&fit=crop&w=800&q=80",
-    "affiliateUrl": "https://aqara.com/?ref=TECHPICKS",
+    "affiliateUrl": "https://aqara.com/?ref=COUPONHIKER",
     "reviewUrl": "post-aqara-smart-hub.html",
     "categoryKey": "smarthome",
     "category": "Smart Home & IoT",
@@ -246,7 +246,7 @@ const INITIAL_PRODUCTS = [
     "originalPrice": 3093750,
     "originalPriceUsd": 123.75,
     "image": "https://images.unsplash.com/photo-1542751371-adc38448a05e?auto=format&fit=crop&w=800&q=80",
-    "affiliateUrl": "https://razer.com/?ref=TECHPICKS",
+    "affiliateUrl": "https://razer.com/?ref=COUPONHIKER",
     "reviewUrl": "post-razer-blade-16.html",
     "categoryKey": "computing",
     "category": "Computing & Gaming",
@@ -380,7 +380,7 @@ const INITIAL_PRODUCTS = [
     "originalPrice": 3749750,
     "originalPriceUsd": 149.99,
     "image": "https://images.unsplash.com/photo-1583863788434-e58a36330cf0?auto=format&fit=crop&w=1000&q=80",
-    "affiliateUrl": "https://www.anker.com/?ref=TECHPICKS",
+    "affiliateUrl": "https://www.anker.com/?ref=COUPONHIKER",
     "reviewUrl": "post-test-review.html",
     "categoryKey": "edc",
     "category": "Desk Setup & EDC",
@@ -413,7 +413,7 @@ const INITIAL_PRODUCTS = [
     "originalPrice": 1700000,
     "originalPriceUsd": 68,
     "image": "https://images.unsplash.com/photo-1505740420928-5e560c06d30e?auto=format&fit=crop&w=800&q=80",
-    "affiliateUrl": "https://www.bose.com/?ref=TECHPICKS",
+    "affiliateUrl": "https://www.bose.com/?ref=COUPONHIKER",
     "reviewUrl": "post-bose-qc-ultra.html",
     "categoryKey": "audio",
     "category": "Audio & Sound",
@@ -481,7 +481,7 @@ const INITIAL_PRODUCTS = [
     "originalPrice": 1249750,
     "originalPriceUsd": 49.99,
     "image": "https://images.unsplash.com/photo-1583863788434-e58a36330cf0?auto=format&fit=crop&w=800&q=80",
-    "affiliateUrl": "https://www.ugreen.com/?ref=TECHPICKS",
+    "affiliateUrl": "https://www.ugreen.com/?ref=COUPONHIKER",
     "reviewUrl": "post-ugreen-nexode-300w.html",
     "categoryKey": "power",
     "category": "Power & GaN Charging",
@@ -580,7 +580,7 @@ const INITIAL_PRODUCTS = [
     "originalPrice": 16779750,
     "originalPriceUsd": 671.19,
     "image": "https://images.unsplash.com/photo-1518770660439-4636190af475?auto=format&fit=crop&w=800&q=80",
-    "affiliateUrl": "https://us.roborock.com/?ref=TECHPICKS",
+    "affiliateUrl": "https://us.roborock.com/?ref=COUPONHIKER",
     "reviewUrl": "post-roborock-s8-pro-ultra.html",
     "categoryKey": "smarthome",
     "category": "Smart Home & IoT",
@@ -648,7 +648,7 @@ const INITIAL_PRODUCTS = [
     "originalPrice": 2501000,
     "originalPriceUsd": 100.04,
     "image": "https://images.unsplash.com/photo-1547394765-185e1e68f34e?auto=format&fit=crop&w=800&q=80",
-    "affiliateUrl": "https://www.elgato.com/?ref=TECHPICKS",
+    "affiliateUrl": "https://www.elgato.com/?ref=COUPONHIKER",
     "reviewUrl": "post-elgato-stream-deck-mk2.html",
     "categoryKey": "edc",
     "category": "Desk Setup & EDC",
@@ -682,7 +682,7 @@ const INITIAL_PRODUCTS = [
     "originalPrice": 40325000,
     "originalPriceUsd": 1613,
     "image": "https://images.unsplash.com/photo-1558002038-1055907df827?auto=format&fit=crop&w=800&q=80",
-    "affiliateUrl": "https://linptech.com/?ref=TECHPICKS",
+    "affiliateUrl": "https://linptech.com/?ref=COUPONHIKER",
     "reviewUrl": "post-linptech-mmwave-radar.html",
     "categoryKey": "smarthome",
     "category": "Smart Home & IoT",
@@ -716,7 +716,7 @@ const INITIAL_PRODUCTS = [
     "originalPrice": 2225000,
     "originalPriceUsd": 89,
     "image": "https://images.unsplash.com/photo-1549399542-7e3f8b79c341?auto=format&fit=crop&w=1000&q=80",
-    "affiliateUrl": "https://carlinkitcarplay.com/?ref=TECHPICKS",
+    "affiliateUrl": "https://carlinkitcarplay.com/?ref=COUPONHIKER",
     "reviewUrl": "post-mowrator-pro-test.html",
     "categoryKey": "robotics",
     "category": "Robotics & Drones",
@@ -817,7 +817,7 @@ const INITIAL_PRODUCTS = [
     "originalPrice": 2499750,
     "originalPriceUsd": 99.99,
     "image": "https://images.unsplash.com/photo-1609592424369-14a01c45d3c8?auto=format&fit=crop&w=800&q=80",
-    "affiliateUrl": "https://www.baseus.com/?ref=TECHPICKS",
+    "affiliateUrl": "https://www.baseus.com/?ref=COUPONHIKER",
     "reviewUrl": "post-baseus-blade-hd-100w.html",
     "categoryKey": "charging",
     "category": "Power & GaN Charging",
@@ -1094,8 +1094,8 @@ const INITIAL_PRODUCTS = [
     "categoryZh": "ç”µå­ä¹¦ä¸Žå®žæˆ˜æ‰‹å†Œ",
     "discountPercent": "-20%",
     "rating": 9.9,
-    "brand": "TechPicks Publishing",
-    "shopName": "TechPicks Publishing",
+    "brand": "CouponHiker Publishing",
+    "shopName": "CouponHiker Publishing",
     "isPhysical": false,
     "description": "Step-by-step 180-page PDF playbook breaking down buyer-intent SEO, CRO funnels, multi-network tracking, and high-ticket merchant negotiations.",
     "features": [
@@ -1207,7 +1207,7 @@ const INITIAL_PRODUCTS = [
 // State management
 let allProducts = (() => {
   try {
-    const cached = localStorage.getItem('techpicks_shop_products_cache');
+    const cached = localStorage.getItem('couponhiker_shop_products_cache');
     if (cached) {
       const parsed = JSON.parse(cached);
       if (Array.isArray(parsed) && parsed.length > 0) return parsed;
@@ -1260,7 +1260,7 @@ async function fetchBackgroundProducts() {
         flat = raw.value;
       }
       if (flat.length > 0) {
-        try { localStorage.setItem('techpicks_shop_products_cache', JSON.stringify(flat)); } catch(e) {}
+        try { localStorage.setItem('couponhiker_shop_products_cache', JSON.stringify(flat)); } catch(e) {}
         const seenClean = new Set();
         const deduped = [];
         flat.forEach(p => {

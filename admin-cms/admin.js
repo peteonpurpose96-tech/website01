@@ -1,4 +1,4 @@
-// TechPicks Creator Studio - Admin CMS Logic (With Full Edit, Auth & Delete Support)
+// CouponHiker Creator Studio - Admin CMS Logic (With Full Edit, Auth & Delete Support)
 
 window.allPosts = [];
 window.allProducts = [];
@@ -654,7 +654,7 @@ function updatePreview() {
 // -------------------------------------------------------------
 // 2.5 DRAFT AUTO-SAVE & AUTO-RESTORE ENGINE (ZERO PROGRESS LOSS)
 // -------------------------------------------------------------
-const DRAFT_STORAGE_KEY = 'techpicks_admin_active_draft';
+const DRAFT_STORAGE_KEY = 'couponhiker_admin_active_draft';
 let autoSaveDraftTimer = null;
 
 function scheduleAutoSaveDraft() {
@@ -2534,7 +2534,7 @@ function buildAiArticleData(keyword, niche, brand, lang, customAffLink, customIm
   const kwLower = (keyword || '').toLowerCase();
   const cleanKw = (keyword || '').replace(/[^\w\s\-\.\+]/g, '').trim() || 'Product';
   const brandName = brand || ((keyword || '').split(' ')[0] + ' Official') || 'Brand Official';
-  const brandSlug = (brandName || 'techpicks').toLowerCase().replace(/\s+/g, '-').replace(/[^\w\-]/g, '');
+  const brandSlug = (brandName || 'couponhiker').toLowerCase().replace(/\s+/g, '-').replace(/[^\w\-]/g, '');
   const isEn = lang !== 'vi' && lang !== 'zh'; // Priority: English default
   const cleanSlug = 'post-' + cleanKw.toLowerCase().replace(/\s+/g, '-').replace(/[^\w\-]/g, '') + '-review';
 
@@ -2795,10 +2795,10 @@ function buildAiArticleData(keyword, niche, brand, lang, customAffLink, customIm
       excerpt: t_excerpt,
       brand: brandName,
       btnText: 'ORDER NOW',
-      affiliateLink: resolveAffLink(`https://${brandSlug}.com/?ref=TECHPICKS`),
+      affiliateLink: resolveAffLink(`https://${brandSlug}.com/?ref=COUPONHIKER`),
       image: resolveImage(t_img),
       priceUsd: priceU, priceVnd: priceV, priceOrig: priceO,
-      coupon: 'TECHPICKS15', couponDiscount: '15% OFF Global Order', couponExpiry: '12/31/2026',
+      coupon: 'COUPONHIKER15', couponDiscount: '15% OFF Global Order', couponExpiry: '12/31/2026',
       rating: 9.6,
       pros: t_pros,
       cons: t_cons,
@@ -2815,10 +2815,10 @@ function buildAiArticleData(keyword, niche, brand, lang, customAffLink, customIm
       excerpt: `Đánh giá toàn diện về ${cleanKw} sau 30 ngày thử nghiệm khắc nghiệt: Chất lượng hoàn thiện, hiệu năng đo đạc thực tế, và phân tích chi phí so với giá trị nhận lại.`,
       brand: brandName,
       btnText: 'ĐẶT MUA NGAY',
-      affiliateLink: resolveAffLink(`https://${brandSlug}.com/?ref=TECHPICKS`),
+      affiliateLink: resolveAffLink(`https://${brandSlug}.com/?ref=COUPONHIKER`),
       image: resolveImage(t_img),
       priceUsd: priceU, priceVnd: priceV, priceOrig: priceO,
-      coupon: 'TECHPICKS15', couponDiscount: 'Giảm 15% Toàn Đơn Hàng', couponExpiry: '31/12/2026',
+      coupon: 'COUPONHIKER15', couponDiscount: 'Giảm 15% Toàn Đơn Hàng', couponExpiry: '31/12/2026',
       rating: 9.6,
       pros: `Độ hoàn thiện tinh xảo với vật liệu cao cấp, mang lại cảm giác vô cùng chắc chắn\nHiệu năng thực tế xuất sắc, vượt qua các bài kiểm tra áp lực một cách dễ dàng\nThiết kế thông minh, tối ưu hóa trải nghiệm người dùng trong điều kiện sử dụng hàng ngày\nĐộ bền được đánh giá cao, xứng đáng là khoản đầu tư dài hạn`,
       cons: `Mức giá khởi điểm thuộc phân khúc cao cấp\nCó thể cần thời gian ngắn để làm quen và tối ưu hóa các tính năng nâng cao\nTình trạng khan hàng có thể xảy ra ở một số đại lý bán lẻ`,
@@ -3201,7 +3201,7 @@ function collectFormData() {
     isPhysical: !['saas', 'ebooks', 'presets', 'templates', 'courses'].includes(categorySlug),
     isDigital: ['saas', 'ebooks', 'presets', 'templates', 'courses'].includes(categorySlug),
     excerpt: document.getElementById('input-excerpt').value.trim(),
-    brand: document.getElementById('input-brand').value.trim() || 'TechPicks Partner',
+    brand: document.getElementById('input-brand').value.trim() || 'CouponHiker Partner',
     btnText: document.getElementById('input-btn-text').value.trim() || 'ORDER NOW',
     affiliateLink: document.getElementById('input-aff-url').value.trim(),
     image: document.getElementById('input-image').value.trim() || 'https://images.unsplash.com/photo-1587829741301-dc798b83add3?auto=format&fit=crop&w=1000&q=80',
@@ -3238,7 +3238,7 @@ function collectFormData() {
       }
       return '$' + numOrig.toFixed(2);
     })(),
-    coupon: document.getElementById('input-coupon').value.trim() || 'TECHPICKS15',
+    coupon: document.getElementById('input-coupon').value.trim() || 'COUPONHIKER15',
     couponDiscount: document.getElementById('input-coupon-discount').value.trim() || '15% OFF',
     couponExpiry: document.getElementById('input-coupon-expiry').value.trim() || '12/31/2026',
     rating: document.getElementById('input-rating').value,
@@ -3357,7 +3357,7 @@ function generateFullPostHtml(data) {
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>${escapeHtml(data.title)} | TechPicks Review</title>
+  <title>${escapeHtml(data.title)} | CouponHiker</title>
   <meta name="description" content="${escapeHtml(data.excerpt)}">
   
   <script src="https://cdn.tailwindcss.com"></script>
@@ -3435,14 +3435,14 @@ function generateFullPostHtml(data) {
   <header class="sticky top-0 z-40 bg-white/90 dark:bg-[#0c071b]/90 backdrop-blur-xl border-b border-purple-200/60 dark:border-purple-900/50 transition-colors">
     <div class="max-w-[1560px] mx-auto px-3 sm:px-4 lg:px-6 xl:px-8 h-20 sm:h-24 py-2 flex items-center justify-between gap-2 sm:gap-3 xl:gap-5">
       
-      <!-- Brand Logo: TechPicks Review -->
+      <!-- Brand Logo: CouponHiker -->
       <a href="index.html" class="flex-shrink-0 flex items-center gap-2.5 sm:gap-3.5 group">
         <div class="w-12 h-12 sm:w-14 sm:h-14 xl:w-16 xl:h-16 rounded-xl sm:rounded-2xl bg-gradient-to-tr from-purple-600 via-violet-600 to-pink-500 flex items-center justify-center text-white font-black text-xl sm:text-2xl xl:text-3xl shadow-xl shadow-purple-500/30 group-hover:scale-105 transition-transform ring-2 sm:ring-4 ring-purple-400/25">
-          SP
+          CH
         </div>
         <div class="flex flex-col justify-center">
           <div class="flex items-center gap-1.5 sm:gap-2 leading-none">
-            <span class="font-black text-2xl sm:text-3xl lg:text-[2rem] xl:text-[2.2rem] tracking-tight text-slate-900 dark:text-white font-display">Smart<span class="text-gradient-purple">Picks</span></span>
+            <span class="font-black text-2xl sm:text-3xl lg:text-[2rem] xl:text-[2.2rem] tracking-tight text-slate-900 dark:text-white font-display">Coupon<span class="text-gradient-purple">Hiker</span></span>
             <span class="font-black text-[10px] sm:text-xs px-2 sm:px-2.5 py-0.5 sm:py-1 rounded-lg sm:rounded-xl bg-purple-100/90 dark:bg-purple-950/90 text-purple-700 dark:text-purple-300 uppercase tracking-wider border border-purple-300/60 dark:border-purple-700/60 shadow-xs">Review</span>
           </div>
           <span class="hidden 2xl:block text-[11px] font-extrabold tracking-[0.18em] text-purple-600 dark:text-purple-400 uppercase mt-1">Curated Tech & Buying Guides</span>
@@ -3861,7 +3861,7 @@ function generateFullPostHtml(data) {
                   <i data-lucide="mail" class="w-4 h-4"></i>
                 </div>
                 <div>
-                  <h4 class="text-xs font-bold text-white break-words">support@techpicksreview.online</h4>
+                  <h4 class="text-xs font-bold text-white break-words">support@couponhiker.com</h4>
                   <p class="text-[11px] text-emerald-100/90" data-i18n="contact_bullet4_sub">Direct email always welcome</p>
                 </div>
               </div>
@@ -3875,7 +3875,7 @@ function generateFullPostHtml(data) {
               </div>
               <div class="text-[11px]">
                 <p class="font-bold text-white tracking-wide" data-i18n="contact_partner_title">Official Marketing Partner</p>
-                <p class="text-emerald-100/90 leading-tight" data-i18n="contact_partner_note">TechPicks Hub • 2205 Lorina Ave, Corcoran, CA 93212, USA</p>
+                <p class="text-emerald-100/90 leading-tight" data-i18n="contact_partner_note">CouponHiker Hub • 2205 Lorina Ave, Corcoran, CA 93212, USA</p>
               </div>
             </div>
           </div>
@@ -3943,8 +3943,8 @@ function generateFullPostHtml(data) {
         
         <div class="space-y-3">
           <div class="flex items-center gap-2">
-            <img src="images/logo.png" alt="TechPicks Logo" class="w-8 h-8 rounded-xl object-cover shadow-md flex-shrink-0">
-            <span class="font-extrabold text-lg text-slate-900 dark:text-white font-display">TechPicks Review<span class="text-pink-600">.</span></span>
+            <img src="images/logo.png" alt="CouponHiker Logo" class="w-8 h-8 rounded-xl object-cover shadow-md flex-shrink-0">
+            <span class="font-extrabold text-lg text-slate-900 dark:text-white font-display">CouponHiker<span class="text-pink-600">.</span></span>
           </div>
           <p class="text-xs text-slate-500 dark:text-purple-300/70 leading-relaxed" data-i18n="footer_desc">
             Authoritative publication specializing in tech reviews, affiliate marketing frameworks, and conversion optimization for independent creators.
@@ -3953,13 +3953,13 @@ function generateFullPostHtml(data) {
           <div class="pt-2">
             <span class="text-[10px] font-bold uppercase tracking-wider text-slate-400 dark:text-purple-400 block mb-2" data-i18n="footer_social_title">Follow Us</span>
             <div class="flex items-center gap-2.5">
-              <a href="https://www.facebook.com/techpickshub" target="_blank" rel="noopener noreferrer" class="w-8 h-8 rounded-lg bg-slate-100 hover:bg-[#1877F2] dark:bg-purple-950/60 dark:hover:bg-[#1877F2] border border-slate-200 dark:border-purple-800/50 flex items-center justify-center text-slate-600 dark:text-purple-300 hover:text-white dark:hover:text-white transition-all transform hover:-translate-y-0.5 shadow-sm group" title="Facebook: TechPicks Hub" aria-label="Facebook">
+              <a href="https://www.facebook.com/couponhiker" target="_blank" rel="noopener noreferrer" class="w-8 h-8 rounded-lg bg-slate-100 hover:bg-[#1877F2] dark:bg-purple-950/60 dark:hover:bg-[#1877F2] border border-slate-200 dark:border-purple-800/50 flex items-center justify-center text-slate-600 dark:text-purple-300 hover:text-white dark:hover:text-white transition-all transform hover:-translate-y-0.5 shadow-sm group" title="Facebook: CouponHiker" aria-label="Facebook">
                 <svg class="w-4 h-4 fill-current" viewBox="0 0 24 24"><path d="M24 12.073c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 5.99 4.388 10.954 10.125 11.854v-8.385H7.078v-3.47h3.047V9.43c0-3.007 1.792-4.669 4.533-4.669 1.312 0 2.686.235 2.686.235v2.953H15.83c-1.491 0-1.956.925-1.956 1.874v2.25h3.328l-.532 3.47h-2.796v8.385C19.612 23.027 24 18.062 24 12.073z"/></svg>
               </a>
-              <a href="https://www.instagram.com/techpickshub/" target="_blank" rel="noopener noreferrer" class="w-8 h-8 rounded-lg bg-slate-100 hover:bg-gradient-to-tr hover:from-[#f09433] hover:via-[#dc2743] hover:to-[#bc1888] dark:bg-purple-950/60 border border-slate-200 dark:border-purple-800/50 flex items-center justify-center text-slate-600 dark:text-purple-300 hover:text-white dark:hover:text-white transition-all transform hover:-translate-y-0.5 shadow-sm group" title="Instagram: @techpickshub" aria-label="Instagram">
+              <a href="https://www.instagram.com/couponhiker/" target="_blank" rel="noopener noreferrer" class="w-8 h-8 rounded-lg bg-slate-100 hover:bg-gradient-to-tr hover:from-[#f09433] hover:via-[#dc2743] hover:to-[#bc1888] dark:bg-purple-950/60 border border-slate-200 dark:border-purple-800/50 flex items-center justify-center text-slate-600 dark:text-purple-300 hover:text-white dark:hover:text-white transition-all transform hover:-translate-y-0.5 shadow-sm group" title="Instagram: @couponhiker" aria-label="Instagram">
                 <svg class="w-4 h-4 fill-current" viewBox="0 0 24 24"><path d="M12 2.163c3.204 0 3.584.012 4.85.07 3.252.148 4.771 1.691 4.919 4.919.058 1.265.069 1.645.069 4.849 0 3.205-.012 3.584-.069 4.849-.149 3.225-1.664 4.771-4.919 4.919-1.266.058-1.644.07-4.85.07-3.204 0-3.584-.012-4.849-.07-3.26-.149-4.771-1.699-4.919-4.92-.058-1.265-.07-1.644-.07-4.849 0-3.204.013-3.583.07-4.849.149-3.227 1.664-4.771 4.919-4.919 1.266-.057 1.645-.069 4.849-.069zm0-2.163c-3.259 0-3.667.014-4.947.072-4.358.2-6.78 2.618-6.98 6.98-.059 1.281-.073 1.689-.073 4.948 0 3.259.014 3.668.072 4.948.2 4.358 2.618 6.78 6.98 6.98 1.281.058 1.689.072 4.948.072 3.259 0 3.668-.014 4.948-.072 4.354-.2 6.782-2.618 6.979-6.98.059-1.28.073-1.689.073-4.948 0-3.259-.014-3.667-.072-4.947-.196-4.354-2.617-6.78-6.979-6.98-1.281-.059-1.69-.073-4.949-.073zm0 5.838c-3.403 0-6.162 2.759-6.162 6.162s2.759 6.163 6.162 6.163 6.162-2.759 6.162-6.163c0-3.403-2.759-6.162-6.162-6.162zm0 10.162c-2.209 0-4-1.79-4-4 0-2.209 1.791-4 4-4s4 1.791 4 4c0 2.21-1.791 4-4 4zm6.406-11.845c-.796 0-1.441.645-1.441 1.44s.645 1.44 1.441 1.44c.795 0 1.439-.645 1.439-1.44s-.644-1.44-1.439-1.44z"/></svg>
               </a>
-              <a href="mailto:support@techpicksreview.online" class="w-8 h-8 rounded-lg bg-slate-100 hover:bg-emerald-600 dark:bg-purple-950/60 dark:hover:bg-emerald-600 border border-slate-200 dark:border-purple-800/50 flex items-center justify-center text-slate-600 dark:text-purple-300 hover:text-white dark:hover:text-white transition-all transform hover:-translate-y-0.5 shadow-sm" title="Email: support@techpicksreview.online" aria-label="Email">
+              <a href="mailto:support@couponhiker.com" class="w-8 h-8 rounded-lg bg-slate-100 hover:bg-emerald-600 dark:bg-purple-950/60 dark:hover:bg-emerald-600 border border-slate-200 dark:border-purple-800/50 flex items-center justify-center text-slate-600 dark:text-purple-300 hover:text-white dark:hover:text-white transition-all transform hover:-translate-y-0.5 shadow-sm" title="Email: support@couponhiker.com" aria-label="Email">
                 <svg class="w-4 h-4 fill-none stroke-current stroke-2" viewBox="0 0 24 24" stroke-linecap="round" stroke-linejoin="round"><rect width="20" height="16" x="2" y="4" rx="2"/><path d="m22 7-8.97 5.7a1.94 1.94 0 0 1-2.06 0L2 7"/></svg>
               </a>
             </div>
@@ -4002,7 +4002,7 @@ function generateFullPostHtml(data) {
           </p>
           <div class="flex items-center gap-2 text-xs text-slate-600 dark:text-purple-300/80 mb-4">
             <i data-lucide="mail" class="w-3.5 h-3.5 text-emerald-600 dark:text-emerald-400 shrink-0"></i>
-            <a href="mailto:support@techpicksreview.online" class="text-[11.5px] sm:text-xs hover:underline hover:text-emerald-600 dark:hover:text-emerald-400 break-words font-medium">support@techpicksreview.online</a>
+            <a href="mailto:support@couponhiker.com" class="text-[11.5px] sm:text-xs hover:underline hover:text-emerald-600 dark:hover:text-emerald-400 break-words font-medium">support@couponhiker.com</a>
           </div>
           <div class="pt-3 border-t border-purple-100 dark:border-purple-900/40">
             <span class="text-[10px] font-bold uppercase tracking-wider text-slate-400 dark:text-purple-400 block mb-1.5" data-i18n="footer_partner_label">OFFICIAL MARKETING PARTNER</span>
@@ -4011,8 +4011,8 @@ function generateFullPostHtml(data) {
                 <i data-lucide="check-circle" class="w-4 h-4"></i>
               </div>
               <div>
-                <p class="text-xs font-bold text-slate-800 dark:text-purple-100 leading-tight">TechPicks Hub LLC</p>
-                <p class="text-[10px] text-slate-500 dark:text-purple-300/60 leading-tight" data-i18n="footer_partner_sub">TechPicks Hub is a marketing division</p>
+                <p class="text-xs font-bold text-slate-800 dark:text-purple-100 leading-tight">CouponHiker Hub LLC</p>
+                <p class="text-[10px] text-slate-500 dark:text-purple-300/60 leading-tight" data-i18n="footer_partner_sub">CouponHiker Hub is a marketing division</p>
               </div>
             </div>
           </div>
@@ -4021,7 +4021,7 @@ function generateFullPostHtml(data) {
       </div>
 
       <div class="pt-6 border-t border-purple-100 dark:border-purple-900/40 flex flex-col sm:flex-row items-center justify-between gap-4 text-xs text-slate-400">
-        <p data-i18n="footer_copyright">© 2026 TechPicks Review. All rights reserved.</p>
+        <p data-i18n="footer_copyright">© 2026 CouponHiker. All rights reserved.</p>
         <div class="flex gap-4">
           <a href="#" class="hover:underline" data-i18n="footer_privacy">Privacy Policy</a>
           <a href="#" class="hover:underline" data-i18n="footer_terms">Terms of Service</a>
@@ -4210,7 +4210,7 @@ async function loadPostsList(force = false) {
   // Instant SWR Hydration from sessionStorage on reload
   if (!force && (!window.allPosts || window.allPosts.length === 0)) {
     try {
-      const cached = sessionStorage.getItem('techpicks_admin_posts_cache');
+      const cached = sessionStorage.getItem('couponhiker_admin_posts_cache');
       if (cached) {
         const parsed = JSON.parse(cached);
         if (Array.isArray(parsed) && parsed.length > 0) {
@@ -4257,7 +4257,7 @@ async function fetchPostsSilently(updateUiOnError = false) {
 
     const newPostsJson = JSON.stringify(posts);
     window.allPosts = posts;
-    try { sessionStorage.setItem('techpicks_admin_posts_cache', newPostsJson); } catch (e) {}
+    try { sessionStorage.setItem('couponhiker_admin_posts_cache', newPostsJson); } catch (e) {}
 
     if (posts.length > 0) {
       if (typeof populateQuickTickerSelect === 'function') populateQuickTickerSelect();
@@ -4329,7 +4329,7 @@ async function loadProductsList(force = false) {
   // Instant SWR Hydration from sessionStorage on reload
   if (!force && (!window.allProducts || window.allProducts.length === 0)) {
     try {
-      const cached = sessionStorage.getItem('techpicks_admin_prods_cache');
+      const cached = sessionStorage.getItem('couponhiker_admin_prods_cache');
       if (cached) {
         const parsed = JSON.parse(cached);
         if (Array.isArray(parsed) && parsed.length > 0) {
@@ -4380,7 +4380,7 @@ async function fetchProductsSilently(updateUiOnError = false) {
     }
 
     window.allProducts = data;
-    try { sessionStorage.setItem('techpicks_admin_prods_cache', JSON.stringify(data)); } catch (e) {}
+    try { sessionStorage.setItem('couponhiker_admin_prods_cache', JSON.stringify(data)); } catch (e) {}
 
     const badge = document.getElementById('badge-total-prods');
     if (badge) badge.textContent = window.allProducts.length;
@@ -4789,7 +4789,7 @@ async function loadHeroPinData() {
   
   // Instant SWR Hydration: Display cached hero pins immediately on page reload
   try {
-    const cachedRaw = sessionStorage.getItem('techpicks_admin_pinned_cache');
+    const cachedRaw = sessionStorage.getItem('couponhiker_admin_pinned_cache');
     if (cachedRaw && !window.currentPinnedHero) {
       const cachedData = JSON.parse(cachedRaw);
       if (cachedData && (cachedData.pinnedList || cachedData.title)) {
@@ -4829,7 +4829,7 @@ async function loadHeroPinData() {
     const newJsonStr = JSON.stringify(data);
     window.currentPinnedHero = data;
     window.heroPinnedList = getPinnedList();
-    try { sessionStorage.setItem('techpicks_admin_pinned_cache', newJsonStr); } catch (e) {}
+    try { sessionStorage.setItem('couponhiker_admin_pinned_cache', newJsonStr); } catch (e) {}
 
     // Only re-render if data has changed compared to cached view
     if (newJsonStr !== lastRenderedPinJson) {
@@ -4886,7 +4886,7 @@ function renderHeroTop3Deck() {
     const badgeCol = i === 0 ? 'bg-amber-500/20 text-amber-300 border-amber-500/40' : (i === 1 ? 'bg-purple-500/20 text-purple-300 border-purple-500/40' : 'bg-pink-500/20 text-pink-300 border-pink-500/40');
     const titleDisp = item.titleVi || item.title || item.titleEn || 'Chưa đặt tiêu đề';
     const tagDisp = item.tagVi || item.tagEn || item.tag || 'FLAGSHIP';
-    const brandDisp = item.brand || item.urlDisplay || 'TechPicks Official';
+    const brandDisp = item.brand || item.urlDisplay || 'CouponHiker Official';
     const priceDisp = item.priceUsd || item.priceVnd || '$0.00';
     const imgDisp = item.image || 'https://images.unsplash.com/photo-1505740420928-5e560c06d30e?w=500';
 
@@ -5020,7 +5020,7 @@ window.assignPostToSlot = async function(slotIndex, selectValue) {
       const titleEn = post.titleEn || post.title || '';
       const cleanSlug = post.slug || (id.endsWith('.html') ? id : id + '.html');
       const cat = post.category || 'FLAGSHIP';
-      const pBrand = post.brand || 'TechPicks Official';
+      const pBrand = post.brand || 'CouponHiker Official';
       const newItem = {
         id: post.id || cleanSlug.replace('.html', ''),
         title: titleEn || titleVi,
@@ -5230,7 +5230,7 @@ function handleQuickPinSelect() {
       document.getElementById('hero-input-badge').value = "Lựa Chọn Biên Tập Viên";
       document.getElementById('hero-input-aff-url').value = post.affiliateLink || '';
       document.getElementById('hero-input-post-url').value = post.slug || (post.fileName || 'post.html');
-      document.getElementById('hero-input-url-display').value = post.brand || 'TechPicks Official';
+      document.getElementById('hero-input-url-display').value = post.brand || 'CouponHiker Official';
       document.getElementById('hero-input-image').value = post.image || '';
       document.getElementById('hero-input-price-vnd').value = post.vndPrice || post.priceVnd || '';
       document.getElementById('hero-input-price-usd').value = post.usdPrice || post.priceUsd || '';
@@ -6079,14 +6079,14 @@ async function saveEmailConfig(e) {
   const inputSmtpPass = document.getElementById('cfg-smtp-pass');
 
   const payload = {
-    targetEmail: inputTarget ? inputTarget.value.trim() : 'support@techpicksreview.online',
+    targetEmail: inputTarget ? inputTarget.value.trim() : 'support@couponhiker.com',
     forwarder: 'formsubmit',
     smtp: {
       enabled: inputSmtpEnabled ? inputSmtpEnabled.checked : false,
       host: inputSmtpHost ? inputSmtpHost.value.trim() : 'smtp.gmail.com',
       port: inputSmtpPort ? parseInt(inputSmtpPort.value, 10) : 587,
       enableSsl: true,
-      user: inputSmtpUser ? inputSmtpUser.value.trim() : 'support@techpicksreview.online',
+      user: inputSmtpUser ? inputSmtpUser.value.trim() : 'support@couponhiker.com',
       pass: inputSmtpPass ? inputSmtpPass.value.trim() : ''
     }
   };

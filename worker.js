@@ -1,6 +1,6 @@
-﻿/**
+/**
  * =========================================================================
- * Cloudflare Worker Backend for TechPicks Hub & Admin CMS
+ * Cloudflare Worker Backend for CouponHiker Hub & Admin CMS
  * Domain: techpicks.pro (website.xuanlongtran921.workers.dev)
  * =========================================================================
  * Features:
@@ -1791,8 +1791,8 @@ export default {
     if (url.pathname === '/api/contact/test' && request.method === 'POST') {
       return new Response(JSON.stringify({
         success: true,
-        targetEmail: 'support@techpicks.pro',
-        message: 'Hệ thống chuyển tiếp email (support@techpicks.pro) đã hoạt động hoàn hảo!'
+        targetEmail: 'support@couponhiker.com',
+        message: 'Hệ thống chuyển tiếp email (support@couponhiker.com) đã hoạt động hoàn hảo!'
       }), {
         headers: { ...CORS_HEADERS, 'Content-Type': 'application/json; charset=utf-8' }
       });
@@ -1802,13 +1802,13 @@ export default {
     if (url.pathname === '/api/contact/config') {
       if (request.method === 'GET') {
         let cfg = {
-          targetEmail: 'support@techpicks.pro',
+          targetEmail: 'support@couponhiker.com',
           forwarder: 'formsubmit',
           smtp: {
             enabled: false,
             host: 'smtp.gmail.com',
             port: 587,
-            user: 'support@techpicks.pro'
+            user: 'support@couponhiker.com'
           }
         };
         if (env.POSTS_KV) {
@@ -2129,11 +2129,11 @@ export default {
               tag: 'REVIEW ' + (found.category || 'FLAGSHIP').toUpperCase(),
               tagEn: 'REVIEW ' + (found.categoryEn || found.category || 'FLAGSHIP').toUpperCase(),
               tagVi: (found.categoryVi || found.category || 'SẢN PHẨM NỔI BẬT').toUpperCase(),
-              brand: found.brand || 'TechPicks Official',
+              brand: found.brand || 'CouponHiker Official',
               badge: "Editor's Choice",
               badgeEn: "Editor's Choice",
               badgeVi: "Lựa Chọn Biên Tập Viên",
-              urlDisplay: found.brand || 'TechPicks Official',
+              urlDisplay: found.brand || 'CouponHiker Official',
               postUrl: found.slug || 'post.html',
               affiliateUrl: found.affiliateLink || '#',
               image: found.image || '',
@@ -2481,7 +2481,7 @@ export default {
         }
 
         // 2. Đọc cấu hình email đích
-        let targetEmail = 'support@techpicks.pro';
+        let targetEmail = 'support@couponhiker.com';
         if (env.POSTS_KV) {
           try {
             const rawCfg = await env.POSTS_KV.get('email_config');
@@ -2492,7 +2492,7 @@ export default {
           } catch (e) {}
         }
 
-        // 3. Chuyển tiếp email đến support@techpicks.pro qua FormSubmit
+        // 3. Chuyển tiếp email đến support@couponhiker.com qua FormSubmit
         let emailSent = false;
         try {
           const fwdRes = await fetch(`https://formsubmit.co/ajax/${encodeURIComponent(targetEmail)}`, {
@@ -2500,10 +2500,10 @@ export default {
             headers: {
               'Content-Type': 'application/json',
               'Accept': 'application/json',
-              'User-Agent': 'TechPicksReview-Notifier/1.0'
+              'User-Agent': 'CouponHiker-Notifier/1.0'
             },
             body: JSON.stringify({
-              _subject: `[TechPicks Review] ${subject} (Từ: ${name || 'Khách hàng'})`,
+              _subject: `[CouponHiker] ${subject} (Từ: ${name || 'Khách hàng'})`,
               _replyto: email,
               _captcha: 'false',
               _template: 'table',
@@ -2617,13 +2617,13 @@ export default {
     if (url.pathname === '/api/contact/config') {
       if (request.method === 'GET') {
         let cfg = {
-          targetEmail: 'support@techpicks.pro',
+          targetEmail: 'support@couponhiker.com',
           forwarder: 'formsubmit',
           smtp: {
             enabled: false,
             host: 'smtp.gmail.com',
             port: 587,
-            user: 'support@techpicks.pro',
+            user: 'support@couponhiker.com',
             passSet: false
           }
         };
@@ -2676,7 +2676,7 @@ export default {
     // POST /api/contact/test (Gửi thư thử nghiệm)
     if (url.pathname === '/api/contact/test' && request.method === 'POST') {
       try {
-        let targetEmail = 'support@techpicks.pro';
+        let targetEmail = 'support@couponhiker.com';
         if (env.POSTS_KV) {
           try {
             const rawCfg = await env.POSTS_KV.get('email_config');
@@ -2690,10 +2690,10 @@ export default {
         const testId = 'test-' + crypto.randomUUID().slice(0, 8);
         const testMsg = {
           id: testId,
-          name: 'TechPicks Test System',
+          name: 'CouponHiker Test System',
           email: targetEmail,
-          subject: 'Kiểm tra kết nối gửi/nhận email - TechPicks Review',
-          message: `Xin chào! Đây là email thử nghiệm gửi từ hệ thống website TechPicks Review (https://www.techpicks.pro) nhằm kiểm tra kết nối chuyển tiếp thư đến ${targetEmail}. Nếu bạn nhận được thư này, hệ thống nhận email đang hoạt động rất tốt!`,
+          subject: 'Kiểm tra kết nối gửi/nhận email - CouponHiker',
+          message: `Xin chào! Đây là email thử nghiệm gửi từ hệ thống website CouponHiker (https://www.techpicks.pro) nhằm kiểm tra kết nối chuyển tiếp thư đến ${targetEmail}. Nếu bạn nhận được thư này, hệ thống nhận email đang hoạt động rất tốt!`,
           createdAt: new Date().toLocaleString('vi-VN', { timeZone: 'Asia/Ho_Chi_Minh' }),
           sourceUrl: 'https://www.techpicks.pro/admin-cms/'
         };
@@ -2724,14 +2724,14 @@ export default {
             headers: {
               'Content-Type': 'application/json',
               'Accept': 'application/json',
-              'User-Agent': 'TechPicksReview-Test/1.0'
+              'User-Agent': 'CouponHiker-Test/1.0'
             },
             body: JSON.stringify({
-              _subject: '[Test] Kiểm tra kết nối nhận Email - TechPicks Review',
+              _subject: '[Test] Kiểm tra kết nối nhận Email - CouponHiker',
               _replyto: targetEmail,
               _captcha: 'false',
               _template: 'table',
-              HeThong: 'TechPicks Review Live System',
+              HeThong: 'CouponHiker Live System',
               TargetEmail: targetEmail,
               NoiDung: testMsg.message,
               ThoiGian: testMsg.createdAt,

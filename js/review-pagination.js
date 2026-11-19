@@ -248,7 +248,7 @@
           });
         }
         allReviews = flat;
-        try { localStorage.setItem('techpicks_posts_cache', JSON.stringify(flat)); } catch(e) {}
+        try { localStorage.setItem('couponhiker_posts_cache', JSON.stringify(flat)); } catch(e) {}
       }
     } catch (err) {
       console.warn('Cannot fetch data/posts.json, using fallback data:', err);
@@ -256,7 +256,7 @@
 
     if (!allReviews || !Array.isArray(allReviews) || allReviews.length === 0) {
       try {
-        const cached = localStorage.getItem('techpicks_posts_cache');
+        const cached = localStorage.getItem('couponhiker_posts_cache');
         if (cached) {
           const parsed = JSON.parse(cached);
           if (Array.isArray(parsed) && parsed.length > 0) allReviews = parsed;
@@ -1473,7 +1473,7 @@
     "btnTextEn": "ORDER NOW",
     "btnTextVi": "ORDER NOW",
     "btnTextZh": "ORDER NOW",
-    "affiliateLink": "https://aqara.com/?ref=TECHPICKS",
+    "affiliateLink": "https://aqara.com/?ref=COUPONHIKER",
     "priceUsd": "$129.00",
     "priceVnd": "2.890.000Ã„‘",
     "priceOrig": "$149.00",
@@ -1526,7 +1526,7 @@
     "btnTextEn": "ORDER NOW",
     "btnTextVi": "ORDER NOW",
     "btnTextZh": "ORDER NOW",
-    "affiliateLink": "https://razer.com/?ref=TECHPICKS",
+    "affiliateLink": "https://razer.com/?ref=COUPONHIKER",
     "priceUsd": "$3,199.00",
     "priceVnd": "79.900.000Ã„‘",
     "priceOrig": "$3,599.00",
@@ -1735,7 +1735,7 @@
     "btnTextEn": "ORDER NOW",
     "btnTextVi": "Äáº¶T HÃ€NG NGAY",
     "btnTextZh": "ç«‹å³å‰å¾€è®¢è´­",
-    "affiliateLink": "https://www.anker.com/?ref=TECHPICKS",
+    "affiliateLink": "https://www.anker.com/?ref=COUPONHIKER",
     "priceUsd": "$109.99",
     "priceVnd": "2.750.000₫",
     "priceOrig": "$149.99",
@@ -1804,7 +1804,7 @@
     "btnTextEn": "ORDER NOW",
     "btnTextVi": "Äáº¶T HÃ€NG NGAY",
     "btnTextZh": "ç«‹å³å‰å¾€è®¢è´­",
-    "affiliateLink": "https://www.bose.com/?ref=TECHPICKS",
+    "affiliateLink": "https://www.bose.com/?ref=COUPONHIKER",
     "priceUsd": "$379.00",
     "priceVnd": "9.475.000₫",
     "priceOrig": "$68.00",
@@ -1921,7 +1921,7 @@
     "btnTextEn": "ORDER NOW",
     "btnTextVi": "Äáº¶T HÃ€NG NGAY",
     "btnTextZh": "ç«‹å³å‰å¾€è®¢è´­",
-    "affiliateLink": "https://www.ugreen.com/?ref=TECHPICKS",
+    "affiliateLink": "https://www.ugreen.com/?ref=COUPONHIKER",
     "priceUsd": "$199.99",
     "priceVnd": "4.990.000₫",
     "priceOrig": "$49.99",
@@ -2109,7 +2109,7 @@
     "btnTextEn": "ORDER NOW",
     "btnTextVi": "Äáº¶T HÃ€NG NGAY",
     "btnTextZh": "ç«‹å³å‰å¾€è®¢è´­",
-    "affiliateLink": "https://us.roborock.com/?ref=TECHPICKS",
+    "affiliateLink": "https://us.roborock.com/?ref=COUPONHIKER",
     "priceUsd": "$1,199.00",
     "priceVnd": "29.990.000₫",
     "priceOrig": "$671.19",
@@ -2226,7 +2226,7 @@
     "btnTextEn": "ORDER NOW",
     "btnTextVi": "Äáº¶T HÃ€NG NGAY",
     "btnTextZh": "ç«‹å³å‰å¾€è®¢è´­",
-    "affiliateLink": "https://www.elgato.com/?ref=TECHPICKS",
+    "affiliateLink": "https://www.elgato.com/?ref=COUPONHIKER",
     "priceUsd": "$149.99",
     "priceVnd": "3.750.000₫",
     "priceOrig": "$100.04",
@@ -2290,7 +2290,7 @@
     "btnTextEn": "ORDER NOW",
     "btnTextVi": "Äáº¶T HÃ€NG NGAY",
     "btnTextZh": "ç«‹å³å‰å¾€è®¢è´­",
-    "affiliateLink": "https://linptech.com/?ref=TECHPICKS",
+    "affiliateLink": "https://linptech.com/?ref=COUPONHIKER",
     "priceUsd": "$29.99",
     "priceVnd": "749.000₫",
     "priceOrig": "$1613.00",
@@ -2354,7 +2354,7 @@
     "btnTextEn": "ORDER NOW",
     "btnTextVi": "Äáº¶T HÃ€NG NGAY",
     "btnTextZh": "ç«‹å³å‰å¾€è®¢è´­",
-    "affiliateLink": "https://carlinkitcarplay.com/?ref=TECHPICKS",
+    "affiliateLink": "https://carlinkitcarplay.com/?ref=COUPONHIKER",
     "priceUsd": "$65.00",
     "priceVnd": "1.625.000₫",
     "priceOrig": "$89.00",
@@ -2600,7 +2600,7 @@
     "btnTextEn": "ORDER NOW",
     "btnTextVi": "ORDER NOW",
     "btnTextZh": "ORDER NOW",
-    "affiliateLink": "https://www.baseus.com/?ref=TECHPICKS",
+    "affiliateLink": "https://www.baseus.com/?ref=COUPONHIKER",
     "priceUsd": "$79.99",
     "priceVnd": "1.990.000₫",
     "priceOrig": "$99.99",
@@ -3105,7 +3105,7 @@
     "isSponsored": false,
     "isFeatured": true,
     "rating": 9.9,
-    "brand": "TechPicks Publishing",
+    "brand": "CouponHiker Publishing",
     "btnText": "GET INSTANT ACCESS",
     "btnTextEn": "GET INSTANT ACCESS",
     "btnTextVi": "TáÂºÂ¢I EBOOK NGAY",
