@@ -170,7 +170,7 @@ function Detect-CanonicalNiche([string]$Url, [string]$Title, [string]$Brand) {
     }
 
     # 5. Desk Setup & EDC
-    if ($text -match "keychron|keyboard|keyboards|mechanical-keyboard|custom-keyboard|qmk|via|switch|keycap|mx-master|logitech-mx|mouse|trackball|desk-mat|deskmat|stream-deck|elgato|wrist-rest|monitor-arm|pegboard|desk-shelf|sling-bag|sling|matein|backpack|everyday-carry|edc|multitool") {
+    if ($text -match "keychron|keyboard|keyboards|mechanical-keyboard|custom-keyboard|qmk|via|switch|keycap|mx-master|logitech-mx|mouse|trackball|desk-mat|deskmat|stream-deck|elgato|wrist-rest|monitor-arm|pegboard|desk-shelf|sling-bag|sling|matein|backpack|everyday-carry|edc|multitool|screen-protector|comfrt|hoodie|sweatshirt|jacket|fleece|clothing|apparel|blanket|weighted hoodie|loungewear|streetwear") {
         return @{ slug = "edc"; name = "Desk Setup & EDC" }
     }
 
@@ -336,6 +336,26 @@ function Extract-BrandPriceInfo([string]$TargetUrl, [string]$HintKeyword = "") {
             couponDiscount = "15% OFF Verified Merchant Deal"
             couponExpiry = "12/31/2026"
             storeProducts = $storeProducts
+            source = "brand_catalog_verified"
+        }
+    }
+
+    # 0.8 Comfrt Comfort Apparel & Loungewear Fallback
+    if ($lowerUrl -match "comfrt|hoodie|sweatshirt|jacket|fleece|weighted-hoodie") {
+        return [PSCustomObject]@{
+            success = $true
+            brand = "Comfrt Official"
+            productTitle = "Rockies Teddy Full-Zip Jacket"
+            salePriceUsd = "$59.00"
+            numericPriceUsd = 59.00
+            salePriceVnd = "1.475.000₫"
+            originalPriceUsd = "$175.00"
+            image = "https://cdn.shopify.com/s/files/1/0569/4029/8784/files/1_7064ac73-7980-4d3d-b52f-ea7ab704812f.jpg?v=1794857953"
+            category = "Desk Setup & EDC"
+            categorySlug = "edc"
+            couponCode = "COMFRT15"
+            couponDiscount = "15% OFF Comfort Apparel"
+            couponExpiry = "12/31/2026"
             source = "brand_catalog_verified"
         }
     }

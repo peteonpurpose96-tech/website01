@@ -44,7 +44,7 @@ const NICHES = [
   {
     slug: 'edc',
     name: 'Desk Setup & EDC',
-    pattern: /keychron|keyboard|keyboards|mechanical-keyboard|custom-keyboard|qmk|via|switch|keycap|mx-master|logitech-mx|mouse|trackball|desk-mat|deskmat|stream-deck|elgato|wrist-rest|monitor-arm|pegboard|desk-shelf|sling-bag|sling|matein|backpack|everyday-carry|edc|multitool|screen-protector|magic-john/i
+    pattern: /keychron|keyboard|keyboards|mechanical-keyboard|custom-keyboard|qmk|via|switch|keycap|mx-master|logitech-mx|mouse|trackball|desk-mat|deskmat|stream-deck|elgato|wrist-rest|monitor-arm|pegboard|desk-shelf|sling-bag|sling|matein|backpack|everyday-carry|edc|multitool|screen-protector|magic-john|comfrt|hoodie|sweatshirt|jacket|fleece|apparel|clothing|blanket|loungewear|streetwear/i
   },
   {
     slug: 'computing',

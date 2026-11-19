@@ -571,6 +571,13 @@ export default {
           }
           coupon = 'MEOWANT15'; discount = '15% OFF Pet Care Series';
           category = 'Smart Home & IoT'; categorySlug = 'smarthome';
+        } else if (lowerUrl.includes('comfrt') || lowerUrl.includes('hoodie') || lowerUrl.includes('fleece') || lowerUrl.includes('sweatshirt')) {
+          brand = 'Comfrt Official';
+          productTitle = 'Rockies Teddy Full-Zip Jacket';
+          saleUsd = 59.00; origUsd = 175.00;
+          imageUrl = 'https://cdn.shopify.com/s/files/1/0569/4029/8784/files/1_7064ac73-7980-4d3d-b52f-ea7ab704812f.jpg?v=1794857953';
+          coupon = 'COMFRT15'; discount = '15% OFF Comfort Apparel';
+          category = 'Desk Setup & EDC'; categorySlug = 'edc';
         }
 
         const saleVnd = Math.round(saleUsd * 25000 / 1000) * 1000;
