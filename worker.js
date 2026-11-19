@@ -505,9 +505,24 @@ export default {
           brand = 'Gaggia Milano'; saleUsd = 449.0; origUsd = 499.0; coupon = 'BARISTA50'; discount = '$50 OFF Espresso Bundle';
         } else if (lowerUrl.includes('meowant') || lowerUrl.includes('gaostoltd.pxf.io') || lowerUrl.includes('cat-litter') || lowerUrl.includes('litter-box')) {
           brand = 'Meowant Official';
-          productTitle = 'Meowant Self-Cleaning Cat Litter Box – MW-SC09';
-          saleUsd = 645.99; origUsd = 789.99; coupon = 'MEOWANT15'; discount = '15% OFF Pet Care Series';
-          imageUrl = 'https://cdn.shopify.com/s/files/1/0697/3466/2441/files/SC09_97889cc7-323a-4c57-8b1f-65b5fa14d209.png?v=1794553855';
+          if (lowerUrl.includes('sc09')) {
+            productTitle = 'Meowant Self-Cleaning Cat Litter Box – MW-SC09';
+            saleUsd = 295.99; origUsd = 789.99;
+            imageUrl = 'https://cdn.shopify.com/s/files/1/0697/3466/2441/files/SC09_97889cc7-323a-4c57-8b1f-65b5fa14d209.png?v=1794553855';
+          } else if (lowerUrl.includes('pf06') || lowerUrl.includes('wet-food') || lowerUrl.includes('feeder')) {
+            productTitle = 'Meowant Automatic Wet Food Cat Feeder-MW-PF06';
+            saleUsd = 159.99; origUsd = 189.99;
+            imageUrl = 'https://cdn.shopify.com/s/files/1/0697/3466/2441/files/PF06.png?v=1794555880';
+          } else if (lowerUrl.includes('wr01') || lowerUrl.includes('fence')) {
+            productTitle = 'Meowant GPS Dog Fence - MW-WR01';
+            saleUsd = 149.99; origUsd = 399.99;
+            imageUrl = 'https://cdn.shopify.com/s/files/1/0697/3466/2441/files/WR01_a77973d4-52a0-43ac-9fc0-c91c0a94aaf8.png?v=1793348621';
+          } else {
+            productTitle = 'Meowant Self-Cleaning Cat Litter Box – MW-SC10';
+            saleUsd = 245.99; origUsd = 549.99;
+            imageUrl = 'https://cdn.shopify.com/s/files/1/0697/3466/2441/files/SC10_8b84ccac-2cf1-4721-9e3f-21bc201448c7.png?v=1794553720';
+          }
+          coupon = 'MEOWANT15'; discount = '15% OFF Pet Care Series';
           category = 'Smart Home & IoT'; categorySlug = 'smarthome';
         }
 

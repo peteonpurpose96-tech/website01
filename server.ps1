@@ -53,6 +53,25 @@ $mimeTypes = @{
 $lanIp = (Get-NetIPAddress -AddressFamily IPv4 -ErrorAction SilentlyContinue | Where-Object { $_.InterfaceAlias -notlike "*Loopback*" -and $_.IPAddress -notlike "169.254*" } | Select-Object -ExpandProperty IPAddress -First 1)
 if (-not $lanIp) { $lanIp = "127.0.0.1" }
 
+# Resolve Node.js binary path accurately across all environments
+$global:NodeExePath = "node"
+$candidateNodePaths = @(
+    "C:\Users\MTC\AppData\Local\Microsoft\WinGet\Packages\OpenJS.NodeJS.LTS_Microsoft.Winget.Source_8wekyb3d8bbwe\node-v24.20.0-win-x64\node.exe",
+    "$env:ProgramFiles\nodejs\node.exe",
+    "${env:ProgramFiles(x86)}\nodejs\node.exe",
+    "$env:LOCALAPPDATA\Programs\node\node.exe"
+)
+foreach ($cnp in $candidateNodePaths) {
+    if (Test-Path $cnp) {
+        $global:NodeExePath = $cnp
+        break
+    }
+}
+if ($global:NodeExePath -eq "node") {
+    $cmdNode = Get-Command "node" -ErrorAction SilentlyContinue
+    if ($cmdNode) { $global:NodeExePath = $cmdNode.Source }
+}
+
 # Stop any previous Node LAN proxy process
 Get-Process -Name "node" -ErrorAction SilentlyContinue | Where-Object { $_.CommandLine -like "*lan-proxy.js*" } | Stop-Process -Force -ErrorAction SilentlyContinue
 
@@ -61,7 +80,7 @@ $proxyScript = Join-Path $PSScriptRoot "lan-proxy.js"
 $global:ProxyProcess = $null
 if (Test-Path $proxyScript) {
     try {
-        $global:ProxyProcess = Start-Process -FilePath "node" -ArgumentList "`"$proxyScript`"" -PassThru -NoNewWindow
+        $global:ProxyProcess = Start-Process -FilePath $global:NodeExePath -ArgumentList "`"$proxyScript`"" -PassThru -NoNewWindow
     } catch {
         Write-Host "Canh bao: Khong the khoi dong lan-proxy.js: $_" -ForegroundColor Yellow
     }
@@ -214,7 +233,8 @@ function Extract-BrandPriceInfo([string]$TargetUrl, [string]$HintKeyword = "") {
         try {
             $nodeScraperPath = Join-Path $PSScriptRoot "product-scraper.js"
             if (Test-Path $nodeScraperPath) {
-                $scrapedRaw = & node $nodeScraperPath $cleanUrl $HintKeyword 2>$null
+                $nodeExe = if ($global:NodeExePath) { $global:NodeExePath } else { "node" }
+                $scrapedRaw = & $nodeExe $nodeScraperPath $cleanUrl $HintKeyword 2>$null
                 if (-not [string]::IsNullOrWhiteSpace($scrapedRaw)) {
                     $firstBrace = $scrapedRaw.IndexOf('{')
                     $lastBrace = $scrapedRaw.LastIndexOf('}')
@@ -655,10 +675,17 @@ function Extract-BrandPriceInfo([string]$TargetUrl, [string]$HintKeyword = "") {
                 $foundPrice = [double]$Matches[1]
             }
 
+            # Handle Shopify/Stripe cents format (e.g. 29599 cents -> $295.99)
+            if ($foundPrice -gt 5000 -and $foundPrice -le 1000000) {
+                $foundPrice = [Math]::Round($foundPrice / 100, 2)
+            }
+
             if ($foundPrice -gt 0) {
-                $origPrice = [Math]::Round($foundPrice * 1.2, 2)
+                $origPrice = [Math]::Round($foundPrice * 1.25, 2)
                 if ($html -match '\"highPrice\"\s*:\s*\"?([0-9]+(?:\.[0-9]{1,2})?)\"?') {
-                    $origPrice = [double]$Matches[1]
+                    $highCandidate = [double]$Matches[1]
+                    if ($highCandidate -gt 5000 -and $highCandidate -le 1000000) { $highCandidate = [Math]::Round($highCandidate / 100, 2) }
+                    if ($highCandidate -gt $foundPrice) { $origPrice = $highCandidate }
                 }
 
                 $brandTitle = "Merchant Brand"
@@ -666,10 +693,24 @@ function Extract-BrandPriceInfo([string]$TargetUrl, [string]$HintKeyword = "") {
                     $brandTitle = $Matches[1].Trim()
                 }
 
+                $extractedTitle = "Verified Product"
+                if ($html -match '<meta\s+property=[\"\'']og:title[\"\'']\s+content=[\"\'']([^\"\'']+)[\"\'']') {
+                    $extractedTitle = $Matches[1].Trim()
+                } elseif ($html -match '<title[^>]*>([^<]+)</title>') {
+                    $extractedTitle = $Matches[1].Trim()
+                }
+                $extractedTitle = $extractedTitle -replace '\s*[\-\|\–\—]\s*(?:Official Store|Official|Store|Shop|Shopify).*$', ''
+
+                $extractedImg = ""
+                if ($html -match '<meta\s+property=[\"\'']og:image[\"\'']\s+content=[\"\'']([^\"\'']+)[\"\'']') {
+                    $extractedImg = $Matches[1].Trim()
+                }
+
                 return [PSCustomObject]@{
                     success = $true
                     brand = $brandTitle
-                    productTitle = "Live Verified Product"
+                    productTitle = $extractedTitle
+                    image = $extractedImg
                     salePriceUsd = (Format-UsdPrice $foundPrice)
                     numericPriceUsd = $foundPrice
                     salePriceVnd = (Format-VndPrice $foundPrice)
@@ -707,7 +748,8 @@ function Sync-HeroHtml {
     try {
         $syncScript = Join-Path $RootPath "sync-hero-html.js"
         if (Test-Path $syncScript) {
-            Start-Process -FilePath "node" -ArgumentList "`"$syncScript`"" -NoNewWindow -ErrorAction SilentlyContinue
+            $nodeExe = if ($global:NodeExePath) { $global:NodeExePath } else { "node" }
+            Start-Process -FilePath $nodeExe -ArgumentList "`"$syncScript`"" -NoNewWindow -ErrorAction SilentlyContinue
         }
     } catch {}
 }

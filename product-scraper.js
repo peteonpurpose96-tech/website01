@@ -5,12 +5,14 @@
  * Capable of scraping product details from any e-commerce site, brand store,
  * or affiliate link (Shopify, Amazon, WooCommerce, Magento, Custom):
  * - Follows redirects (affiliate tracking links like Impact/pxf.io, ShareASale, CJ, bit.ly)
- * - Automatically discovers flagship/featured products if link lands on store homepage/catalog
+ * - Automatically discovers flagship/featured products in homepage order
+ * - Accurately extracts live promo deal prices (e.g. "ONLY $245.99", "ONLY $295.99")
+ * - Never overcharges with bundle variant prices
  * - Extracts JSON-LD Schema.org Product data & Shopify .json endpoints
  * - Extracts OpenGraph & Twitter Cards metadata
  * - Automatically categorizes into the 13 canonical website niches
  * - Extracts high-res product packshot images, exact prices, and bullet specs
- * - Never truncates product model numbers (e.g. "– MW-SC09", "- 4CH RTF")
+ * - Never truncates product model numbers (e.g. "– MW-SC10", "- MW-PF06", "- 4CH RTF")
  */
 
 const http = require('http');
@@ -32,7 +34,7 @@ const NICHES = [
   {
     slug: 'smarthome',
     name: 'Smart Home & IoT',
-    pattern: /roborock|dreame|ecovacs|roomba|vacuum|robot-vacuum|robot-mop|mop|aqara|matter|smart-home|smarthome|smart-lock|smart-plug|mmwave|presence-sensor|smart-bulb|smart-curtain|thermostat|magcubic|projector|hy350|video-doorbell|home-assistant|zigbee|thread-hub|lighting|gate-opener|sliding-gate|meowant|litter-box|cat-litter|automatic-feeder|pet-feeder|pet-fountain|smart-pet|pet-care|pet-odor|cat-box|pet-appliance/i
+    pattern: /roborock|dreame|ecovacs|roomba|vacuum|robot-vacuum|robot-mop|mop|aqara|matter|smart-home|smarthome|smart-lock|smart-plug|mmwave|presence-sensor|smart-bulb|smart-curtain|thermostat|magcubic|projector|hy350|video-doorbell|home-assistant|zigbee|thread-hub|lighting|gate-opener|sliding-gate|meowant|litter-box|cat-litter|automatic-feeder|pet-feeder|pet-fountain|smart-pet|pet-care|pet-odor|cat-box|pet-appliance|feeder|water-fountain/i
   },
   {
     slug: 'wearables',
@@ -229,6 +231,81 @@ function fetchJson(targetUrl) {
 }
 
 /**
+ * Extract promotional deal prices from HTML tags/badges (e.g. "ONLY $245.99", "ONLY $295.99")
+ */
+function extractPromoPricesFromHtml(html) {
+  const promoMap = {};
+  if (!html) return promoMap;
+
+  // Match only true deal price tags (like "ONLY $295.99", "Only $245.99"), skipping "$170 off" discount badges
+  const regex1 = /class=["'][^"']*(?:product-tag-item|tag-box|badge)[^"']*["'][^>]*>[\s\S]*?(?:only|just|now|price)?\s*\$([0-9]+(?:\.[0-9]{2})?)\s*<\/div>[\s\S]{1,400}?href=["']\/products\/([a-zA-Z0-9_\-]+)["']/gi;
+  let m1;
+  while ((m1 = regex1.exec(html)) !== null) {
+    if (/\boff\b/i.test(m1[0])) continue;
+    const price = parseFloat(m1[1]);
+    const handle = m1[2];
+    if (price >= 30 && (!promoMap[handle] || price < promoMap[handle])) {
+      promoMap[handle] = price;
+    }
+  }
+
+  // Reverse: product link followed by deal badge
+  const regex2 = /href=["']\/products\/([a-zA-Z0-9_\-]+)["'][\s\S]{1,400}?class=["'][^"']*(?:product-tag-item|tag-box|badge)[^"']*["'][^>]*>[\s\S]*?(?:only|just|now|price)?\s*\$([0-9]+(?:\.[0-9]{2})?)\s*<\/div>/gi;
+  let m2;
+  while ((m2 = regex2.exec(html)) !== null) {
+    if (/\boff\b/i.test(m2[0])) continue;
+    const handle = m2[1];
+    const price = parseFloat(m2[2]);
+    if (price >= 30 && (!promoMap[handle] || price < promoMap[handle])) {
+      promoMap[handle] = price;
+    }
+  }
+
+  return promoMap;
+}
+
+/**
+ * Extract accurate product base data from a Shopify product object
+ * (Prioritizes promo deal badge price if present, else lowest base variant price)
+ */
+function extractShopifyProductData(p, origin, defaultBrand = '', promoMap = {}) {
+  const availableVariants = (p.variants || []).filter(v => v.available !== false && parseFloat(v.price) > 0);
+  const list = availableVariants.length > 0 ? availableVariants : (p.variants || []);
+  
+  // Sort variants ascending by price to obtain starting base price
+  list.sort((a, b) => parseFloat(a.price) - parseFloat(b.price));
+  const baseVariant = list[0] || { price: '0', compare_at_price: null };
+  const basePrice = parseFloat(baseVariant.price || 0);
+  let compare = baseVariant.compare_at_price ? parseFloat(baseVariant.compare_at_price) : 0;
+
+  // Apply promo deal price if store advertises a lower deal price (e.g. "ONLY $245.99" / "ONLY $295.99")
+  let price = basePrice;
+  if (promoMap && promoMap[p.handle] && promoMap[p.handle] > 0) {
+    price = promoMap[p.handle];
+    if (compare <= price) {
+      compare = basePrice > price ? basePrice : Math.round(price * 1.3 * 100) / 100;
+    }
+  }
+  
+  const img = (p.images && p.images[0]?.src) ? p.images[0].src : '';
+  const desc = p.body_html ? cleanHtmlText(p.body_html.replace(/<[^>]+>/g, ' ')).substring(0, 600) : '';
+
+  return {
+    id: p.id,
+    title: cleanHtmlText(p.title),
+    handle: p.handle,
+    productUrl: `${origin}/products/${p.handle}`,
+    salePriceUsd: '$' + price.toFixed(2),
+    numericPriceUsd: price,
+    salePriceVnd: (Math.round(price * 25000 / 1000) * 1000).toLocaleString('vi-VN').replace(/,/g, '.') + '₫',
+    originalPriceUsd: compare > price ? ('$' + compare.toFixed(2)) : ('$' + (Math.round(price * 1.25 * 100) / 100).toFixed(2)),
+    image: img,
+    description: desc,
+    brand: p.vendor || defaultBrand
+  };
+}
+
+/**
  * Check if the URL represents a store homepage or category catalog
  */
 function isStoreHomepageOrCollection(finalUrl, html, parsedUrl) {
@@ -288,6 +365,9 @@ async function scrapeProductInfo(url, hintKeyword = '') {
     brandName = domainParts[0].charAt(0).toUpperCase() + domainParts[0].slice(1);
   }
 
+  // Extract promo deal badges present in the page HTML
+  const promoMap = extractPromoPricesFromHtml(html);
+
   // -------------------------------------------------------------------------
   // CASE 1: The link lands on a store homepage, brand root, or catalog
   // Intelligently discover actual real products from the merchant store!
@@ -295,53 +375,49 @@ async function scrapeProductInfo(url, hintKeyword = '') {
   if (isStoreHomepageOrCollection(finalUrl, html, parsedUrl)) {
     isFromStoreCatalog = true;
 
+    // Check homepage <main> or HTML for ordered product appearance rank
+    const mainSectionMatch = html.match(/<main[\s\S]*?<\/main>/i);
+    const areaToSearch = mainSectionMatch ? mainSectionMatch[0] : html;
+    const linkMatches = areaToSearch.match(/href=["']\/products\/([a-zA-Z0-9_\-]+)["']/g) || [];
+    const homepageHandles = [...new Set(linkMatches.map(m => {
+      const exec = /href=["']\/products\/([a-zA-Z0-9_\-]+)["']/.exec(m);
+      return exec ? exec[1] : '';
+    }).filter(Boolean))];
+
     // Check Shopify endpoint
     try {
-      const shopifyData = await fetchJson(`${parsedUrl.origin}/products.json?limit=25`);
+      const shopifyData = await fetchJson(`${parsedUrl.origin}/products.json?limit=35`);
       if (shopifyData && Array.isArray(shopifyData.products) && shopifyData.products.length > 0) {
-        // Filter out non-products (exchange, adjustment, warranty, sample, shipping, gift card, price < $15)
+        // Filter out non-hardware items (exchange, adjustment, warranty, sample, shipping, gift card, liners, filter, price < $20)
         const validProducts = shopifyData.products.filter(p => {
-          const price = parseFloat(p.variants[0]?.price || 0);
           const t = (p.title || '').toLowerCase();
-          if (price < 15) return false;
-          if (/exchange|adjustment|insurance|warranty|sample|shipping|test|tip|gift\s*card/i.test(t)) return false;
+          const basePrice = Math.min(...(p.variants || []).map(v => parseFloat(v.price || 0)));
+          if (basePrice < 20) return false;
+          if (/exchange|adjustment|insurance|warranty|sample|shipping|test|tip|gift\s*card|liner|replacement\s*filter|scratch\s*board|cleaner\s*bag/i.test(t)) return false;
           return true;
         });
 
         if (validProducts.length > 0) {
-          // Sort products by keyword relevance if provided, else flagship prominence (price & completeness)
-          if (hintKeyword && hintKeyword.trim()) {
-            const kwLower = hintKeyword.trim().toLowerCase();
-            validProducts.sort((a, b) => {
+          // Sort products by:
+          // 1. Keyword relevance if provided
+          // 2. Order of appearance on the homepage (featured rank)
+          validProducts.sort((a, b) => {
+            if (hintKeyword && hintKeyword.trim()) {
+              const kwLower = hintKeyword.trim().toLowerCase();
               const matchA = (a.title || '').toLowerCase().includes(kwLower) ? 1 : 0;
               const matchB = (b.title || '').toLowerCase().includes(kwLower) ? 1 : 0;
               if (matchA !== matchB) return matchB - matchA;
-              return parseFloat(b.variants[0]?.price || 0) - parseFloat(a.variants[0]?.price || 0);
-            });
-          } else {
-            validProducts.sort((a, b) => {
-              const pA = parseFloat(a.variants[0]?.price || 0);
-              const pB = parseFloat(b.variants[0]?.price || 0);
-              return pB - pA;
-            });
-          }
+            }
+            const idxA = homepageHandles.indexOf(a.handle);
+            const idxB = homepageHandles.indexOf(b.handle);
+            if (idxA !== -1 && idxB !== -1) return idxA - idxB;
+            if (idxA !== -1) return -1;
+            if (idxB !== -1) return 1;
+            return 0;
+          });
 
           storeProducts = validProducts.slice(0, 10).map(p => {
-            const pPrice = parseFloat(p.variants[0]?.price || 0);
-            const pCompare = parseFloat(p.variants[0]?.compare_at_price || 0);
-            const pImg = p.images && p.images[0]?.src ? p.images[0].src : '';
-            return {
-              title: cleanHtmlText(p.title),
-              handle: p.handle,
-              productUrl: `${parsedUrl.origin}/products/${p.handle}`,
-              salePriceUsd: '$' + pPrice.toFixed(2),
-              numericPriceUsd: pPrice,
-              salePriceVnd: (Math.round(pPrice * 25000 / 1000) * 1000).toLocaleString('vi-VN').replace(/,/g, '.') + '₫',
-              originalPriceUsd: pCompare > pPrice ? ('$' + pCompare.toFixed(2)) : ('$' + (Math.round(pPrice * 1.25 * 100) / 100).toFixed(2)),
-              image: pImg,
-              description: p.body_html ? cleanHtmlText(p.body_html.replace(/<[^>]+>/g, ' ')).substring(0, 500) : '',
-              brand: p.vendor || brandName
-            };
+            return extractShopifyProductData(p, parsedUrl.origin, brandName, promoMap);
           });
 
           const top = storeProducts[0];
@@ -356,42 +432,34 @@ async function scrapeProductInfo(url, hintKeyword = '') {
     } catch (e) {}
 
     // Fallback if not Shopify: find product links from homepage HTML and scrape the first featured product
-    if (!productTitle) {
-      const productLinkMatches = html.match(/href=["'](\/products\/[a-zA-Z0-9_\-]+|\/item\/[a-zA-Z0-9_\-]+|\/p\/[a-zA-Z0-9_\-]+|\/dp\/[a-zA-Z0-9_\-]+)["']/gi);
-      if (productLinkMatches && productLinkMatches.length > 0) {
-        const uniqueLinks = [...new Set(productLinkMatches.map(m => m.replace(/^href=["']/, '').replace(/["']$/, '')))];
-        if (uniqueLinks.length > 0) {
-          const featuredProdUrl = new URL(uniqueLinks[0], parsedUrl.href).href;
-          try {
-            const subScrape = await scrapeProductInfo(featuredProdUrl, hintKeyword);
-            if (subScrape && subScrape.success && subScrape.numericPriceUsd > 0) {
-              subScrape.url = cleanUrl; // Preserve user's original affiliate tracking URL!
-              subScrape.source = 'store_catalog_featured_product';
-              return subScrape;
-            }
-          } catch (e) {}
+    if (!productTitle && homepageHandles.length > 0) {
+      const featuredProdUrl = `${parsedUrl.origin}/products/${homepageHandles[0]}`;
+      try {
+        const subScrape = await scrapeProductInfo(featuredProdUrl, hintKeyword);
+        if (subScrape && subScrape.success && subScrape.numericPriceUsd > 0) {
+          subScrape.url = cleanUrl; // Preserve user's original affiliate tracking URL!
+          subScrape.source = 'store_catalog_featured_product';
+          return subScrape;
         }
-      }
+      } catch (e) {}
     }
   }
 
   // -------------------------------------------------------------------------
-  // CASE 2: Single Product Page (or after store discovery fallback)
+  // CASE 2: Single Product Page (or direct product URL)
   // -------------------------------------------------------------------------
   // Check if Shopify product page directly
   if (!productTitle && parsedUrl.pathname.includes('/products/')) {
     try {
       const prodJson = await fetchJson(`${parsedUrl.origin}${parsedUrl.pathname}.json`);
       if (prodJson && prodJson.product) {
-        const p = prodJson.product;
-        productTitle = cleanHtmlText(p.title);
-        const pPrice = parseFloat(p.variants[0]?.price || 0);
-        if (pPrice > 0) salePriceUsd = pPrice;
-        const pCompare = parseFloat(p.variants[0]?.compare_at_price || 0);
-        if (pCompare > pPrice) originalPriceUsd = pCompare;
-        if (p.images && p.images[0]?.src) imageUrl = p.images[0].src;
-        if (p.vendor) brandName = p.vendor;
-        if (p.body_html) description = cleanHtmlText(p.body_html.replace(/<[^>]+>/g, ' ')).substring(0, 600);
+        const data = extractShopifyProductData(prodJson.product, parsedUrl.origin, brandName, promoMap);
+        productTitle = data.title;
+        salePriceUsd = data.numericPriceUsd;
+        originalPriceUsd = parseFloat(data.originalPriceUsd.replace('$', ''));
+        imageUrl = data.image;
+        if (data.brand) brandName = data.brand;
+        if (data.description) description = data.description;
       }
     } catch(e) {}
   }
@@ -421,14 +489,20 @@ async function scrapeProductInfo(url, hintKeyword = '') {
                   imageUrl = item.image.url;
                 }
               }
-              // Offers / Price
+              // Offers / Price: find minimum available variant price (never the bundle add-on price)
               if (!salePriceUsd && item.offers) {
-                const offer = Array.isArray(item.offers) ? item.offers[0] : item.offers;
-                if (offer) {
-                  const p = parseFloat(offer.price || offer.lowPrice || 0);
-                  if (p > 0) salePriceUsd = p;
-                  const highP = parseFloat(offer.highPrice || 0);
-                  if (highP > salePriceUsd) originalPriceUsd = highP;
+                const offers = Array.isArray(item.offers) ? item.offers : [item.offers];
+                const validPrices = offers
+                  .map(o => parseFloat(o.price || o.lowPrice || 0))
+                  .filter(p => p > 0);
+                if (validPrices.length > 0) {
+                  salePriceUsd = Math.min(...validPrices);
+                }
+                const highPrices = offers
+                  .map(o => parseFloat(o.highPrice || 0))
+                  .filter(p => p > salePriceUsd);
+                if (highPrices.length > 0) {
+                  originalPriceUsd = Math.max(...highPrices);
                 }
               }
             }
@@ -455,7 +529,7 @@ async function scrapeProductInfo(url, hintKeyword = '') {
   }
 
   // Clean trailing store/site suffixes like " - Amazon.com", " | Official Store", " - Shopify"
-  // BUT NEVER STRIP MODEL NUMBERS (e.g. "– MW-SC09", "- 4CH RTF")
+  // BUT NEVER STRIP MODEL NUMBERS (e.g. "– MW-SC10", "- MW-PF06", "- 4CH RTF")
   if (productTitle) {
     const storeSuffixRegex = /\s*[\-\|\–\—]\s*(?:Official Store|Official|Store|Shop|Amazon\.com|Walmart|Aliexpress|Shopify|Buy Online|Best Price|Free Shipping)\s*$/i;
     if (storeSuffixRegex.test(productTitle)) {
@@ -501,8 +575,9 @@ async function scrapeProductInfo(url, hintKeyword = '') {
     }
   }
 
-  // Price extraction fallback
+  // Price extraction fallback from DOM
   if (!salePriceUsd) {
+    // 1. Check OpenGraph / product metadata tags
     const ogPrice = html.match(/<meta[^>]*property=["'](?:product:price:amount|og:price:amount)["'][^>]*content=["']([0-9]+(?:\.[0-9]{1,2})?)["']/i);
     if (ogPrice && ogPrice[1]) {
       salePriceUsd = parseFloat(ogPrice[1]);
@@ -510,17 +585,48 @@ async function scrapeProductInfo(url, hintKeyword = '') {
   }
 
   if (!salePriceUsd) {
-    // Regex for standard price tags: $123.45 or $1,234.56
-    const priceMatches = html.match(/(?:price-item--sale|price-item|sale-price|product__price)[^>]*>[\s\S]*?\$([0-9]{1,4}(?:,[0-9]{3})*(?:\.[0-9]{2})?)/i) ||
-                         html.match(/\$\s*([0-9]{1,4}(?:,[0-9]{3})*(?:\.[0-9]{2}))/);
+    // 2. Check explicit sale price class in DOM
+    const saleMatch = html.match(/(?:price-item--sale|sale-price|current-price|price-current|special-price|offer-price)[^>]*>[\s\S]*?\$([0-9]{1,4}(?:,[0-9]{3})*(?:\.[0-9]{2})?)/i) ||
+                      html.match(/class=["'][^"']*(?:price--large|price__container)[^"']*["'][\s\S]*?\$([0-9]{1,4}(?:,[0-9]{3})*(?:\.[0-9]{2})?)/i);
+    if (saleMatch && saleMatch[1]) {
+      const num = parseFloat(saleMatch[1].replace(/,/g, ''));
+      if (num > 0) salePriceUsd = num;
+    }
+  }
+
+  if (!salePriceUsd) {
+    // 3. Fallback generic dollar match
+    const priceMatches = html.match(/\$\s*([0-9]{1,4}(?:,[0-9]{3})*(?:\.[0-9]{2}))/);
     if (priceMatches && priceMatches[1]) {
       const num = parseFloat(priceMatches[1].replace(/,/g, ''));
       if (num > 0) salePriceUsd = num;
     }
   }
 
+  // Look for deal/promo price tags on the page like "ONLY $295.99" / "ONLY $245.99"
+  const dealTagMatch = html.match(/class=["'][^"']*(?:product-tag-item|badge--sale|special-deal|deal-price)[^"']*["'][^>]*>(?![\s\S]*?off)[\s\S]*?(?:only|sale|now|deal)?\s*\$([0-9]+(?:\.[0-9]{2})?)/i);
+  if (dealTagMatch && dealTagMatch[1]) {
+    const dealPrice = parseFloat(dealTagMatch[1]);
+    if (dealPrice >= 20 && (!salePriceUsd || dealPrice < salePriceUsd)) {
+      if (salePriceUsd > dealPrice && (!originalPriceUsd || originalPriceUsd <= dealPrice)) {
+        originalPriceUsd = salePriceUsd;
+      }
+      salePriceUsd = dealPrice;
+    }
+  }
+
   if (!salePriceUsd) {
     salePriceUsd = 129.00;
+  }
+
+  // Original / Strikethrough price extraction
+  if (!originalPriceUsd) {
+    const regMatch = html.match(/(?:price-item--regular|regular-price|old-price|compare-price|original-price)[^>]*>[\s\S]*?\$([0-9]{1,4}(?:,[0-9]{3})*(?:\.[0-9]{2})?)/i) ||
+                     html.match(/<s[^>]*class=["'][^"']*price[^"']*["'][^>]*>[\s\S]*?\$([0-9]{1,4}(?:,[0-9]{3})*(?:\.[0-9]{2})?)/i);
+    if (regMatch && regMatch[1]) {
+      const num = parseFloat(regMatch[1].replace(/,/g, ''));
+      if (num > salePriceUsd) originalPriceUsd = num;
+    }
   }
 
   if (!originalPriceUsd || originalPriceUsd <= salePriceUsd) {
