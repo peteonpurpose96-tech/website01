@@ -141,7 +141,7 @@ function Detect-CanonicalNiche([string]$Url, [string]$Title, [string]$Brand) {
     }
 
     # 3. Smart Home & IoT
-    if ($text -match "roborock|dreame|ecovacs|roomba|vacuum|robot-vacuum|robot-mop|mop|aqara|matter|smart-home|smarthome|smart-lock|smart-plug|mmwave|presence-sensor|smart-bulb|smart-curtain|thermostat|magcubic|projector|hy350|video-doorbell|home-assistant|zigbee|thread-hub") {
+    if ($text -match "roborock|dreame|ecovacs|roomba|vacuum|robot-vacuum|robot-mop|mop|aqara|matter|smart-home|smarthome|smart-lock|smart-plug|mmwave|presence-sensor|smart-bulb|smart-curtain|thermostat|magcubic|projector|hy350|video-doorbell|home-assistant|zigbee|thread-hub|meowant|litter-box|cat-litter|automatic-feeder|pet-feeder|pet-fountain|smart-pet|pet-care|pet-odor|cat-box|pet-appliance") {
         return @{ slug = "smarthome"; name = "Smart Home & IoT" }
     }
 
@@ -181,7 +181,7 @@ function Detect-CanonicalNiche([string]$Url, [string]$Title, [string]$Brand) {
     }
 
     # 11. Presets & LUTs
-    if ($text -match "preset|presets|lut|luts|lightroom|lightroom-preset|color-grading|cube-file|davinci-lut|photoshop-action|cyberpunk-lut|camera-profile") {
+    if ($text -match "(?:\bpresets?\b|\bluts?\b)|lightroom|lightroom-preset|color-grading|\.cube\b|davinci-lut|photoshop-action|cyberpunk-lut|camera-profile") {
         return @{ slug = "presets"; name = "Presets & LUTs" }
     }
 
@@ -198,7 +198,7 @@ function Detect-CanonicalNiche([string]$Url, [string]$Title, [string]$Brand) {
     return @{ slug = "audio"; name = "Audio & Sound" }
 }
 
-function Extract-BrandPriceInfo([string]$TargetUrl) {
+function Extract-BrandPriceInfo([string]$TargetUrl, [string]$HintKeyword = "") {
     if ([string]::IsNullOrWhiteSpace($TargetUrl)) {
         return [PSCustomObject]@{
             success = $false
@@ -214,7 +214,7 @@ function Extract-BrandPriceInfo([string]$TargetUrl) {
         try {
             $nodeScraperPath = Join-Path $PSScriptRoot "product-scraper.js"
             if (Test-Path $nodeScraperPath) {
-                $scrapedRaw = & node $nodeScraperPath $cleanUrl 2>$null
+                $scrapedRaw = & node $nodeScraperPath $cleanUrl $HintKeyword 2>$null
                 if (-not [string]::IsNullOrWhiteSpace($scrapedRaw)) {
                     $firstBrace = $scrapedRaw.IndexOf('{')
                     $lastBrace = $scrapedRaw.LastIndexOf('}')
@@ -860,18 +860,21 @@ try {
         if ($path -eq "/api/fetch-brand-price") {
             try {
                 $targetUrl = ""
+                $hintKw = ""
                 if ($request.HttpMethod -eq "POST") {
                     $reader = New-Object System.IO.StreamReader($request.InputStream, [System.Text.Encoding]::UTF8)
                     $body = $reader.ReadToEnd()
                     if (-not [string]::IsNullOrWhiteSpace($body)) {
                         $json = $body | ConvertFrom-Json
                         $targetUrl = $json.url
+                        if ($json.keyword) { $hintKw = $json.keyword }
                     }
                 } elseif ($request.HttpMethod -eq "GET") {
                     $targetUrl = $request.QueryString["url"]
+                    if ($request.QueryString["keyword"]) { $hintKw = $request.QueryString["keyword"] }
                 }
 
-                $res = Extract-BrandPriceInfo -TargetUrl $targetUrl
+                $res = Extract-BrandPriceInfo -TargetUrl $targetUrl -HintKeyword $hintKw
                 if ($res -and $res.success) {
                     $niche = Detect-CanonicalNiche -Url $targetUrl -Title $res.productTitle -Brand $res.brand
                     if ($null -eq $res.category) {

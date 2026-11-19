@@ -511,6 +511,12 @@ export default {
           brand = 'Logitech Master Series'; saleUsd = 99.0; origUsd = 119.0; coupon = 'LOGITECH20'; discount = '$20 OFF MX Series Gear';
         } else if (lowerUrl.includes('gaggia')) {
           brand = 'Gaggia Milano'; saleUsd = 449.0; origUsd = 499.0; coupon = 'BARISTA50'; discount = '$50 OFF Espresso Bundle';
+        } else if (lowerUrl.includes('meowant') || lowerUrl.includes('gaostoltd.pxf.io') || lowerUrl.includes('cat-litter') || lowerUrl.includes('litter-box')) {
+          brand = 'Meowant Official';
+          productTitle = 'Meowant Self-Cleaning Cat Litter Box – MW-SC09';
+          saleUsd = 645.99; origUsd = 789.99; coupon = 'MEOWANT15'; discount = '15% OFF Pet Care Series';
+          imageUrl = 'https://cdn.shopify.com/s/files/1/0697/3466/2441/files/SC09_97889cc7-323a-4c57-8b1f-65b5fa14d209.png?v=1794553855';
+          category = 'Smart Home & IoT'; categorySlug = 'smarthome';
         }
 
         const saleVnd = Math.round(saleUsd * 25000 / 1000) * 1000;
@@ -519,6 +525,10 @@ export default {
         return new Response(JSON.stringify({
           success: true,
           brand: brand,
+          productTitle: productTitle || 'High-Performance Hardware',
+          image: imageUrl || '',
+          category: category || 'Smart Home & IoT',
+          categorySlug: categorySlug || 'smarthome',
           salePriceUsd: '$' + saleUsd.toFixed(2),
           salePriceVnd: saleVnd.toLocaleString('vi-VN').replace(/,/g, '.') + '₫',
           originalPriceUsd: '$' + origUsd.toFixed(2),

@@ -1113,8 +1113,8 @@ function detectNicheFromUrlAndKeyword(url = '', keyword = '', title = '', brand 
     return { slug: 'cameras', name: 'Cameras & Creator Gear' };
   }
 
-  // 3. Smart Home & IoT (robovacs, roborock, dreame, matter, aqara, projectors)
-  if (/roborock|dreame|ecovacs|roomba|vacuum|robot vacuum|robot mop|smart mop|aqara|matter|smart home|smarthome|smart lock|smart plug|mmwave|presence sensor|smart bulb|smart curtain|thermostat|magcubic|projector|hy350|video doorbell|home assistant|zigbee|thread hub|sliding gate/.test(combined)) {
+  // 3. Smart Home & IoT (robovacs, roborock, dreame, matter, aqara, projectors, smart pet appliances)
+  if (/roborock|dreame|ecovacs|roomba|vacuum|robot vacuum|robot mop|smart mop|aqara|matter|smart home|smarthome|smart lock|smart plug|mmwave|presence sensor|smart bulb|smart curtain|thermostat|magcubic|projector|hy350|video doorbell|home assistant|zigbee|thread hub|sliding gate|meowant|litter box|cat litter|automatic feeder|pet feeder|pet fountain|smart pet|pet care|pet odor|cat box|pet appliance/.test(combined)) {
     return { slug: 'smarthome', name: 'Smart Home & IoT' };
   }
 
@@ -1154,7 +1154,7 @@ function detectNicheFromUrlAndKeyword(url = '', keyword = '', title = '', brand 
   }
 
   // 11. Presets & LUTs (lightroom presets, lut, color grading)
-  if (/preset|presets|lut|luts|lightroom|lightroom preset|color grading|cube file|davinci lut|photoshop action|cyberpunk lut|camera profile/.test(combined)) {
+  if (/(?:\bpresets?\b|\bluts?\b)|lightroom|lightroom preset|color grading|\.cube\b|davinci lut|photoshop action|cyberpunk lut|camera profile/.test(combined)) {
     return { slug: 'presets', name: 'Presets & LUTs' };
   }
 
@@ -1840,6 +1840,115 @@ function initAiArticleGenerator() {
   }
 }
 
+function renderDiscoveredStoreProducts(products) {
+  const container = document.getElementById('ai-store-products-container');
+  if (!container) return;
+  if (!products || !Array.isArray(products) || products.length === 0) {
+    container.classList.add('hidden');
+    container.innerHTML = '';
+    return;
+  }
+
+  container.classList.remove('hidden');
+  container.innerHTML = `
+    <div class="p-2.5 rounded-xl bg-purple-950/60 border border-purple-800/70 shadow-sm space-y-1.5">
+      <div class="flex items-center justify-between text-[11px]">
+        <span class="font-bold text-amber-300 flex items-center gap-1">
+          <i data-lucide="sparkles" class="w-3.5 h-3.5 text-amber-400"></i>
+          <span>Phát hiện ${products.length} sản phẩm trên web:</span>
+        </span>
+        <span class="text-[10px] text-slate-400">Bấm để đổi nhanh sản phẩm</span>
+      </div>
+      <div class="flex items-center gap-1.5 overflow-x-auto no-scrollbar py-0.5">
+        ${products.map((p, idx) => `
+          <button 
+            type="button" 
+            class="store-product-pill flex-shrink-0 flex items-center gap-1.5 px-2.5 py-1 rounded-lg text-xs font-semibold border transition-all cursor-pointer ${
+              idx === 0 
+                ? 'bg-cyan-950/90 text-cyan-300 border-cyan-500/50 shadow-xs' 
+                : 'bg-[#141926] text-slate-300 border-slate-700/60 hover:border-cyan-400/50 hover:text-white'
+            }"
+            data-index="${idx}"
+            title="${p.title} (${p.salePriceUsd})"
+          >
+            ${p.image ? `<img src="${p.image}" class="w-4 h-4 rounded object-cover flex-shrink-0" onerror="this.style.display='none'">` : ''}
+            <span class="truncate max-w-[140px] text-[11px]">${p.title}</span>
+            <span class="text-emerald-400 font-bold font-mono text-[11px]">${p.salePriceUsd}</span>
+          </button>
+        `).join('')}
+      </div>
+    </div>
+  `;
+
+  if (window.lucide) lucide.createIcons();
+
+  // Attach click handler to each pill
+  const pills = container.querySelectorAll('.store-product-pill');
+  pills.forEach(pill => {
+    pill.addEventListener('click', () => {
+      const idx = parseInt(pill.getAttribute('data-index'), 10);
+      const selected = products[idx];
+      if (!selected) return;
+
+      // Update active pill styling
+      pills.forEach(p => {
+        p.classList.remove('bg-cyan-950/90', 'text-cyan-300', 'border-cyan-500/50', 'shadow-xs');
+        p.classList.add('bg-[#141926]', 'text-slate-300', 'border-slate-700/60');
+      });
+      pill.classList.remove('bg-[#141926]', 'text-slate-300', 'border-slate-700/60');
+      pill.classList.add('bg-cyan-950/90', 'text-cyan-300', 'border-cyan-500/50', 'shadow-xs');
+
+      // Populate input fields
+      const aiKw = document.getElementById('ai-input-keyword');
+      const inputTitle = document.getElementById('input-title');
+      if (aiKw) aiKw.value = selected.title;
+      if (inputTitle) inputTitle.value = selected.title;
+
+      if (selected.image) {
+        const formImg = document.getElementById('input-image');
+        const aiImg = document.getElementById('ai-input-image');
+        const aiThumb = document.getElementById('ai-img-thumb');
+        if (formImg) formImg.value = selected.image;
+        if (aiImg) aiImg.value = selected.image;
+        if (aiThumb) aiThumb.src = selected.image;
+      }
+
+      if (selected.salePriceUsd) {
+        const inputUsd = document.getElementById('input-price-usd');
+        const aiPrice = document.getElementById('ai-input-price');
+        if (inputUsd) inputUsd.value = selected.salePriceUsd;
+        if (aiPrice) aiPrice.value = selected.salePriceUsd;
+      }
+
+      if (selected.salePriceVnd) {
+        const inputVnd = document.getElementById('input-price-vnd');
+        if (inputVnd) inputVnd.value = selected.salePriceVnd;
+      }
+
+      if (selected.originalPriceUsd) {
+        const inputOrig = document.getElementById('input-price-orig');
+        if (inputOrig) inputOrig.value = selected.originalPriceUsd;
+      }
+
+      if (selected.brand) {
+        const formBrand = document.getElementById('input-brand');
+        const aiBrand = document.getElementById('ai-input-brand');
+        if (formBrand) formBrand.value = selected.brand;
+        if (aiBrand) aiBrand.value = selected.brand;
+      }
+
+      // Re-detect niche based on selected product
+      const detected = detectNicheFromUrlAndKeyword('', selected.title, '', selected.brand || '');
+      if (detected) {
+        applyAutoDetectedNiche(detected, '');
+      }
+
+      updatePreview();
+      showToast(`⚡ Đã chọn sản phẩm: "${selected.title}" (${selected.salePriceUsd})`);
+    });
+  });
+}
+
 // Auto-fetch exact brand price, currency, and discounts from merchant link
 async function fetchAndApplyBrandPrice(targetUrl, silent = false) {
   let url = (targetUrl || document.getElementById('input-aff-url')?.value || document.getElementById('ai-input-aff-link')?.value || '').trim();
@@ -1864,10 +1973,11 @@ async function fetchAndApplyBrandPrice(targetUrl, silent = false) {
   }
 
   try {
+    const hintKw = document.getElementById('ai-input-keyword')?.value?.trim() || '';
     const res = await fetch('/api/fetch-brand-price', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ url })
+      body: JSON.stringify({ url, keyword: hintKw })
     });
 
     if (res.ok) {
@@ -1934,6 +2044,17 @@ async function fetchAndApplyBrandPrice(targetUrl, silent = false) {
           const detectedFromFetch = detectNicheFromUrlAndKeyword(url, data.productTitle || '', data.productTitle || '', data.brand || '');
           if (detectedFromFetch) {
             applyAutoDetectedNiche(detectedFromFetch, url);
+          }
+        }
+
+        // Render Discovered Products switcher bar if available
+        if (data.storeProducts && data.storeProducts.length > 0) {
+          renderDiscoveredStoreProducts(data.storeProducts);
+        } else {
+          const container = document.getElementById('ai-store-products-container');
+          if (container) {
+            container.classList.add('hidden');
+            container.innerHTML = '';
           }
         }
 
