@@ -339,6 +339,7 @@ document.addEventListener('DOMContentLoaded', () => {
   initThemeToggle();
   initCancelEdit();
   initMessagesManager();
+  initDraftSystem();
   refreshIcons();
 });
 
@@ -524,16 +525,24 @@ let _lastProsCached = null;
 let _lastConsCached = null;
 
 function updatePreview() {
-  const title = (document.getElementById('input-title')?.value || '').trim() || 'New Product Editorial Review Title';
-  const category = document.getElementById('input-category')?.value || 'Tech';
-  const excerpt = (document.getElementById('input-excerpt')?.value || '').trim() || 'Comprehensive hands-on review evaluating real-world durability, ergonomic design, and daily performance...';
+  const formTitle = (document.getElementById('input-title')?.value || '').trim();
+  const title = formTitle || 'New Product Editorial Review Title';
+  const category = document.getElementById('input-category')?.value || 'Desk Setup & EDC';
+  const formExcerpt = (document.getElementById('input-excerpt')?.value || '').trim();
+  const excerpt = formExcerpt || 'Comprehensive hands-on review evaluating real-world durability, ergonomic design, and daily performance...';
   const btnText = (document.getElementById('input-btn-text')?.value || '').trim() || 'ORDER NOW';
   const affUrl = (document.getElementById('input-aff-url')?.value || '').trim() || '#';
   const imgUrl = (document.getElementById('input-image')?.value || '').trim() || 'https://images.unsplash.com/photo-1587829741301-dc798b83add3?auto=format&fit=crop&w=800&q=80';
-  const priceUsd = (document.getElementById('input-price-usd')?.value || '').trim() || '$198.00';
-  const priceVnd = (document.getElementById('input-price-vnd')?.value || '').trim() || '4.950.000đ';
-  const priceOrig = (document.getElementById('input-price-orig')?.value || '').trim() || '$229.00';
-  const coupon = (document.getElementById('input-coupon')?.value || '').trim() || 'TECHPICKS';
+  
+  const formUsd = (document.getElementById('input-price-usd')?.value || '').trim();
+  const formVnd = (document.getElementById('input-price-vnd')?.value || '').trim();
+  const formOrig = (document.getElementById('input-price-orig')?.value || '').trim();
+  const formCoupon = (document.getElementById('input-coupon')?.value || '').trim();
+
+  const priceUsd = formUsd || '$0.00';
+  const priceVnd = formVnd || '';
+  const priceOrig = formOrig || '';
+  const coupon = formCoupon || '';
   const rating = document.getElementById('input-rating')?.value || '9.6';
   const prosText = (document.getElementById('input-pros')?.value || '').trim();
   const consText = (document.getElementById('input-cons')?.value || '').trim();
@@ -560,14 +569,20 @@ function updatePreview() {
   if (pUsd && pUsd.textContent !== priceUsd) pUsd.textContent = priceUsd;
 
   const pVnd = document.getElementById('prev-price-vnd');
-  const vndStr = `(${priceVnd})`;
+  const vndStr = priceVnd ? `(${priceVnd})` : '';
   if (pVnd && pVnd.textContent !== vndStr) pVnd.textContent = vndStr;
 
   const pOrig = document.getElementById('prev-price-orig');
   if (pOrig && pOrig.textContent !== priceOrig) pOrig.textContent = priceOrig;
 
+  const pCpnBox = document.getElementById('prev-coupon-box');
   const pCpn = document.getElementById('prev-coupon');
-  if (pCpn && pCpn.textContent !== coupon) pCpn.textContent = coupon;
+  if (coupon) {
+    if (pCpnBox) pCpnBox.classList.remove('hidden');
+    if (pCpn && pCpn.textContent !== coupon) pCpn.textContent = coupon;
+  } else {
+    if (pCpnBox) pCpnBox.classList.add('hidden');
+  }
 
   const pBtn = document.getElementById('prev-btn-text');
   if (pBtn && pBtn.textContent !== btnText) pBtn.textContent = btnText;
@@ -588,7 +603,7 @@ function updatePreview() {
     const prosUl = document.getElementById('prev-pros-list');
     if (prosUl) {
       prosUl.innerHTML = '';
-      const prosLines = prosText ? prosText.split('\n').filter(l => l.trim().length > 0) : ['Class-leading premium build quality', 'Seamless performance and intuitive controls'];
+      const prosLines = prosText ? prosText.split('\n').filter(l => l.trim().length > 0) : ['(Chưa nhập ưu điểm - Điền ở mục 5 hoặc bấm Tạo bài bằng AI)'];
       const frag = document.createDocumentFragment();
       prosLines.forEach(item => {
         const li = document.createElement('li');
@@ -605,7 +620,7 @@ function updatePreview() {
     const consUl = document.getElementById('prev-cons-list');
     if (consUl) {
       consUl.innerHTML = '';
-      const consLines = consText ? consText.split('\n').filter(l => l.trim().length > 0) : ['Premium flagship price point'];
+      const consLines = consText ? consText.split('\n').filter(l => l.trim().length > 0) : ['(Chưa nhập nhược điểm - Điền ở mục 5 hoặc bấm Tạo bài bằng AI)'];
       const frag = document.createDocumentFragment();
       consLines.forEach(item => {
         const li = document.createElement('li');
@@ -627,13 +642,199 @@ function updatePreview() {
   if (cRating && cRating.textContent !== rating) cRating.textContent = rating;
 
   const cImg = document.getElementById('card-prev-img');
-  if (cImg && cImg.getAttribute('src') !== imgUrl) cImg.src = imgUrl;
+  if (cImg && cImg.getAttribute('src') !== resolvedPreviewImg) cImg.src = resolvedPreviewImg;
 
   const cPrice = document.getElementById('card-prev-price');
   if (cPrice && cPrice.textContent !== priceUsd) cPrice.textContent = priceUsd;
 
   const cExcerpt = document.getElementById('card-prev-excerpt');
   if (cExcerpt && cExcerpt.textContent !== excerpt) cExcerpt.textContent = excerpt;
+}
+
+// -------------------------------------------------------------
+// 2.5 DRAFT AUTO-SAVE & AUTO-RESTORE ENGINE (ZERO PROGRESS LOSS)
+// -------------------------------------------------------------
+const DRAFT_STORAGE_KEY = 'techpicks_admin_active_draft';
+let autoSaveDraftTimer = null;
+
+function scheduleAutoSaveDraft() {
+  if (autoSaveDraftTimer) clearTimeout(autoSaveDraftTimer);
+  autoSaveDraftTimer = setTimeout(() => {
+    saveActiveDraft();
+  }, 400);
+}
+
+function saveActiveDraft() {
+  if (window.isEditing) return; // Do not overwrite draft when editing existing post
+  try {
+    const draft = {
+      aiKeyword: document.getElementById('ai-input-keyword')?.value || '',
+      aiNiche: document.getElementById('ai-input-niche')?.value || '',
+      aiBrand: document.getElementById('ai-input-brand')?.value || '',
+      aiPrice: document.getElementById('ai-input-price')?.value || '',
+      aiAffLink: document.getElementById('ai-input-aff-link')?.value || '',
+      aiImage: document.getElementById('ai-input-image')?.value || '',
+      title: document.getElementById('input-title')?.value || '',
+      slug: document.getElementById('input-slug')?.value || '',
+      slugManual: !!document.getElementById('input-slug')?.dataset?.manual,
+      category: document.getElementById('input-category')?.value || '',
+      excerpt: document.getElementById('input-excerpt')?.value || '',
+      brand: document.getElementById('input-brand')?.value || '',
+      btnText: document.getElementById('input-btn-text')?.value || '',
+      affUrl: document.getElementById('input-aff-url')?.value || '',
+      image: document.getElementById('input-image')?.value || '',
+      priceUsd: document.getElementById('input-price-usd')?.value || '',
+      priceVnd: document.getElementById('input-price-vnd')?.value || '',
+      priceOrig: document.getElementById('input-price-orig')?.value || '',
+      coupon: document.getElementById('input-coupon')?.value || '',
+      couponDiscount: document.getElementById('input-coupon-discount')?.value || '',
+      couponExpiry: document.getElementById('input-coupon-expiry')?.value || '',
+      rating: document.getElementById('input-rating')?.value || '9.6',
+      pros: document.getElementById('input-pros')?.value || '',
+      cons: document.getElementById('input-cons')?.value || '',
+      intro: document.getElementById('input-content-intro')?.value || '',
+      body: document.getElementById('input-content-body')?.value || '',
+      verdict: document.getElementById('input-content-verdict')?.value || '',
+      savedAt: Date.now()
+    };
+
+    const hasData = !!(draft.title || draft.affUrl || draft.aiAffLink || draft.aiKeyword || draft.priceUsd || draft.brand);
+    if (hasData) {
+      localStorage.setItem(DRAFT_STORAGE_KEY, JSON.stringify(draft));
+      updateDraftStatusIndicator(true, draft.savedAt);
+    }
+  } catch (e) {
+    console.warn('Failed to save draft:', e);
+  }
+}
+
+function clearActiveDraft() {
+  try {
+    localStorage.removeItem(DRAFT_STORAGE_KEY);
+    updateDraftStatusIndicator(false);
+  } catch (e) {}
+}
+
+function restoreActiveDraft() {
+  if (window.isEditing) return false;
+  try {
+    const raw = localStorage.getItem(DRAFT_STORAGE_KEY);
+    if (!raw) return false;
+    const draft = JSON.parse(raw);
+    if (!draft || typeof draft !== 'object') return false;
+
+    const hasData = !!(draft.title || draft.affUrl || draft.aiAffLink || draft.aiKeyword || draft.priceUsd || draft.brand);
+    if (!hasData) return false;
+
+    const setVal = (id, val) => {
+      const el = document.getElementById(id);
+      if (el && val !== undefined && val !== null) el.value = val;
+    };
+
+    setVal('ai-input-keyword', draft.aiKeyword);
+    if (draft.aiNiche) {
+      const elNiche = document.getElementById('ai-input-niche');
+      if (elNiche) elNiche.value = draft.aiNiche;
+    }
+    setVal('ai-input-brand', draft.aiBrand);
+    setVal('ai-input-price', draft.aiPrice);
+    setVal('ai-input-aff-link', draft.aiAffLink);
+    setVal('ai-input-image', draft.aiImage);
+    const aiThumb = document.getElementById('ai-img-thumb');
+    if (aiThumb && draft.aiImage) aiThumb.src = draft.aiImage;
+
+    setVal('input-title', draft.title);
+    setVal('input-slug', draft.slug);
+    if (draft.slugManual) {
+      const slugEl = document.getElementById('input-slug');
+      if (slugEl) slugEl.dataset.manual = 'true';
+    }
+    if (draft.category) {
+      const elCat = document.getElementById('input-category');
+      if (elCat) elCat.value = draft.category;
+    }
+    setVal('input-excerpt', draft.excerpt);
+    setVal('input-brand', draft.brand);
+    setVal('input-btn-text', draft.btnText || 'ORDER NOW');
+    setVal('input-aff-url', draft.affUrl);
+    setVal('input-image', draft.image);
+    setVal('input-price-usd', draft.priceUsd);
+    setVal('input-price-vnd', draft.priceVnd);
+    setVal('input-price-orig', draft.priceOrig);
+    setVal('input-coupon', draft.coupon);
+    setVal('input-coupon-discount', draft.couponDiscount);
+    setVal('input-coupon-expiry', draft.couponExpiry);
+    if (draft.rating) {
+      setVal('input-rating', draft.rating);
+      const lbl = document.getElementById('label-rating');
+      if (lbl) lbl.textContent = draft.rating + ' / 10 ⭐';
+    }
+    setVal('input-pros', draft.pros);
+    setVal('input-cons', draft.cons);
+    setVal('input-content-intro', draft.intro);
+    setVal('input-content-body', draft.body);
+    setVal('input-content-verdict', draft.verdict);
+
+    updateDraftStatusIndicator(true, draft.savedAt);
+    updatePreview();
+    return true;
+  } catch (e) {
+    console.warn('Failed to restore draft:', e);
+    return false;
+  }
+}
+
+function updateDraftStatusIndicator(hasDraft, savedTimestamp = null) {
+  const banner = document.getElementById('draft-banner');
+  const infoEl = document.getElementById('draft-banner-info');
+  const timeEl = document.getElementById('draft-banner-time');
+  if (!banner) return;
+
+  if (hasDraft && !window.isEditing) {
+    banner.classList.remove('hidden');
+    banner.classList.add('flex');
+    const titleVal = document.getElementById('input-title')?.value || document.getElementById('ai-input-keyword')?.value || '';
+    if (infoEl) {
+      infoEl.textContent = titleVal ? `Đang giữ bản thảo: "${titleVal.substring(0, 50)}..."` : 'Nội dung bài viết bạn đang làm dở đã được tự động giữ lại khi tải lại trang.';
+    }
+    if (timeEl && savedTimestamp) {
+      const d = new Date(savedTimestamp);
+      timeEl.textContent = `Lưu tự động lúc: ${d.toLocaleTimeString()}`;
+    }
+  } else {
+    banner.classList.add('hidden');
+    banner.classList.remove('flex');
+  }
+}
+
+function initDraftSystem() {
+  const btnClearDraft = document.getElementById('btn-clear-draft');
+  if (btnClearDraft) {
+    btnClearDraft.addEventListener('click', () => {
+      if (confirm('Bạn có chắc muốn xóa bản thảo đang lưu và làm mới toàn bộ biểu mẫu?')) {
+        clearActiveDraft();
+        exitEditMode();
+        updatePreview();
+        showToast('Đã xóa bản thảo đang lưu & làm mới biểu mẫu!', 'info');
+      }
+    });
+  }
+
+  // Restore draft on load
+  const restored = restoreActiveDraft();
+  if (restored) {
+    showToast('💾 Đã tự động khôi phục bài viết bạn đang làm dở!', 'info');
+  } else {
+    // If no draft, ensure preview shows clean state
+    updatePreview();
+  }
+
+  // Auto-save on any change in the editor tab
+  const editorInputs = document.querySelectorAll('#tab-editor input, #tab-editor textarea, #tab-editor select');
+  editorInputs.forEach(el => {
+    el.addEventListener('input', scheduleAutoSaveDraft);
+    el.addEventListener('change', scheduleAutoSaveDraft);
+  });
 }
 
 // Vietnamese diacritics & general string to ASCII kebab-case
@@ -775,11 +976,23 @@ function exitEditMode() {
     btnPublish.innerHTML = '<i data-lucide="rocket" class="w-4 h-4"></i><span>🚀 PUBLISH REVIEW TO LIVE STORE</span>';
   }
 
-  // Clear inputs
-  document.querySelectorAll('#tab-editor input, #tab-editor textarea').forEach(el => el.value = '');
-  document.getElementById('input-rating').value = 9.6;
-  document.getElementById('label-rating').textContent = '9.6 / 10 ⭐';
-  delete document.getElementById('input-slug').dataset.manual;
+  // Clear manual inputs (preserve AI assistant search inputs)
+  const manualInputs = [
+    'input-title', 'input-slug', 'input-category', 'input-excerpt', 'input-brand',
+    'input-btn-text', 'input-aff-url', 'input-image', 'input-price-usd', 'input-price-vnd',
+    'input-price-orig', 'input-coupon', 'input-coupon-discount', 'input-coupon-expiry',
+    'input-pros', 'input-cons', 'input-content-intro', 'input-content-body', 'input-content-verdict'
+  ];
+  manualInputs.forEach(id => {
+    const el = document.getElementById(id);
+    if (el) el.value = (id === 'input-btn-text') ? 'ORDER NOW' : '';
+  });
+  const ratingEl = document.getElementById('input-rating');
+  if (ratingEl) ratingEl.value = 9.6;
+  const ratingLbl = document.getElementById('label-rating');
+  if (ratingLbl) ratingLbl.textContent = '9.6 / 10 ⭐';
+  const slugEl = document.getElementById('input-slug');
+  if (slugEl) delete slugEl.dataset.manual;
 
   updatePreview();
   lucide.createIcons();
@@ -915,7 +1128,9 @@ function initSampleDataFiller() {
   if (btnReset) {
     btnReset.addEventListener('click', () => {
       if (confirm('Are you sure you want to reset all form fields?')) {
+        clearActiveDraft();
         exitEditMode();
+        updatePreview();
         showToast('Form cleared and reset!');
       }
     });
@@ -2005,12 +2220,26 @@ async function fetchAndApplyBrandPrice(targetUrl, silent = false) {
         if (validProductTitle) {
           const aiKw = document.getElementById('ai-input-keyword');
           const inputTitle = document.getElementById('input-title');
+          const inputSlug = document.getElementById('input-slug');
           if (aiKw) {
             aiKw.value = validProductTitle;
           }
           if (inputTitle && (!inputTitle.value.trim() || inputTitle.value.includes('Sony WH-1000XM5') || inputTitle.value.includes('Sample') || inputTitle.value.includes('Mowrator') || isJunkTitle(inputTitle.value))) {
             inputTitle.value = validProductTitle;
           }
+          if (inputSlug && !inputSlug.dataset.manual) {
+            inputSlug.value = 'post-' + slugify(validProductTitle);
+          }
+        }
+
+        // Auto-fill direct affiliate URL in form if empty
+        const formAff = document.getElementById('input-aff-url');
+        const aiAff = document.getElementById('ai-input-aff-link');
+        if (formAff && (!formAff.value.trim() || formAff.value === '#')) {
+          formAff.value = url;
+        }
+        if (aiAff && !aiAff.value.trim()) {
+          aiAff.value = url;
         }
 
         // Auto-fill Product Packshot Image if extracted from link
@@ -2080,6 +2309,7 @@ async function fetchAndApplyBrandPrice(targetUrl, silent = false) {
 
         updatePreview();
         lucide.createIcons();
+        saveActiveDraft();
 
         if (!silent) {
           showToast(`⚡ Đã quét sản phẩm: "${data.productTitle || data.brand}" - Giá: ${data.salePriceUsd} (${data.salePriceVnd})!`);
@@ -2268,6 +2498,7 @@ async function generateArticleWithAi() {
 
     updatePreview();
     lucide.createIcons();
+    saveActiveDraft();
 
     if (userOverriddenPrice) {
       showToast(`✨ Generated "${generated.title.substring(0, 30)}..." with Your Custom Price (${userOverriddenPrice.salePriceUsd})!`);
@@ -2878,6 +3109,7 @@ function initPublishSystem() {
           loadPostsList(true);
           if (typeof loadProductsList === 'function') loadProductsList(true);
           exitEditMode();
+          clearActiveDraft();
         } else {
           showToast('❌ Không thể đăng bài: ' + (result?.message || 'Máy chủ trả về lỗi (' + res.status + ')! Vui lòng kiểm tra lại backend/Cloudflare Worker.'), 'error');
         }
