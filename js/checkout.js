@@ -105,12 +105,12 @@ function renderCheckoutModal(product) {
     document.body.appendChild(modal);
   }
 
-  // Official Banking Information (TRAN XUAN LONG - VietinBank)
-  const orderCode = 'TECH' + Math.floor(100000 + Math.random() * 900000);
+  // Banking & Checkout Configuration (CouponHiker)
+  const orderCode = 'CPH' + Math.floor(100000 + Math.random() * 900000);
   const bankName = (lang === 'vi') ? "VietinBank (Ngân Hàng TMCP Công Thương Việt Nam)" : ((lang === 'zh') ? "越南工商股份商业银行 (VietinBank)" : "VietinBank (Vietnam Joint Stock Commercial Bank)");
-  const bankBranch = "CN BAC NGHE AN - PGD HOANG MAI";
+  const bankBranch = "Chi nhánh Hà Nội / TP.HCM";
   const accountNumber = "0345797365";
-  const accountHolder = "TRAN XUAN LONG";
+  const accountHolder = "MINH THANH";
   const transferContent = `${orderCode}`;
   
   // Standard Napas 247 / VietQR Dynamic URL (BIN: 970415 / ICB / vietinbank)

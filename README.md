@@ -81,9 +81,9 @@ C:\Web2\
 2. Trình duyệt sẽ tự động mở 2 cổng độc lập:
    - **Website Chính**: [http://localhost:3002](http://localhost:3002)
    - **Admin CMS Studio**: [http://localhost:3003](http://localhost:3003)
-3. Bạn có thể đăng nhập vào Admin CMS Studio bằng các tài khoản quản trị mặc định:
-   - `xuanlongtran921@gmail.com` / `1532004Long@`
-   - `minhthanhcenter@gmail.com` / `thanh123@`
+3. Bạn có thể đăng nhập vào Admin CMS Studio bằng tài khoản quản trị:
+   - `minhthanhcenter@gmail.com` / `thanh123@` (Super Admin)
+   - `hocamtuqlhm@gmail.com` / `camtu123@` (Admin)
 
 ### Cách 2: Mở trực tiếp không cần server
 - Mở trực tiếp file `index.html` trong `C:\Web2` bằng bất kỳ trình duyệt nào (Chrome, Edge, Firefox).

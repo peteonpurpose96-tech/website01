@@ -2,3 +2,7 @@
 start-*.bat
 _worker.js
 worker.js
+wrangler.toml
+*.py
+*.log
+.git*

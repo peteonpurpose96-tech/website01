@@ -1,13 +1,13 @@
 /**
  * =========================================================================
  * Cloudflare Worker Backend for CouponHiker Hub & Admin CMS
- * Domain: techpicks.pro (website.xuanlongtran921.workers.dev)
+ * Domain: couponhiker.com (thanh.workers.dev)
  * =========================================================================
  * Features:
  * 1. POST /api/publish: Saves articles directly to Cloudflare KV without downloading files.
  * 2. GET /data/posts.json: Merges base articles with newly published KV articles.
  * 3. POST /api/delete-post: Deletes articles from KV.
- * 4. POST /api/admin/login: Authenticates admin (xuanlongtran921@gmail.com / 1532004Long@).
+ * 4. POST /api/admin/login: Authenticates admin (minhthanhcenter@gmail.com / thanh123@).
  * 5. Dynamic post rendering for /post-*.html.
  * 6. Static asset delivery via env.ASSETS.
  * =========================================================================
@@ -15,11 +15,11 @@
 
 const ADMIN_ACCOUNTS = [
   {
-    email: 'xuanlongtran921@gmail.com',
-    password: '1532004Long@',
-    name: 'Xuan Long',
+    email: 'minhthanhcenter@gmail.com',
+    password: 'thanh123@',
+    name: 'Minh Thành',
     role: 'Super Admin',
-    initials: 'XL'
+    initials: 'MT'
   },
   {
     email: 'hocamtuqlhm@gmail.com',
@@ -27,17 +27,10 @@ const ADMIN_ACCOUNTS = [
     name: 'Hồ Cẩm Tú',
     role: 'Admin',
     initials: 'CT'
-  },
-  {
-    email: 'minhthanhcenter@gmail.com',
-    password: 'thanh123@',
-    name: 'Minh Thành',
-    role: 'Admin',
-    initials: 'MT'
   }
 ];
-const ADMIN_EMAIL = 'xuanlongtran921@gmail.com';
-const ADMIN_PASS = '1532004Long@';
+const ADMIN_EMAIL = 'minhthanhcenter@gmail.com';
+const ADMIN_PASS = 'thanh123@';
 
 const CORS_HEADERS = {
   'Access-Control-Allow-Origin': '*',

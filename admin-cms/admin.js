@@ -27,11 +27,11 @@ function refreshIcons(container) {
 // -------------------------------------------------------------
 const AUTH_ACCOUNTS = [
   {
-    email: 'xuanlongtran921@gmail.com',
-    password: '1532004Long@',
-    name: 'Xuan Long',
+    email: 'minhthanhcenter@gmail.com',
+    password: 'thanh123@',
+    name: 'Minh Thành',
     role: 'Super Admin',
-    initials: 'XL'
+    initials: 'MT'
   },
   {
     email: 'hocamtuqlhm@gmail.com',
@@ -39,17 +39,10 @@ const AUTH_ACCOUNTS = [
     name: 'Hồ Cẩm Tú',
     role: 'Admin',
     initials: 'CT'
-  },
-  {
-    email: 'minhthanhcenter@gmail.com',
-    password: 'thanh123@',
-    name: 'Minh Thành',
-    role: 'Admin',
-    initials: 'MT'
   }
 ];
-const AUTH_EMAIL = 'xuanlongtran921@gmail.com';
-const AUTH_PASS = '1532004Long@';
+const AUTH_EMAIL = 'minhthanhcenter@gmail.com';
+const AUTH_PASS = 'thanh123@';
 const AUTH_STORAGE_KEY = 'sp_admin_session_token';
 const AUTH_USER_KEY = 'sp_admin_session_user';
 
@@ -139,7 +132,7 @@ function initAdminAuth() {
       try {
         let authSuccess = false;
         let token = 'sp_admin_' + Date.now();
-        let userData = { email: AUTH_EMAIL, role: 'Super Admin', name: 'Xuan Long' };
+        let userData = { email: AUTH_EMAIL, role: 'Super Admin', name: 'Minh Thành' };
 
         // Attempt server login API
         try {

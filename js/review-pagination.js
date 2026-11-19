@@ -1868,7 +1868,7 @@
     "btnTextEn": "ORDER NOW",
     "btnTextVi": "Äáº¶T HÃ€NG NGAY",
     "btnTextZh": "ç«‹å³å‰å¾€è®¢è´­",
-    "affiliateLink": "https://menthorq.com/?aff=xuanlongtran921",
+    "affiliateLink": "https://menthorq.com/?aff=couponhiker",
     "priceUsd": "$39.00",
     "priceVnd": "975.000₫",
     "priceOrig": "$99.00",

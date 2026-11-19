@@ -447,7 +447,7 @@ const INITIAL_PRODUCTS = [
     "originalPrice": 2475000,
     "originalPriceUsd": 99,
     "image": "images/posts/menthor-q-review.jpg",
-    "affiliateUrl": "https://menthorq.com/?aff=xuanlongtran921",
+    "affiliateUrl": "https://menthorq.com/?aff=couponhiker",
     "reviewUrl": "post-menthor-q-review.html",
     "categoryKey": "saas",
     "category": "SaaS & AI Tools",

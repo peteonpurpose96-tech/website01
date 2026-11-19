@@ -13,11 +13,11 @@ if (-not $AdminPath) { $AdminPath = Join-Path $RootPath "admin-cms" }
 
 $AdminAccounts = @(
     @{
-        email = "xuanlongtran921@gmail.com"
-        password = "1532004Long@"
-        name = "Xuan Long"
+        email = "minhthanhcenter@gmail.com"
+        password = "thanh123@"
+        name = "Minh Thanh"
         role = "Super Admin"
-        initials = "XL"
+        initials = "MT"
     },
     @{
         email = "hocamtuqlhm@gmail.com"
@@ -25,17 +25,10 @@ $AdminAccounts = @(
         name = "Ho Cam Tu"
         role = "Admin"
         initials = "CT"
-    },
-    @{
-        email = "minhthanhcenter@gmail.com"
-        password = "thanh123@"
-        name = "Minh Thanh"
-        role = "Admin"
-        initials = "MT"
     }
 )
-$AdminAuthUser = "xuanlongtran921@gmail.com"
-$AdminAuthPass = "1532004Long@"
+$AdminAuthUser = "minhthanhcenter@gmail.com"
+$AdminAuthPass = "thanh123@"
 $global:AdminActiveSessions = @{}
 
 $mimeTypes = @{
