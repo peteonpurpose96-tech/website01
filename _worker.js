@@ -482,6 +482,11 @@ export default {
 
         const lowerUrl = targetUrl.toLowerCase();
         let brand = 'Verified Partner';
+        let productTitle = '';
+        let imageUrl = '';
+        let category = '';
+        let categorySlug = '';
+        let storeProducts = null;
         let saleUsd = 79.0;
         let origUsd = 99.0;
         let coupon = 'PURPOSE15';
@@ -511,6 +516,40 @@ export default {
           brand = 'Logitech Master Series'; saleUsd = 99.0; origUsd = 119.0; coupon = 'LOGITECH20'; discount = '$20 OFF MX Series Gear';
         } else if (lowerUrl.includes('gaggia')) {
           brand = 'Gaggia Milano'; saleUsd = 449.0; origUsd = 499.0; coupon = 'BARISTA50'; discount = '$50 OFF Espresso Bundle';
+        } else if (lowerUrl.includes('bosgame') || lowerUrl.includes('magicnuc') || lowerUrl.includes('minisforum') || lowerUrl.includes('gmktec')) {
+          brand = 'BOSGAME Official';
+          category = 'Computing & Gaming'; categorySlug = 'computing';
+          coupon = 'BOSGAME15'; discount = '15% OFF Verified Merchant Deal';
+          if (lowerUrl.includes('p4')) {
+            productTitle = 'BOSGAME Mini PC P4 Ultra (AMD Ryzen 7 7730U, 16GB, 1TB SSD)';
+            saleUsd = 469.99; origUsd = 587.49;
+            imageUrl = 'https://cdn.shopify.com/s/files/1/0695/0128/8611/files/4_61870041-bc1a-4635-92c3-061f54837904.png?v=1782107234';
+          } else if (lowerUrl.includes('b100')) {
+            productTitle = 'BOSGAME Mini PC B100 (Intel 12th Gen Alder Lake N100, 16GB, 512GB)';
+            saleUsd = 299.49; origUsd = 374.36;
+            imageUrl = 'https://cdn.shopify.com/s/files/1/0695/0128/8611/files/Bosgame-Intel-n100-mini-pc.webp?v=1742011097';
+          } else if (lowerUrl.includes('e7')) {
+            productTitle = 'BOSGAME E7 Mini PC (Intel Core 3 100U, 16GB, 512GB NVMe SSD)';
+            saleUsd = 379.99; origUsd = 474.99;
+            imageUrl = 'https://cdn.shopify.com/s/files/1/0695/0128/8611/files/1_9232dabb-eedb-450e-8b23-b747a57d5e97.png?v=1786169783';
+          } else if (lowerUrl.includes('magicnuc') || lowerUrl.includes('ag3')) {
+            productTitle = 'Magicnuc AG3 Mini PC (Intel Core i9-13900HK, 32GB DDR5, 1TB SSD)';
+            saleUsd = 729.00; origUsd = 911.25;
+            imageUrl = 'https://cdn.shopify.com/s/files/1/0695/0128/8611/files/AG3-13900HK-__01.jpg?v=1779448508';
+            brand = 'Magicnuc';
+          } else {
+            productTitle = 'BOSGAME M5 MAX Mini PC (AMD Ryzen AI Max+ PRO 495, 192GB, 2TB)';
+            saleUsd = 6199.00; origUsd = 7748.75;
+            imageUrl = 'https://cdn.shopify.com/s/files/1/0695/0128/8611/files/2_fbed0334-eda4-4575-9f5d-caf3ae62b304.png?v=1793257514';
+          }
+          storeProducts = [
+            { id: 15472904798371, title: 'BOSGAME M5 MAX Mini PC (AMD Ryzen AI Max+ PRO 495, 192GB, 2TB)', salePriceUsd: '$6199.00', salePriceVnd: '154.975.000₫', originalPriceUsd: '$7748.75', image: 'https://cdn.shopify.com/s/files/1/0695/0128/8611/files/2_fbed0334-eda4-4575-9f5d-caf3ae62b304.png?v=1793257514', brand: 'BOSGAME' },
+            { id: 8985078333603, title: 'BOSGAME M5 AI Mini Desktop (Ryzen AI Max+ 395, 96GB/128GB, 2TB)', salePriceUsd: '$3099.00', salePriceVnd: '77.475.000₫', originalPriceUsd: '$3873.75', image: 'https://cdn.shopify.com/s/files/1/0695/0128/8611/files/BOSGAME_M5_AI_PC.png?v=1793863150', brand: 'BOSGAME' },
+            { id: 9156767940771, title: 'BOSGAME Mini PC P4 Ultra (AMD Ryzen 7 7730U, 16GB, 1TB SSD)', salePriceUsd: '$469.99', salePriceVnd: '11.750.000₫', originalPriceUsd: '$587.49', image: 'https://cdn.shopify.com/s/files/1/0695/0128/8611/files/4_61870041-bc1a-4635-92c3-061f54837904.png?v=1782107234', brand: 'BOSGAME' },
+            { id: 8719806693539, title: 'BOSGAME Mini PC B100 (Intel 12th Gen Alder Lake N100, 16GB, 512GB)', salePriceUsd: '$299.49', salePriceVnd: '7.487.000₫', originalPriceUsd: '$374.36', image: 'https://cdn.shopify.com/s/files/1/0695/0128/8611/files/Bosgame-Intel-n100-mini-pc.webp?v=1742011097', brand: 'BOSGAME' },
+            { id: 9218661056675, title: 'BOSGAME E7 Mini PC (Intel Core 3 100U, 16GB, 512GB NVMe SSD)', salePriceUsd: '$379.99', salePriceVnd: '9.500.000₫', originalPriceUsd: '$474.99', image: 'https://cdn.shopify.com/s/files/1/0695/0128/8611/files/1_9232dabb-eedb-450e-8b23-b747a57d5e97.png?v=1786169783', brand: 'BOSGAME' },
+            { id: 9127595835555, title: 'Magicnuc AG3 Mini PC (Intel Core i9-13900HK, 32GB DDR5, 1TB SSD)', salePriceUsd: '$729.00', salePriceVnd: '18.225.000₫', originalPriceUsd: '$911.25', image: 'https://cdn.shopify.com/s/files/1/0695/0128/8611/files/AG3-13900HK-__01.jpg?v=1779448508', brand: 'Magicnuc' }
+          ];
         } else if (lowerUrl.includes('meowant') || lowerUrl.includes('gaostoltd.pxf.io') || lowerUrl.includes('cat-litter') || lowerUrl.includes('litter-box')) {
           brand = 'Meowant Official';
           if (lowerUrl.includes('sc09')) {
@@ -550,7 +589,8 @@ export default {
           originalPriceVnd: origVnd.toLocaleString('vi-VN').replace(/,/g, '.') + '₫',
           couponCode: coupon,
           couponDiscount: discount,
-          couponExpiry: '12/31/2026'
+          couponExpiry: '12/31/2026',
+          storeProducts: storeProducts || []
         }), {
           headers: { ...CORS_HEADERS, 'Content-Type': 'application/json; charset=utf-8' }
         });

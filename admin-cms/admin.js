@@ -1128,8 +1128,8 @@ function detectNicheFromUrlAndKeyword(url = '', keyword = '', title = '', brand 
     return { slug: 'edc', name: 'Desk Setup & EDC' };
   }
 
-  // 6. Computing & Gaming (rog ally, steam deck, laptops, mini pcs, gpus)
-  if (/rog ally|ally x|steam deck|legion go|handheld gaming|razer blade|blade 16|alienware|gaming laptop|macbook|geforce|rtx 40|rtx 50|mini pc|geekom|beelink|mechanical gaming|handheld pc|gaming pc|graphics card/.test(combined)) {
+  // 6. Computing & Gaming (rog ally, steam deck, laptops, mini pcs, gpus, bosgame, magicnuc)
+  if (/rog ally|ally x|steam deck|legion go|handheld gaming|razer blade|blade 16|alienware|gaming laptop|macbook|geforce|rtx 40|rtx 50|mini pc|minipc|geekom|beelink|bosgame|bosgamepc|magicnuc|minisforum|gmktec|aoostar|chatreey|trigkey|mechanical gaming|handheld pc|gaming pc|graphics card|workstation|desktop|ryzen ai|alder lake|barebone|linux workstation/.test(combined)) {
     return { slug: 'computing', name: 'Computing & Gaming' };
   }
 
@@ -1985,15 +1985,31 @@ async function fetchAndApplyBrandPrice(targetUrl, silent = false) {
       if (data && data.success) {
         window.lastScrapedProductData = data;
 
+        // Filter out Cloudflare challenge or junk titles (e.g. "Just a moment...")
+        let validProductTitle = data.productTitle || '';
+        const isJunkTitle = (t) => {
+          if (!t) return true;
+          const low = t.toLowerCase().trim();
+          return low.includes('just a moment') || low.includes('attention required') || low.includes('cloudflare') || low.includes('access denied') || low.includes('security check') || low.includes('403 forbidden') || low === 'bot detection';
+        };
+
+        if (isJunkTitle(validProductTitle)) {
+          if (data.storeProducts && data.storeProducts.length > 0 && data.storeProducts[0].title) {
+            validProductTitle = data.storeProducts[0].title;
+          } else {
+            validProductTitle = '';
+          }
+        }
+
         // Auto-fill Product Title & Keyword if extracted from merchant link
-        if (data.productTitle) {
+        if (validProductTitle) {
           const aiKw = document.getElementById('ai-input-keyword');
           const inputTitle = document.getElementById('input-title');
           if (aiKw) {
-            aiKw.value = data.productTitle;
+            aiKw.value = validProductTitle;
           }
-          if (inputTitle && (!inputTitle.value.trim() || inputTitle.value.includes('Sony WH-1000XM5') || inputTitle.value.includes('Sample') || inputTitle.value.includes('Mowrator'))) {
-            inputTitle.value = data.productTitle;
+          if (inputTitle && (!inputTitle.value.trim() || inputTitle.value.includes('Sony WH-1000XM5') || inputTitle.value.includes('Sample') || inputTitle.value.includes('Mowrator') || isJunkTitle(inputTitle.value))) {
+            inputTitle.value = validProductTitle;
           }
         }
 

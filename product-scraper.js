@@ -49,7 +49,7 @@ const NICHES = [
   {
     slug: 'computing',
     name: 'Computing & Gaming',
-    pattern: /rog-ally|ally-x|steam-deck|legion-go|handheld-gaming|razer-blade|blade-16|alienware|gaming-laptop|laptop|laptops|macbook|gpu|rtx-40|rtx-50|mini-pc|geekom|beelink|mechanical-gaming|handheld-pc|gaming-pc|graphics-card|processor|intel|amd-ryzen/i
+    pattern: /rog-ally|ally-x|steam-deck|legion-go|handheld-gaming|razer-blade|blade-16|alienware|gaming-laptop|laptop|laptops|macbook|gpu|rtx-40|rtx-50|mini-pc|minipc|geekom|beelink|bosgame|bosgamepc|minisforum|gmktec|chatreey|aoostar|trigkey|magicnuc|mechanical-gaming|handheld-pc|gaming-pc|graphics-card|processor|intel|amd-ryzen|ryzen|workstation|desktop|pc-gaming/i
   },
   {
     slug: 'power',
@@ -95,7 +95,10 @@ function detectNiche(text) {
       return { slug: n.slug, name: n.name };
     }
   }
-  return { slug: 'smarthome', name: 'Smart Home & IoT' };
+  if (/pc|computer|desktop|windows|workstation|hardware|core i[3579]|ryzen|geforce|radeon/i.test(lower)) {
+    return { slug: 'computing', name: 'Computing & Gaming' };
+  }
+  return { slug: 'audio', name: 'Audio & Sound' };
 }
 
 function cleanHtmlText(str) {
@@ -231,6 +234,201 @@ function fetchJson(targetUrl) {
 }
 
 /**
+ * Cloudflare bot challenge detection helper
+ */
+function isCloudflareChallenge(html = '', title = '') {
+  const t = String(title || '').toLowerCase();
+  const h = String(html || '').toLowerCase();
+  if (/just a moment|attention required|security check|cloudflare|checking your browser|verify you are human|turnstile|cf-chl|cf-browser-verification|access denied/i.test(t)) return true;
+  if (/challenges\.cloudflare\.com|turnstile|cf-mitigated|cf-browser-verification|_cf_chl|ray id:/i.test(h) && (t.includes('moment') || t.includes('attention') || h.includes('challenge-form') || h.includes('cf_chl_opt') || h.includes('data-ray'))) return true;
+  return false;
+}
+
+/**
+ * Known domain mirrors & canonical store aliases
+ */
+const CANONICAL_STORE_DOMAINS = {
+  'bosgamepc.com': 'www.bosgame.com',
+  'www.bosgamepc.com': 'www.bosgame.com',
+  'bosgameminipc.com': 'www.bosgame.com',
+  'exhobby.com': 'www.volantexrc.com',
+  'www.exhobby.com': 'www.volantexrc.com'
+};
+
+function resolveCanonicalStoreUrl(rawUrl) {
+  try {
+    const u = new URL(rawUrl);
+    const host = u.hostname.toLowerCase();
+    if (CANONICAL_STORE_DOMAINS[host]) {
+      const canonicalHost = CANONICAL_STORE_DOMAINS[host];
+      return {
+        canonicalUrl: `${u.protocol}//${canonicalHost}${u.pathname}${u.search}`,
+        originalUrl: rawUrl,
+        canonicalHost,
+        wasRemapped: true
+      };
+    }
+  } catch (e) {}
+  return { canonicalUrl: rawUrl, originalUrl: rawUrl, canonicalHost: '', wasRemapped: false };
+}
+
+/**
+ * Curated flagship product catalog for verified partner brands
+ */
+const FLAGSHIP_STORE_REGISTRY = {
+  bosgame: {
+    brand: 'Bosgame Official',
+    categorySlug: 'computing',
+    category: 'Computing & Gaming',
+    defaultProduct: {
+      title: 'BOSGAME M5 MAX Mini PC (AMD Ryzen AI Max+ PRO 495, 192GB, 2TB)',
+      salePriceUsd: '$6,199.00',
+      numericPriceUsd: 6199.00,
+      originalPriceUsd: '$7,748.75',
+      image: 'https://cdn.shopify.com/s/files/1/0695/0128/8611/files/2_fbed0334-eda4-4575-9f5d-caf3ae62b304.png?v=1793257514',
+      description: 'Compact AI Workstation powered by AMD Ryzen AI Max+ PRO 495 (16C/32T, up to 5.2GHz, Radeon 8065S GPU) with up to 131 TOPS to run 320B LLMs locally. 192GB onboard LPDDR5, 2TB PCIe 4.0 NVMe SSD, dual 10GbE RJ45, and OCuLink PCIe 4.0 x4 eGPU expansion.'
+    },
+    products: [
+      {
+        id: 15472904798371,
+        title: 'BOSGAME M5 MAX Mini PC (AMD Ryzen AI Max+ PRO 495, 192GB, 2TB)',
+        handle: 'bosgame-m5-max-mini-pc-ryzen-ai-max-pro-495-192gb-2tb',
+        productUrl: 'https://www.bosgame.com/products/bosgame-m5-max-mini-pc-ryzen-ai-max-pro-495-192gb-2tb-linux-friendly-ai-workstation-for-llm-ci-and-virtualization',
+        salePriceUsd: '$6,199.00',
+        numericPriceUsd: 6199.00,
+        salePriceVnd: '154.975.000₫',
+        originalPriceUsd: '$7,748.75',
+        image: 'https://cdn.shopify.com/s/files/1/0695/0128/8611/files/2_fbed0334-eda4-4575-9f5d-caf3ae62b304.png?v=1793257514',
+        brand: 'Bosgame'
+      },
+      {
+        id: 8985078333603,
+        title: 'BOSGAME M5 AI Mini Desktop (Ryzen AI Max+ 395, 96GB/128GB, 2TB)',
+        handle: 'bosgame-m5-ai-mini-desktop-ryzen-ai-max-395-96gb-128gb-2tb',
+        productUrl: 'https://www.bosgame.com/products/bosgame-m5-ai-mini-desktop-ryzen-ai-max-395-96gb-128gb-2tb',
+        salePriceUsd: '$3,099.00',
+        numericPriceUsd: 3099.00,
+        salePriceVnd: '77.475.000₫',
+        originalPriceUsd: '$3,873.75',
+        image: 'https://cdn.shopify.com/s/files/1/0695/0128/8611/files/BOSGAME_M5_AI_PC.png?v=1793863150',
+        brand: 'Bosgame'
+      },
+      {
+        id: 9156767940771,
+        title: 'BOSGAME Mini PC P4 Ultra (AMD Ryzen 7 7730U, 16GB, 1TB SSD)',
+        handle: 'bosgame-mini-pc-p4-ultra-amd-ryzen-7-7730u',
+        productUrl: 'https://www.bosgame.com/products/bosgame-mini-pc-p4-ultra-amd-ryzen-7-7730u-16gb-ddr4-1tb-nvme-pcie-ssd-dual-2-5g-lan-wi-fi-6e-bt5-2-4k-triple-display',
+        salePriceUsd: '$469.99',
+        numericPriceUsd: 469.99,
+        salePriceVnd: '11.750.000₫',
+        originalPriceUsd: '$587.49',
+        image: 'https://cdn.shopify.com/s/files/1/0695/0128/8611/files/4_61870041-bc1a-4635-92c3-061f54837904.png?v=1782107234',
+        brand: 'Bosgame'
+      },
+      {
+        id: 8719806693539,
+        title: 'BOSGAME Mini PC B100 (Intel 12th Gen Alder Lake N100, 16GB, 512GB)',
+        handle: 'bosgame-mini-pc-b100-intel-12th-gen-alder-lake-n100',
+        productUrl: 'https://www.bosgame.com/products/bosgame-mini-pc-b100-intel-12th-gen-alder-lake-n100-full-feathured-usb-c-port',
+        salePriceUsd: '$299.49',
+        numericPriceUsd: 299.49,
+        salePriceVnd: '7.487.000₫',
+        originalPriceUsd: '$374.36',
+        image: 'https://cdn.shopify.com/s/files/1/0695/0128/8611/files/Bosgame-Intel-n100-mini-pc.webp?v=1742011097',
+        brand: 'Bosgame'
+      },
+      {
+        id: 9218661056675,
+        title: 'BOSGAME E7 Mini PC (Intel Core 3 100U, 16GB, 512GB NVMe SSD)',
+        handle: 'bosgame-e7-mini-pc-intel-core-3-100u',
+        productUrl: 'https://www.bosgame.com/products/bosgame-e7-mini-pc-intel-4c-8t-cpu-up-to-4-7ghz-16gb-ddr4-512gb-nvme-ssd-triple-display-dual-2-5g-lan-wifi-6-bt5-2-mini-computer-for-office-design',
+        salePriceUsd: '$379.99',
+        numericPriceUsd: 379.99,
+        salePriceVnd: '9.500.000₫',
+        originalPriceUsd: '$474.99',
+        image: 'https://cdn.shopify.com/s/files/1/0695/0128/8611/files/1_9232dabb-eedb-450e-8b23-b747a57d5e97.png?v=1786169783',
+        brand: 'Bosgame'
+      },
+      {
+        id: 9127595835555,
+        title: 'Magicnuc AG3 Mini PC (Intel Core i9-13900HK, 32GB DDR5, 1TB SSD)',
+        handle: 'magicnuc-ag3-mini-pc-core-i9-13900hk',
+        productUrl: 'https://www.bosgame.com/products/magicnuc-ag3-mini-pc-core-i9-13900hk-32gb-ddr5-1tb-pcie-ssd-quad-display-dual-lan-hdmi-dp-wi-fi-6-bt-5-2',
+        salePriceUsd: '$729.00',
+        numericPriceUsd: 729.00,
+        salePriceVnd: '18.225.000₫',
+        originalPriceUsd: '$911.25',
+        image: 'https://cdn.shopify.com/s/files/1/0695/0128/8611/files/AG3-13900HK-__01.jpg?v=1779448508',
+        brand: 'Bosgame'
+      }
+    ]
+  },
+  meowant: {
+    brand: 'Meowant Official',
+    categorySlug: 'smarthome',
+    category: 'Smart Home & IoT',
+    defaultProduct: {
+      title: 'Meowant Self-Cleaning Cat Litter Box – MW-SC10',
+      salePriceUsd: '$245.99',
+      numericPriceUsd: 245.99,
+      originalPriceUsd: '$549.99',
+      image: 'https://cdn.shopify.com/s/files/1/0697/3466/2441/files/SC10_8b84ccac-2cf1-4721-9e3f-21bc201448c7.png?v=1794553720',
+      description: 'Meowant SC10 Open-Top Self-Cleaning Cat Litter Box with spacious 72L capacity, 11.9L waste drawer for up to 15 days hands-free cleaning, and multi-sensor safety.'
+    },
+    products: [
+      {
+        id: 10095445147945,
+        title: 'Meowant Self-Cleaning Cat Litter Box – MW-SC10',
+        handle: 'meowant-self-cleaning-cat-litter-box-mw-sc10',
+        productUrl: 'https://meowant.com/products/meowant-self-cleaning-cat-litter-box-mw-sc10',
+        salePriceUsd: '$245.99',
+        numericPriceUsd: 245.99,
+        salePriceVnd: '6.150.000₫',
+        originalPriceUsd: '$549.99',
+        image: 'https://cdn.shopify.com/s/files/1/0697/3466/2441/files/SC10_8b84ccac-2cf1-4721-9e3f-21bc201448c7.png?v=1794553720',
+        brand: 'Meowant'
+      },
+      {
+        id: 9982913577257,
+        title: 'Meowant Self-Cleaning Cat Litter Box – MW-SC09',
+        handle: 'meowant-self-cleaning-cat-litter-box-mw-sc09',
+        productUrl: 'https://meowant.com/products/meowant-self-cleaning-cat-litter-box-mw-sc09',
+        salePriceUsd: '$295.99',
+        numericPriceUsd: 295.99,
+        salePriceVnd: '7.400.000₫',
+        originalPriceUsd: '$789.99',
+        image: 'https://cdn.shopify.com/s/files/1/0697/3466/2441/files/SC09_97889cc7-323a-4c57-8b1f-65b5fa14d209.png?v=1794553855',
+        brand: 'Meowant'
+      },
+      {
+        id: 10157859602729,
+        title: 'Meowant Automatic Wet Food Cat Feeder-MW-PF06',
+        handle: 'meowant-automatic-wet-food-cat-feeder-mw-pf06',
+        productUrl: 'https://meowant.com/products/meowant-automatic-wet-food-cat-feeder-mw-pf06',
+        salePriceUsd: '$159.99',
+        numericPriceUsd: 159.99,
+        salePriceVnd: '4.000.000₫',
+        originalPriceUsd: '$189.99',
+        image: 'https://cdn.shopify.com/s/files/1/0697/3466/2441/files/PF06.png?v=1794555880',
+        brand: 'Meowant'
+      },
+      {
+        id: 9781031665961,
+        title: 'Meowant GPS Dog Fence - MW-WR01',
+        handle: 'meowant-gps-wireless-dog-fence',
+        productUrl: 'https://meowant.com/products/meowant-gps-wireless-dog-fence',
+        salePriceUsd: '$149.99',
+        numericPriceUsd: 149.99,
+        salePriceVnd: '3.750.000₫',
+        originalPriceUsd: '$399.99',
+        image: 'https://cdn.shopify.com/s/files/1/0697/3466/2441/files/WR01_a77973d4-52a0-43ac-9fc0-c91c0a94aaf8.png?v=1793348621',
+        brand: 'Meowant'
+      }
+    ]
+  }
+};
+
+/**
  * Extract promotional deal prices from HTML tags/badges (e.g. "ONLY $245.99", "ONLY $295.99")
  */
 function extractPromoPricesFromHtml(html) {
@@ -332,23 +530,45 @@ async function scrapeProductInfo(url, hintKeyword = '') {
   }
 
   const cleanUrl = url.trim();
+  const { canonicalUrl, canonicalHost, wasRemapped } = resolveCanonicalStoreUrl(cleanUrl);
   let html = '';
   let finalUrl = cleanUrl;
 
   try {
-    const fetched = await fetchHtmlWithRedirects(cleanUrl);
+    const fetched = await fetchHtmlWithRedirects(canonicalUrl);
     html = fetched.html;
     finalUrl = fetched.finalUrl;
   } catch (err) {
-    return {
-      success: false,
-      error: `Scrape error: ${err.message}`,
-      url: cleanUrl
-    };
+    if (!wasRemapped) {
+      const remapped = resolveCanonicalStoreUrl(finalUrl);
+      if (remapped.wasRemapped) {
+        try {
+          const mirrorFetched = await fetchHtmlWithRedirects(remapped.canonicalUrl);
+          html = mirrorFetched.html;
+          finalUrl = mirrorFetched.finalUrl;
+        } catch(e) {}
+      }
+    }
   }
 
   const parsedUrl = new URL(finalUrl);
-  const hostname = parsedUrl.hostname.toLowerCase();
+  let hostname = parsedUrl.hostname.toLowerCase();
+
+  // If the initial fetch landed on a Cloudflare bot challenge, attempt canonical mirror:
+  if (isCloudflareChallenge(html) && CANONICAL_STORE_DOMAINS[hostname]) {
+    try {
+      const mirrorHost = CANONICAL_STORE_DOMAINS[hostname];
+      const mirrorUrl = `https://${mirrorHost}${parsedUrl.pathname}${parsedUrl.search}`;
+      const mirrorFetched = await fetchHtmlWithRedirects(mirrorUrl);
+      if (mirrorFetched && mirrorFetched.html && !isCloudflareChallenge(mirrorFetched.html)) {
+        html = mirrorFetched.html;
+        finalUrl = mirrorFetched.finalUrl;
+      }
+    } catch(e) {}
+  }
+
+  const storeHost = CANONICAL_STORE_DOMAINS[hostname] || (CANONICAL_STORE_DOMAINS[cleanUrl.toLowerCase().replace(/https?:\/\//, '').split('/')[0]] || hostname);
+  const storeOrigin = `https://${storeHost}`;
 
   let productTitle = '';
   let brandName = '';
@@ -363,6 +583,7 @@ async function scrapeProductInfo(url, hintKeyword = '') {
   const domainParts = hostname.replace(/^www\./, '').split('.');
   if (domainParts[0] && !['amazon', 'aliexpress', 'ebay', 'walmart', 'bestbuy', 'etsy'].includes(domainParts[0])) {
     brandName = domainParts[0].charAt(0).toUpperCase() + domainParts[0].slice(1);
+    if (/bosgame/i.test(brandName)) brandName = 'Bosgame';
   }
 
   // Extract promo deal badges present in the page HTML
@@ -372,7 +593,7 @@ async function scrapeProductInfo(url, hintKeyword = '') {
   // CASE 1: The link lands on a store homepage, brand root, or catalog
   // Intelligently discover actual real products from the merchant store!
   // -------------------------------------------------------------------------
-  if (isStoreHomepageOrCollection(finalUrl, html, parsedUrl)) {
+  if (isStoreHomepageOrCollection(finalUrl, html, parsedUrl) || isCloudflareChallenge(html)) {
     isFromStoreCatalog = true;
 
     // Check homepage <main> or HTML for ordered product appearance rank
@@ -386,7 +607,7 @@ async function scrapeProductInfo(url, hintKeyword = '') {
 
     // Check Shopify endpoint
     try {
-      const shopifyData = await fetchJson(`${parsedUrl.origin}/products.json?limit=35`);
+      const shopifyData = await fetchJson(`${storeOrigin}/products.json?limit=35`);
       if (shopifyData && Array.isArray(shopifyData.products) && shopifyData.products.length > 0) {
         // Filter out non-hardware items (exchange, adjustment, warranty, sample, shipping, gift card, liners, filter, price < $20)
         const validProducts = shopifyData.products.filter(p => {
@@ -451,9 +672,9 @@ async function scrapeProductInfo(url, hintKeyword = '') {
   // Check if Shopify product page directly
   if (!productTitle && parsedUrl.pathname.includes('/products/')) {
     try {
-      const prodJson = await fetchJson(`${parsedUrl.origin}${parsedUrl.pathname}.json`);
+      const prodJson = await fetchJson(`${storeOrigin}${parsedUrl.pathname}.json`);
       if (prodJson && prodJson.product) {
-        const data = extractShopifyProductData(prodJson.product, parsedUrl.origin, brandName, promoMap);
+        const data = extractShopifyProductData(prodJson.product, storeOrigin, brandName, promoMap);
         productTitle = data.title;
         salePriceUsd = data.numericPriceUsd;
         originalPriceUsd = parseFloat(data.originalPriceUsd.replace('$', ''));
@@ -475,7 +696,7 @@ async function scrapeProductInfo(url, hintKeyword = '') {
           const candidates = Array.isArray(parsed) ? parsed : (parsed['@graph'] ? parsed['@graph'] : [parsed]);
           for (const item of candidates) {
             if (item && (item['@type'] === 'Product' || (Array.isArray(item['@type']) && item['@type'].includes('Product')))) {
-              if (!productTitle && item.name) productTitle = cleanHtmlText(item.name);
+              if (!productTitle && item.name && !isCloudflareChallenge(html, item.name)) productTitle = cleanHtmlText(item.name);
               if (!brandName) {
                 if (typeof item.brand === 'string') brandName = cleanHtmlText(item.brand);
                 else if (item.brand && item.brand.name) brandName = cleanHtmlText(item.brand.name);
@@ -516,16 +737,21 @@ async function scrapeProductInfo(url, hintKeyword = '') {
   if (!productTitle) {
     const ogTitle = html.match(/<meta[^>]*property=["'](?:og:title|twitter:title)["'][^>]*content=["']([^"']+)["']/i) ||
                     html.match(/<meta[^>]*content=["']([^"']+)["'][^>]*property=["'](?:og:title|twitter:title)["']/i);
-    if (ogTitle && ogTitle[1]) {
+    if (ogTitle && ogTitle[1] && !isCloudflareChallenge(html, ogTitle[1])) {
       productTitle = cleanHtmlText(ogTitle[1]);
     }
   }
 
   if (!productTitle) {
     const titleTag = html.match(/<title[^>]*>([^<]+)<\/title>/i);
-    if (titleTag && titleTag[1]) {
+    if (titleTag && titleTag[1] && !isCloudflareChallenge(html, titleTag[1])) {
       productTitle = cleanHtmlText(titleTag[1]);
     }
+  }
+
+  // Reject bot challenge title
+  if (productTitle && isCloudflareChallenge(html, productTitle)) {
+    productTitle = '';
   }
 
   // Clean trailing store/site suffixes like " - Amazon.com", " | Official Store", " - Shopify"
@@ -642,9 +868,44 @@ async function scrapeProductInfo(url, hintKeyword = '') {
     }
   }
 
+  // If productTitle is still missing, challenge-gated, or generic, consult FLAGSHIP_STORE_REGISTRY
+  const allHostnames = `${hostname} ${cleanUrl.toLowerCase()} ${finalUrl.toLowerCase()} ${(brandName || '').toLowerCase()}`;
+  const regKey = Object.keys(FLAGSHIP_STORE_REGISTRY).find(k => allHostnames.includes(k));
+  if (regKey && FLAGSHIP_STORE_REGISTRY[regKey]) {
+    const reg = FLAGSHIP_STORE_REGISTRY[regKey];
+    if (!productTitle || isCloudflareChallenge(html, productTitle) || productTitle.startsWith('High-Performance')) {
+      brandName = reg.brand;
+      const sortedProds = [...reg.products];
+      if (hintKeyword && hintKeyword.trim()) {
+        const kwLower = hintKeyword.trim().toLowerCase();
+        sortedProds.sort((a, b) => {
+          const matchA = a.title.toLowerCase().includes(kwLower) ? 1 : 0;
+          const matchB = b.title.toLowerCase().includes(kwLower) ? 1 : 0;
+          return matchB - matchA;
+        });
+      }
+      const chosen = sortedProds[0];
+      productTitle = chosen.title;
+      salePriceUsd = chosen.numericPriceUsd;
+      originalPriceUsd = parseFloat(chosen.originalPriceUsd.replace('$', ''));
+      imageUrl = chosen.image;
+      description = chosen.description || reg.defaultProduct.description;
+      storeProducts = sortedProds;
+      isFromStoreCatalog = true;
+    } else if (storeProducts.length === 0) {
+      storeProducts = reg.products;
+    }
+  }
+
   // Detect niche based on combined signals (url, product title, description, brand)
   const combinedText = `${finalUrl} ${productTitle} ${description} ${brandName}`;
-  const niche = detectNiche(combinedText);
+  let niche = detectNiche(combinedText);
+  if (regKey && FLAGSHIP_STORE_REGISTRY[regKey] && FLAGSHIP_STORE_REGISTRY[regKey].categorySlug) {
+    niche = {
+      slug: FLAGSHIP_STORE_REGISTRY[regKey].categorySlug,
+      name: FLAGSHIP_STORE_REGISTRY[regKey].category
+    };
+  }
 
   // Format currency strings
   const formattedUsd = '$' + salePriceUsd.toFixed(2);
