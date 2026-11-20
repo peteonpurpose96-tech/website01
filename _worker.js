@@ -387,10 +387,10 @@ export default {
   async fetch(request, env, ctx) {
     const url = new URL(request.url);
 
-    // Redirect apex domain techpicks.pro to www.techpicks.pro
-    if (url.hostname === 'techpicks.pro') {
+    // Redirect apex domain couponhiker.com to www.couponhiker.com
+    if (url.hostname === 'couponhiker.com') {
       const targetUrl = new URL(request.url);
-      targetUrl.hostname = 'www.techpicks.pro';
+      targetUrl.hostname = 'www.couponhiker.com';
       return Response.redirect(targetUrl.toString(), 301);
     }
 
@@ -2439,7 +2439,7 @@ export default {
         const email = (body.email || '').trim();
         const subject = (body.subject || '').trim() || 'Yêu cầu tư vấn / Hợp tác';
         const message = (body.message || '').trim();
-        const sourceUrl = (body.sourceUrl || '').trim() || 'https://www.techpicks.pro';
+        const sourceUrl = (body.sourceUrl || '').trim() || 'https://www.couponhiker.com';
 
         if (!email || !message) {
           return new Response(JSON.stringify({
@@ -2694,9 +2694,9 @@ export default {
           name: 'CouponHiker Test System',
           email: targetEmail,
           subject: 'Kiểm tra kết nối gửi/nhận email - CouponHiker',
-          message: `Xin chào! Đây là email thử nghiệm gửi từ hệ thống website CouponHiker (https://www.techpicks.pro) nhằm kiểm tra kết nối chuyển tiếp thư đến ${targetEmail}. Nếu bạn nhận được thư này, hệ thống nhận email đang hoạt động rất tốt!`,
+          message: `Xin chào! Đây là email thử nghiệm gửi từ hệ thống website CouponHiker (https://www.couponhiker.com) nhằm kiểm tra kết nối chuyển tiếp thư đến ${targetEmail}. Nếu bạn nhận được thư này, hệ thống nhận email đang hoạt động rất tốt!`,
           createdAt: new Date().toLocaleString('vi-VN', { timeZone: 'Asia/Ho_Chi_Minh' }),
-          sourceUrl: 'https://www.techpicks.pro/admin-cms/'
+          sourceUrl: 'https://www.couponhiker.com/admin-cms/'
         };
 
         // Lưu tin nhắn thử nghiệm vào KV để hiện ngay trong Inbox Admin
