@@ -844,8 +844,8 @@ export default {
                         if (/parts|gauge|filter|compressor|silencer|pipe|clutch|bracket|cable/i.test(bTitle) && bPrice < 100) bScore -= 25;
 
                         // De-prioritize novelties like humidifier, socks, mug if store is engine/tech
-                        if (/humidifier|diffuser|pillow|mug|sticker/i.test(aTitle) && !/humidifier|pillow|mug/i.test(searchContext)) aScore -= 40;
-                        if (/humidifier|diffuser|pillow|mug|sticker/i.test(bTitle) && !/humidifier|pillow|mug/i.test(searchContext)) bScore -= 40;
+                        if (/humidifier|diffuser|pillow|mug|sticker|towel|socks/i.test(aTitle) && !/humidifier|pillow|mug/i.test(searchContext)) aScore -= 150;
+                        if (/humidifier|diffuser|pillow|mug|sticker|towel|socks/i.test(bTitle) && !/humidifier|pillow|mug/i.test(searchContext)) bScore -= 150;
 
                         if (aPrice >= 150) aScore += 15;
                         if (bPrice >= 150) bScore += 15;
@@ -925,7 +925,7 @@ export default {
 
         // 6. Intelligent Category / Vertical Detection
         const combined = `${targetUrl} ${productTitle} ${brand}`.toLowerCase();
-        if (/drone|dji|mowrator|mower|lawnmower|quadcopter|uav|rc car|rc plane|glider|airplane|robot\b|robotics/.test(combined)) {
+        if (/drone|dji|mowrator|mower|lawnmower|quadcopter|uav|rc car|rc plane|glider|airplane|robot\b|robotics|engine|stirling|combustion|turbofan|steam|retrol|model kit|building kit|diy kit/.test(combined)) {
           category = 'Robotics & Drones'; categorySlug = 'robotics';
         } else if (/camera|gopro|insta360|osmo|lens|tripod|lumix|fujifilm|sony a7|creator combo/.test(combined)) {
           category = 'Cameras & Creator Gear'; categorySlug = 'cameras';
@@ -954,7 +954,7 @@ export default {
             'computing': 'https://images.unsplash.com/photo-1587831990711-23ca6441447b?auto=format&fit=crop&w=800&q=80',
             'power': 'https://images.unsplash.com/photo-1583863788434-e58a36330cf0?auto=format&fit=crop&w=800&q=80',
             'audio': 'https://images.unsplash.com/photo-1505740420928-5e560c06d30e?auto=format&fit=crop&w=800&q=80',
-            'edc': 'https://images.unsplash.com/photo-1587829741301-dc798b83add3?auto=format&fit=crop&w=800&q=80',
+            'edc': 'https://images.unsplash.com/photo-1523275335684-37898b6baf30?auto=format&fit=crop&w=800&q=80',
             'saas': 'https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe?auto=format&fit=crop&w=800&q=80'
           };
           imageUrl = categoryPlaceholders[categorySlug] || 'https://images.unsplash.com/photo-1505740420928-5e560c06d30e?auto=format&fit=crop&w=800&q=80';
@@ -1368,7 +1368,7 @@ export default {
           }
           postImageUrl = 'images/posts/' + slugClean + '.' + ext;
         } else if (!postImageUrl) {
-          postImageUrl = 'https://images.unsplash.com/photo-1587829741301-dc798b83add3?w=800';
+          postImageUrl = 'https://images.unsplash.com/photo-1523275335684-37898b6baf30?auto=format&fit=crop&w=800&q=80';
         }
 
         // Format post entry for posts.json catalog

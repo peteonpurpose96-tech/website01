@@ -289,7 +289,7 @@ function getLiveBaseUrl() {
 }
 
 function resolveAdminImageUrl(img) {
-  if (!img) return 'https://images.unsplash.com/photo-1587829741301-dc798b83add3?auto=format&fit=crop&w=400&q=80';
+  if (!img) return 'https://images.unsplash.com/photo-1523275335684-37898b6baf30?auto=format&fit=crop&w=400&q=80';
   img = String(img).trim();
   if (img.startsWith('http://') || img.startsWith('https://') || img.startsWith('data:')) return img;
   if (img.startsWith('/')) return img;
@@ -525,7 +525,7 @@ function updatePreview() {
   const excerpt = formExcerpt || 'Comprehensive hands-on review evaluating real-world durability, ergonomic design, and daily performance...';
   const btnText = (document.getElementById('input-btn-text')?.value || '').trim() || 'ORDER NOW';
   const affUrl = (document.getElementById('input-aff-url')?.value || '').trim() || '#';
-  const imgUrl = (document.getElementById('input-image')?.value || '').trim() || 'https://images.unsplash.com/photo-1587829741301-dc798b83add3?auto=format&fit=crop&w=800&q=80';
+  const imgUrl = (document.getElementById('input-image')?.value || '').trim() || 'https://images.unsplash.com/photo-1523275335684-37898b6baf30?auto=format&fit=crop&w=800&q=80';
   
   const formUsd = (document.getElementById('input-price-usd')?.value || '').trim();
   const formVnd = (document.getElementById('input-price-vnd')?.value || '').trim();
@@ -1147,7 +1147,7 @@ const AI_IMAGE_PRESETS = {
     'https://images.unsplash.com/photo-1585338107529-13afc5f02586?auto=format&fit=crop&w=1200&q=80'
   ],
   edc: [
-    'https://images.unsplash.com/photo-1587829741301-dc798b83add3?auto=format&fit=crop&w=1200&q=80',
+    'https://images.unsplash.com/photo-1523275335684-37898b6baf30?auto=format&fit=crop&w=1200&q=80',
     'https://images.unsplash.com/photo-1618384887929-16ec33fab9ef?auto=format&fit=crop&w=1200&q=80',
     'https://images.unsplash.com/photo-1595225476474-87563907a212?auto=format&fit=crop&w=1200&q=80',
     'https://images.unsplash.com/photo-1563245372-f21724e3856d?auto=format&fit=crop&w=1200&q=80'
@@ -1437,7 +1437,7 @@ function applyAutoDetectedNiche(detected, sourceUrl = '') {
     'cameras': 'https://images.unsplash.com/photo-1516035069371-29a1b244cc32?auto=format&fit=crop&w=1200&q=80',
     'smarthome': 'https://images.unsplash.com/photo-1558002038-1055907df827?auto=format&fit=crop&w=1200&q=80',
     'wearables': 'https://images.unsplash.com/photo-1523275335684-37898b6baf30?auto=format&fit=crop&w=1200&q=80',
-    'edc': 'https://images.unsplash.com/photo-1587829741301-dc798b83add3?auto=format&fit=crop&w=1200&q=80',
+    'edc': 'https://images.unsplash.com/photo-1523275335684-37898b6baf30?auto=format&fit=crop&w=1200&q=80',
     'computing': 'https://images.unsplash.com/photo-1517336714731-489689fd1ca8?auto=format&fit=crop&w=1200&q=80',
     'power': 'https://images.unsplash.com/photo-1622445262464-84b14e3295b6?auto=format&fit=crop&w=1200&q=80',
     'audio': 'https://images.unsplash.com/photo-1505740420928-5e560c06d30e?auto=format&fit=crop&w=1200&q=80',
@@ -2061,7 +2061,7 @@ function renderDiscoveredStoreProducts(products) {
 
   container.classList.remove('hidden');
   container.innerHTML = `
-    <div class="p-2.5 rounded-xl bg-purple-950/60 border border-purple-800/70 shadow-sm space-y-1.5">
+    <div class="p-2.5 rounded-xl bg-[#0e121d] border border-cyan-500/30 shadow-sm space-y-1.5">
       <div class="flex items-center justify-between text-[11px]">
         <span class="font-bold text-amber-300 flex items-center gap-1">
           <i data-lucide="sparkles" class="w-3.5 h-3.5 text-amber-400"></i>
@@ -2510,7 +2510,7 @@ function parseAffiliateLinkInfo(rawUrl, hintKw = '') {
     'computing': 'https://images.unsplash.com/photo-1587831990711-23ca6441447b?auto=format&fit=crop&w=800&q=80',
     'power': 'https://images.unsplash.com/photo-1583863788434-e58a36330cf0?auto=format&fit=crop&w=800&q=80',
     'audio': 'https://images.unsplash.com/photo-1505740420928-5e560c06d30e?auto=format&fit=crop&w=800&q=80',
-    'edc': 'https://images.unsplash.com/photo-1587829741301-dc798b83add3?auto=format&fit=crop&w=800&q=80',
+    'edc': 'https://images.unsplash.com/photo-1523275335684-37898b6baf30?auto=format&fit=crop&w=800&q=80',
     'saas': 'https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe?auto=format&fit=crop&w=800&q=80'
   };
   const fallbackImg = categoryPlaceholders[detectedNiche.slug] || 'https://images.unsplash.com/photo-1505740420928-5e560c06d30e?auto=format&fit=crop&w=800&q=80';
@@ -3147,7 +3147,7 @@ function buildAiArticleData(keyword, niche, brand, lang, customAffLink, customIm
   } else if (isMechanicalKeyboard) {
     catName = 'Desk Setup & EDC';
     priceU = '$199.00'; priceV = '4.975.000₫'; priceO = '$229.00';
-    t_img = resolveImage('https://images.unsplash.com/photo-1587829741301-dc798b83add3?auto=format&fit=crop&w=1200&q=80');
+    t_img = resolveImage('https://images.unsplash.com/photo-1523275335684-37898b6baf30?auto=format&fit=crop&w=1200&q=80');
     t_title = `${cleanKw} Hands-On Review: Ergonomics & Tactile Perfection (2026)`;
     t_excerpt = `An exhaustive teardown of the ${cleanKw}. We evaluate structural chassis acoustics, ergonomic tolerances, switch feel, and daily productivity enhancements.`;
     t_pros = `Solid CNC anodized aluminum enclosure provides weight, acoustic dampening, and zero desk slippage\nGasket-mounted acoustic dampening produces a deeply satisfying, creamy sound signature\nHot-swappable PCB supports both 3-pin and 5-pin mechanical switches without soldering\nFull QMK/VIA keymap customizability across macOS, Windows, and Linux`;
@@ -3718,7 +3718,7 @@ function collectFormData() {
     brand: document.getElementById('input-brand').value.trim() || 'CouponHiker Partner',
     btnText: document.getElementById('input-btn-text').value.trim() || 'ORDER NOW',
     affiliateLink: document.getElementById('input-aff-url').value.trim(),
-    image: document.getElementById('input-image').value.trim() || 'https://images.unsplash.com/photo-1587829741301-dc798b83add3?auto=format&fit=crop&w=1000&q=80',
+    image: document.getElementById('input-image').value.trim() || 'https://images.unsplash.com/photo-1523275335684-37898b6baf30?auto=format&fit=crop&w=1000&q=80',
     priceUsd: (() => {
       let rawUsd = (document.getElementById('input-price-usd')?.value || '').trim();
       if (/^[0-9]+,[0-9]{1,2}$/.test(rawUsd)) rawUsd = rawUsd.replace(',', '.');

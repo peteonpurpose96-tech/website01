@@ -189,7 +189,7 @@ function Detect-CanonicalNiche([string]$Url, [string]$Title, [string]$Brand) {
     $text = "$Url $Title $Brand".ToLower()
 
     # 1. Robotics & Drones
-    if ($text -match "mowrator|mower|lawnmower|lawn-mower|navimow|luba|drone|drones|flycam|fly-cam|quadcopter|uav|dji-mini|mini-4-pro|mavic|avata|phantom-4|air-3|rc-car|rc-plane|rc-glider|volantex|crawler|4wd-robot|telemetry|unmanned|patrol-vehicle") {
+    if ($text -match "mowrator|mower|lawnmower|lawn-mower|navimow|luba|drone|drones|flycam|fly-cam|quadcopter|uav|dji-mini|mini-4-pro|mavic|avata|phantom-4|air-3|rc-car|rc-plane|rc-glider|volantex|crawler|4wd-robot|telemetry|unmanned|patrol-vehicle|engine|stirling|combustion|turbofan|steam-engine|model-kit|building-kit|diy-kit|retrol") {
         return @{ slug = "robotics"; name = "Robotics & Drones" }
     }
 
