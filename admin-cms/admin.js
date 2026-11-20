@@ -270,7 +270,7 @@ function initAdminAuth() {
   }
 }
 
-const PRIMARY_DOMAIN = 'https://www.techpicks.pro';
+const PRIMARY_DOMAIN = 'https://www.couponhiker.com';
 
 function getLiveBaseUrl() {
   const host = window.location.hostname;
@@ -279,8 +279,8 @@ function getLiveBaseUrl() {
     const proto = window.location.protocol || 'http:';
     return `${proto}//${host}:3002`;
   }
-  if (window.location.hostname.includes('techpicks.pro')) {
-    return 'https://www.techpicks.pro';
+  if (window.location.hostname.includes('couponhiker.com')) {
+    return 'https://www.couponhiker.com';
   }
   if (window.location.origin && window.location.origin.startsWith('http')) {
     return window.location.origin;
