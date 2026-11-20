@@ -2116,7 +2116,7 @@ function renderDiscoveredStoreProducts(products) {
       if (inputTitle) inputTitle.value = selected.title;
       if (inputSlug) {
         inputSlug.value = 'post-' + slugify(selected.title);
-        delete inputSlug.dataset.manual;
+        if (inputSlug.dataset) delete inputSlug.dataset.manual;
       }
 
       if (selected.image) {
@@ -2585,7 +2585,7 @@ async function fetchAndApplyBrandPrice(targetUrl, silent = false) {
       }
       if (inputSlug) {
         inputSlug.value = 'post-' + slugify(validProductTitle);
-        delete inputSlug.dataset.manual;
+        if (inputSlug.dataset) delete inputSlug.dataset.manual;
       }
     }
 
