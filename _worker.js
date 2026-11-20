@@ -77,7 +77,11 @@ function sanitizePostHtml(html) {
 
   // 1. Replace square purple CH logo with official logo matching index.html
   html = html.replace(
-    /<div[^>]*class="[^"]*(?:bg-gradient-to-tr|bg-gradient-to-br)[^"]*from-purple-600[^"]*via-violet-600[^"]*"[^>]*>[\s\S]*?CH[\s\S]*?<\/div>/gi,
+    /<div[^>]*class="[^"]*(?:bg-gradient-to-[a-z]+|from-purple|to-indigo|shadow-purple)[^"]*"[^>]*>\s*CH\s*<\/div>/gi,
+    '<img src="images/logo.png" alt="CouponHiker Logo" class="w-9 h-9 sm:w-12 sm:h-12 xl:w-14 xl:h-14 rounded-xl sm:rounded-2xl object-cover shadow-lg shadow-cyan-500/30 group-hover:scale-105 transition-transform flex-shrink-0">'
+  );
+  html = html.replace(
+    /<div[^>]*>\s*CH\s*<\/div>/gi,
     '<img src="images/logo.png" alt="CouponHiker Logo" class="w-9 h-9 sm:w-12 sm:h-12 xl:w-14 xl:h-14 rounded-xl sm:rounded-2xl object-cover shadow-lg shadow-cyan-500/30 group-hover:scale-105 transition-transform flex-shrink-0">'
   );
 
@@ -85,7 +89,8 @@ function sanitizePostHtml(html) {
   html = html.replace(/from-\[#14082c\]\s+via-\[#240e47\]\s+to-\[#120729\]/gi, 'from-slate-100 via-slate-100 to-slate-200 dark:from-[#0a0d14] dark:via-[#0c101a] dark:to-[#0a0d14]');
   html = html.replace(/from-\[#120729\]\s+via-\[#120729\]\/80\s+to-transparent/gi, 'from-slate-100 dark:from-[#0a0d14] to-transparent');
   html = html.replace(/to-\[#120729\]/gi, 'to-slate-100 dark:to-[#0a0d14]');
-  html = html.replace(/bg-\[#14082c\]/gi, 'bg-slate-100 dark:bg-[#0a0d14]');
+  html = html.replace(/bg-\[#(?:14082c|120729|0a0218)\]/gi, 'bg-slate-100 dark:bg-[#0a0d14]');
+  html = html.replace(/text-purple-200/gi, 'text-slate-700 dark:text-slate-300');
 
   // 3. Ticker badge: replace purple with cyan gradient
   html = html.replace(/bg-gradient-to-r\s+from-purple-600\s+to-pink-600/gi, 'bg-gradient-to-r from-cyan-500 via-sky-500 to-blue-600');
@@ -121,6 +126,14 @@ function sanitizePostHtml(html) {
   // 8. Prose headings: replace Mowrator hardcoded headings if they leak
   html = html.replace(/1\.\s*Hands-On Experience & All-Terrain Chassis/gi, '1. Hands-On Experience & Build Quality');
   html = html.replace(/2\.\s*AWD Brushless Powertrain & Slope Performance/gi, '2. Real-World Performance & Lab Benchmarks');
+  html = html.replace(/:?\s*45° All-Terrain Performance Tested(?:\s*\(\d{4}\))?/gi, ': In-Depth Lab Review (2026)');
+
+  // 9. Clean up misplaced audiophile benchmarks on non-audio products
+  if (!/headphone|earphone|earbud|headset|audiophile|acoustic|hifi|soundbar|mic\b/i.test(html.slice(0, 3000))) {
+    html = html.replace(/:?\s*Audiophile Benchmarks & ANC Tested(?:\s*\(\d{4}\))?/gi, ': Hands-On Review & Buying Guide (2026)');
+    html = html.replace(/We put the [^<]+ through rigorous acoustic laboratory testing[^\.<]*\./gi, 'We evaluated this product through rigorous hands-on laboratory testing across design, build quality, and real-world durability.');
+    html = html.replace(/Finding headphones that effortlessly bridge the gap[^\.<]*\./gi, 'In today’s fast-moving market, finding products that deliver genuine quality without inflated marketing hype is essential.');
+  }
 
   return html;
 }
@@ -141,50 +154,42 @@ function mapCategoryToKeyAndNames(category, categorySlug) {
     catKey = 'courses';
   } else if (/saas|cloud subscription|ai studio|phần mềm|phan mem/.test(catLower)) {
     catKey = 'saas';
-  } else if (/beauty|personal care|làm đẹp|lam dep|chăm sóc|cham soc|skincare|makeup|cosmetics|美容|护理|化妆/.test(catLower)) {
-    catKey = 'beauty';
-  } else if (/watch|horology|đồng hồ|dong ho|tissot|seagull|st1901|powermatic|cơ khí|co khi|cổ điển|co dien|vintage|trang sức|trang suc|腕表|手表/.test(catLower)) {
-    catKey = 'watches';
-  } else if (/skirt|dress|bag|sweater|cashmere|velvet|lolita|gothic|thời trang|thoi trang|fashion|supreme|lilyvow|aero|leather|coat|jacket|đầm|dam|váy|vay|áo|ao|suuksess|robinpiccone|matein|sling bag|phụ kiện|phu kien|服饰|时装/.test(catLower)) {
-    catKey = 'fashion';
-  } else if (/mowrator|mower|intake|injen|n55|manifold|exhaust|brembo|bullboost|auto|tuning|car|xe|phụ tùng|phu tung|brakes|phanh|ranger|glider|plane|stunt plane|volantexrc|racing|gate opener|co-z|sliding gate|汽车/.test(catLower)) {
-    catKey = 'automotive';
-  } else if (/camera|máy ảnh|may anh|sony alpha|a7 iv|a7iv|lens|video gear|相机/.test(catLower)) {
+  } else if (/watch|wearable|ring|đồng hồ|smartwatch|garmin|apple watch|galaxy ring/.test(catLower)) {
+    catKey = 'wearables';
+  } else if (/drone|flycam|robotics|mower|dji mini|rc/.test(catLower)) {
+    catKey = 'robotics';
+  } else if (/camera|máy ảnh|may anh|osmo pocket|insta360|shure|video|creator/.test(catLower)) {
     catKey = 'cameras';
-  } else if (/coffee|cà phê|ca phe|espresso|gaggia|barista|espresso machine|咖啡/.test(catLower)) {
-    catKey = 'coffee';
-  } else if (/gaming|game|razer|blade|rtx|gpu|gaming gear|电竞|游戏本/.test(catLower)) {
-    catKey = 'gaming';
-  } else if (/aqara|smart home|smart|nhà thông minh|nha thong minh|matter|hub m3|sensor|projector|magcubic|hy350|iot|智能家居/.test(catLower)) {
+  } else if (/computing|gaming|ally|asus|rog|laptop|handheld/.test(catLower)) {
+    catKey = 'computing';
+  } else if (/power|gan|charger|power bank|ugreen|baseus|sạc/.test(catLower)) {
+    catKey = 'power';
+  } else if (/smart home|smart|nhà thông minh|matter|roborock|iot|sensor|projector/.test(catLower)) {
     catKey = 'smarthome';
-  } else if (/keychron|keyboard|bàn phím|ban phim|mx master|logitech|chuột|chuot|desk|setup|bàn|ban|edc|screen protector|iphone|drying oven|vacuum drying|桌面/.test(catLower)) {
-    catKey = 'desk-setup';
+  } else if (/keychron|keyboard|bàn phím|elgato|stream deck|mouse|chuột|desk|setup|edc/.test(catLower)) {
+    catKey = 'edc';
   } else {
-    catKey = 'tech';
+    catKey = 'audio';
   }
 
-  let catEn = 'Audio & Tech';
-  let catVi = 'Âm Thanh & Công Nghệ';
-  let catZh = '音频与科技数码';
+  let catEn = 'Audio & Sound';
+  let catVi = 'Tai Nghe & Âm Thanh';
+  let catZh = '音频与发烧声学';
 
-  if (catKey === 'beauty') {
-    catEn = 'Beauty & Personal Care'; catVi = 'Làm Đẹp & Chăm Sóc Cá Nhân'; catZh = '美容与个人护理';
-  } else if (catKey === 'watches') {
-    catEn = 'Watches & Horology'; catVi = 'Đồng Hồ Cơ & Trang Sức'; catZh = '机械腕表与珠宝';
-  } else if (catKey === 'fashion') {
-    catEn = 'Alt & Gothic Fashion'; catVi = 'Thời Trang Thiết Kế'; catZh = '小众暗黑女装';
-  } else if (catKey === 'automotive') {
-    catEn = 'Auto Performance & Robotics'; catVi = 'Phụ Tùng Xe Hơi & Robot'; catZh = '汽车改装与动力工程';
-  } else if (catKey === 'desk-setup') {
-    catEn = 'Desk Setup & EDC'; catVi = 'Bàn Làm Việc & EDC'; catZh = '桌面搭子与EDC';
+  if (catKey === 'wearables') {
+    catEn = 'Smart Wearables'; catVi = 'Thiết Bị Đeo Thông Minh'; catZh = '智能穿戴与手表';
+  } else if (catKey === 'robotics') {
+    catEn = 'Robotics & Drones'; catVi = 'Robotics & Flycam'; catZh = '无人机与机器人';
   } else if (catKey === 'cameras') {
-    catEn = 'Cameras & Video Gear'; catVi = 'Máy Ảnh & Quay Phim'; catZh = '专业相机与摄录器材';
-  } else if (catKey === 'coffee') {
-    catEn = 'Coffee & Barista Gear'; catVi = 'Cà Phê & Máy Pha Barista'; catZh = '咖啡器具与意式机';
-  } else if (catKey === 'gaming') {
-    catEn = 'Pro Gaming Gear'; catVi = 'Gaming & Thể Thao Điện Tử'; catZh = '专业电竞与硬核装备';
+    catEn = 'Cameras & Creator Gear'; catVi = 'Máy Ảnh & Creator Gear'; catZh = '专业相机与创作者装备';
+  } else if (catKey === 'computing') {
+    catEn = 'Computing & Gaming'; catVi = 'Máy Tính & Gaming'; catZh = '电脑硬件与掌机';
+  } else if (catKey === 'power') {
+    catEn = 'Power & GaN Charging'; catVi = 'Sạc GaN & Pin Dự Phòng'; catZh = '快充与氮化镓电源';
+  } else if (catKey === 'edc') {
+    catEn = 'Desk Setup & EDC'; catVi = 'Bàn Làm Việc & EDC'; catZh = '桌面搭子与EDC';
   } else if (catKey === 'smarthome') {
-    catEn = 'Smart Home & Living'; catVi = 'Nhà Thông Minh & IoT'; catZh = '智能家居与生活科技';
+    catEn = 'Smart Home & IoT'; catVi = 'Nhà Thông Minh & IoT'; catZh = '智能家居与IoT';
   } else if (catKey === 'ebooks') {
     catEn = 'Ebooks & Guides'; catVi = 'Tài Nguyên & Cẩm Nang'; catZh = '电子书与知识资产';
   } else if (catKey === 'presets') {
@@ -802,7 +807,7 @@ export default {
                 if (shopifyRes && shopifyRes.ok) {
                   const shopifyData = await shopifyRes.json().catch(() => null);
                   if (shopifyData && Array.isArray(shopifyData.products) && shopifyData.products.length > 0) {
-                    const validProducts = shopifyData.products.filter(p => {
+                    let validProducts = shopifyData.products.filter(p => {
                       const t = (p.title || '').toLowerCase();
                       const pPrice = parseFloat(p.variants?.[0]?.price || 0);
                       if (pPrice < 10) return false;
@@ -810,27 +815,74 @@ export default {
                       return true;
                     });
                     if (validProducts.length > 0) {
+                      // Smart Relevance Ranking against search query tokens
+                      const searchContext = [hintKw, productTitle, brand, targetUrl, storeOrigin].filter(Boolean).join(' ').toLowerCase();
+                      const queryTokens = searchContext.split(/[^a-z0-9]+/).filter(w => w.length >= 3 && !['https', 'http', 'com', 'org', 'net', 'www', 'store', 'shop', 'deal', 'official', 'ref'].includes(w));
+
+                      validProducts.sort((a, b) => {
+                        const aTitle = ((a.title || '') + ' ' + (a.vendor || '') + ' ' + (a.product_type || '')).toLowerCase();
+                        const bTitle = ((b.title || '') + ' ' + (b.vendor || '') + ' ' + (b.product_type || '')).toLowerCase();
+                        const aPrice = parseFloat(a.variants?.[0]?.price || 0);
+                        const bPrice = parseFloat(b.variants?.[0]?.price || 0);
+
+                        let aScore = 0;
+                        let bScore = 0;
+
+                        for (const tok of queryTokens) {
+                          if (aTitle.includes(tok)) aScore += 12;
+                          if (bTitle.includes(tok)) bScore += 12;
+                        }
+
+                        // Special boost for flagship products matching store identity
+                        if (/engine|stirling|model|kit|vacuum|combustion|retrol|turbine/i.test(searchContext)) {
+                          if (/engine|stirling|retrol|turbine|combustion|model/i.test(aTitle)) aScore += 25;
+                          if (/engine|stirling|retrol|turbine|combustion|model/i.test(bTitle)) bScore += 25;
+                        }
+
+                        // Prioritize complete models/kits over small accessories/parts under $100
+                        if (/parts|gauge|filter|compressor|silencer|pipe|clutch|bracket|cable/i.test(aTitle) && aPrice < 100) aScore -= 25;
+                        if (/parts|gauge|filter|compressor|silencer|pipe|clutch|bracket|cable/i.test(bTitle) && bPrice < 100) bScore -= 25;
+
+                        // De-prioritize novelties like humidifier, socks, mug if store is engine/tech
+                        if (/humidifier|diffuser|pillow|mug|sticker/i.test(aTitle) && !/humidifier|pillow|mug/i.test(searchContext)) aScore -= 40;
+                        if (/humidifier|diffuser|pillow|mug|sticker/i.test(bTitle) && !/humidifier|pillow|mug/i.test(searchContext)) bScore -= 40;
+
+                        if (aPrice >= 150) aScore += 15;
+                        if (bPrice >= 150) bScore += 15;
+
+                        return bScore - aScore;
+                      });
+
                       storeProducts = validProducts.slice(0, 8).map(p => {
                         const price = parseFloat(p.variants?.[0]?.price || 49);
                         const orig = parseFloat(p.variants?.[0]?.compare_at_price || 0) || Math.round(price * 1.25 * 100) / 100;
                         const vnd = Math.round(price * 25000 / 1000) * 1000;
+                        let img = p.images?.[0]?.src || '';
+                        if (img && img.startsWith('//')) img = 'https:' + img;
                         return {
                           id: p.id,
                           title: p.title,
                           salePriceUsd: '$' + price.toFixed(2),
                           salePriceVnd: vnd.toLocaleString('vi-VN').replace(/,/g, '.') + '₫',
                           originalPriceUsd: '$' + orig.toFixed(2),
-                          image: p.images?.[0]?.src || '',
+                          image: img,
                           brand: p.vendor || brand
                         };
                       });
 
-                      if (!productTitle && storeProducts.length > 0) {
-                        productTitle = storeProducts[0].title;
-                        saleUsd = parseFloat(storeProducts[0].salePriceUsd.replace('$', ''));
-                        origUsd = parseFloat(storeProducts[0].originalPriceUsd.replace('$', ''));
-                        if (!imageUrl) imageUrl = storeProducts[0].image;
-                        if (storeProducts[0].brand) brand = storeProducts[0].brand;
+                      if (storeProducts.length > 0) {
+                        const topProd = storeProducts[0];
+                        const isGenericTitle = !productTitle || /home|online store|official site|official store|adults|diy kit \|/i.test(productTitle);
+                        if (isGenericTitle || topProd) {
+                          if (isGenericTitle) productTitle = topProd.title;
+                          saleUsd = parseFloat(topProd.salePriceUsd.replace('$', '')) || saleUsd;
+                          origUsd = parseFloat(topProd.originalPriceUsd.replace('$', '')) || origUsd;
+                          if (topProd.brand && (!brand || brand === 'Verified Partner')) brand = topProd.brand;
+                        }
+                        // ALWAYS set imageUrl to top product image if imageUrl is empty or generic
+                        if (!imageUrl || imageUrl.includes('favicon') || imageUrl.includes('logo') || imageUrl.includes('unsplash.com')) {
+                          imageUrl = topProd.image;
+                        }
                       }
                     }
                   }
@@ -3177,55 +3229,4 @@ export default {
       headers: { 'Content-Type': 'text/plain; charset=utf-8' }
     });
   }
-};// Determine categoryKey & localized category names
-  let catKey = 'audio';
-  if (/saas|software|ai tool|notion|template|ebook|course|preset|digital|cloud/.test(catLower)) {
-    catKey = 'saas';
-  } else if (/watch|wearable|ring|đồng hồ|smartwatch|garmin|apple watch|galaxy ring/.test(catLower)) {
-    catKey = 'wearables';
-  } else if (/drone|flycam|robotics|mower|dji mini|rc/.test(catLower)) {
-    catKey = 'robotics';
-  } else if (/camera|máy ảnh|may anh|osmo pocket|insta360|shure|video|creator/.test(catLower)) {
-    catKey = 'cameras';
-  } else if (/computing|gaming|ally|asus|rog|laptop|handheld/.test(catLower)) {
-    catKey = 'computing';
-  } else if (/power|gan|charger|power bank|ugreen|baseus|sạc/.test(catLower)) {
-    catKey = 'power';
-  } else if (/smart home|smart|nhà thông minh|matter|roborock|iot|sensor|projector/.test(catLower)) {
-    catKey = 'smarthome';
-  } else if (/keychron|keyboard|bàn phím|elgato|stream deck|mouse|chuột|desk|setup|edc/.test(catLower)) {
-    catKey = 'edc';
-  } else {
-    catKey = 'audio';
-  }
-
-  let catEn = 'Audio & Sound';
-  let catVi = 'Tai Nghe & Âm Thanh';
-  let catZh = '音频与发烧声学';
-
-  if (catKey === 'wearables') {
-    catEn = 'Smart Wearables'; catVi = 'Thiết Bị Đeo Thông Minh'; catZh = '智能穿戴与手表';
-  } else if (catKey === 'robotics') {
-    catEn = 'Robotics & Drones'; catVi = 'Robotics & Flycam'; catZh = '无人机与机器人';
-  } else if (catKey === 'cameras') {
-    catEn = 'Cameras & Creator Gear'; catVi = 'Máy Ảnh & Creator Gear'; catZh = '专业相机与创作者装备';
-  } else if (catKey === 'computing') {
-    catEn = 'Computing & Gaming'; catVi = 'Máy Tính & Gaming'; catZh = '电脑硬件与掌机';
-  } else if (catKey === 'power') {
-    catEn = 'Power & GaN Charging'; catVi = 'Sạc GaN & Pin Dự Phòng'; catZh = '快充与氮化镓电源';
-  } else if (catKey === 'edc') {
-    catEn = 'Desk Setup & EDC'; catVi = 'Bàn Làm Việc & EDC'; catZh = '桌面搭子与EDC';
-  } else if (catKey === 'smarthome') {
-    catEn = 'Smart Home & IoT'; catVi = 'Nhà Thông Minh & IoT'; catZh = '智能家居与IoT';
-  } else if (catKey === 'ebooks') {
-    catEn = 'Ebooks & Guides'; catVi = 'Tài Nguyên & Cẩm Nang'; catZh = '电子书与知识资产';
-  } else if (catKey === 'presets') {
-    catEn = 'Creative Presets & LUTs'; catVi = 'Preset & LUTs'; catZh = '调色预设与LUTs';
-  } else if (catKey === 'templates') {
-    catEn = 'Notion Templates & OS'; catVi = 'Hệ Thống Notion OS'; catZh = 'Notion 生产力系统';
-  } else if (catKey === 'courses') {
-    catEn = 'Masterclasses & Courses'; catVi = 'Khóa Học Video Chuyên Sâu'; catZh = '实战视频大师课';
-  } else if (catKey === 'saas') {
-    catEn = 'SaaS & AI Productivity'; catVi = 'Phần Mềm SaaS & Công Cụ AI'; catZh = 'SaaS 订阅与 AI 效能工具';
-  }
-  
+};

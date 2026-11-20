@@ -134,12 +134,14 @@ if (-not $NoBrowser) {
 function Sanitize-PostHtml([string]$html) {
     if ([string]::IsNullOrWhiteSpace($html)) { return $html }
     # 1. Logo
-    $html = [regex]::Replace($html, '<div[^>]*class="[^"]*(?:bg-gradient-to-tr|bg-gradient-to-br)[^"]*from-purple-600[^"]*via-violet-600[^"]*"[^>]*>[\s\S]*?CH[\s\S]*?</div>', '<img src="images/logo.png" alt="CouponHiker Logo" class="w-9 h-9 sm:w-12 sm:h-12 xl:w-14 xl:h-14 rounded-xl sm:rounded-2xl object-cover shadow-lg shadow-cyan-500/30 group-hover:scale-105 transition-transform flex-shrink-0">', [System.Text.RegularExpressions.RegexOptions]::IgnoreCase)
+    $html = [regex]::Replace($html, '<div[^>]*class="[^"]*(?:bg-gradient-to-[a-z]+|from-purple|to-indigo|shadow-purple)[^"]*"[^>]*>\s*CH\s*</div>', '<img src="images/logo.png" alt="CouponHiker Logo" class="w-9 h-9 sm:w-12 sm:h-12 xl:w-14 xl:h-14 rounded-xl sm:rounded-2xl object-cover shadow-lg shadow-cyan-500/30 group-hover:scale-105 transition-transform flex-shrink-0">', [System.Text.RegularExpressions.RegexOptions]::IgnoreCase)
+    $html = [regex]::Replace($html, '<div[^>]*>\s*CH\s*</div>', '<img src="images/logo.png" alt="CouponHiker Logo" class="w-9 h-9 sm:w-12 sm:h-12 xl:w-14 xl:h-14 rounded-xl sm:rounded-2xl object-cover shadow-lg shadow-cyan-500/30 group-hover:scale-105 transition-transform flex-shrink-0">', [System.Text.RegularExpressions.RegexOptions]::IgnoreCase)
     # 2. Ticker
     $html = [regex]::Replace($html, 'from-\[#14082c\]\s+via-\[#240e47\]\s+to-\[#120729\]', 'from-slate-100 via-slate-100 to-slate-200 dark:from-[#0a0d14] dark:via-[#0c101a] dark:to-[#0a0d14]', [System.Text.RegularExpressions.RegexOptions]::IgnoreCase)
     $html = [regex]::Replace($html, 'from-\[#120729\]\s+via-\[#120729\]\/80\s+to-transparent', 'from-slate-100 dark:from-[#0a0d14] to-transparent', [System.Text.RegularExpressions.RegexOptions]::IgnoreCase)
     $html = [regex]::Replace($html, 'to-\[#120729\]', 'to-slate-100 dark:to-[#0a0d14]', [System.Text.RegularExpressions.RegexOptions]::IgnoreCase)
-    $html = [regex]::Replace($html, 'bg-\[#14082c\]', 'bg-slate-100 dark:bg-[#0a0d14]', [System.Text.RegularExpressions.RegexOptions]::IgnoreCase)
+    $html = [regex]::Replace($html, 'bg-\[#(?:14082c|120729|0a0218)\]', 'bg-slate-100 dark:bg-[#0a0d14]', [System.Text.RegularExpressions.RegexOptions]::IgnoreCase)
+    $html = [regex]::Replace($html, 'text-purple-200', 'text-slate-700 dark:text-slate-300', [System.Text.RegularExpressions.RegexOptions]::IgnoreCase)
     # 3. Badges & Gradients
     $html = [regex]::Replace($html, 'bg-gradient-to-r\s+from-purple-600\s+to-pink-600', 'bg-gradient-to-r from-cyan-500 via-sky-500 to-blue-600', [System.Text.RegularExpressions.RegexOptions]::IgnoreCase)
     $html = [regex]::Replace($html, 'from-pink-500\s+via-purple-600\s+to-indigo-600', 'from-cyan-500 via-sky-500 to-blue-600', [System.Text.RegularExpressions.RegexOptions]::IgnoreCase)
@@ -151,6 +153,15 @@ function Sanitize-PostHtml([string]$html) {
     $html = [regex]::Replace($html, 'dark:bg-\[#100726\]\/80', 'dark:bg-[#141926]', [System.Text.RegularExpressions.RegexOptions]::IgnoreCase)
     $html = [regex]::Replace($html, 'dark:from-\[#180933\]\s+dark:via-\[#110424\]\s+dark:to-\[#0a0218\]', 'dark:from-[#141926] dark:via-[#10141f] dark:to-[#0b0e17]', [System.Text.RegularExpressions.RegexOptions]::IgnoreCase)
     $html = [regex]::Replace($html, 'dark:from-\[#170a36\]\s+dark:to-\[#210e4a\]', 'dark:from-[#0e121d] dark:to-[#141926]', [System.Text.RegularExpressions.RegexOptions]::IgnoreCase)
+    # 4. Leaked mower headings
+    $html = [regex]::Replace($html, '1\.\s*Hands-On Experience & All-Terrain Chassis', '1. Hands-On Experience & Build Quality', [System.Text.RegularExpressions.RegexOptions]::IgnoreCase)
+    $html = [regex]::Replace($html, '2\.\s*AWD Brushless Powertrain & Slope Performance', '2. Real-World Performance & Lab Benchmarks', [System.Text.RegularExpressions.RegexOptions]::IgnoreCase)
+    $html = [regex]::Replace($html, ':?\s*45° All-Terrain Performance Tested(?:\s*\(\d{4}\))?', ': In-Depth Lab Review (2026)', [System.Text.RegularExpressions.RegexOptions]::IgnoreCase)
+    # 5. Non-audio audiophile benchmarks
+    if ($html.Length -gt 3000) { $checkSlice = $html.Substring(0, 3000) } else { $checkSlice = $html }
+    if ($checkSlice -notmatch 'headphone|earphone|earbud|headset|audiophile|acoustic|hifi|soundbar|mic\b') {
+        $html = [regex]::Replace($html, ':?\s*Audiophile Benchmarks & ANC Tested(?:\s*\(\d{4}\))?', ': Hands-On Review & Buying Guide (2026)', [System.Text.RegularExpressions.RegexOptions]::IgnoreCase)
+    }
     return $html
 }
 

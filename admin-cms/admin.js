@@ -1311,9 +1311,9 @@ const NICHE_CANONICAL_MAP = {
 function detectNicheFromUrlAndKeyword(url = '', keyword = '', title = '', brand = '') {
   const combined = `${url} ${keyword} ${title} ${brand}`.toLowerCase().replace(/[-_]/g, ' ');
 
-  // 1. Robotics & Drones (RC gliders, airplanes, drones, mavic, flycam, robot mowers, uav)
-  if (/mowrator|mower|lawnmower|lawn mower|navimow|luba|drone|drones|flycam|fly cam|quadcopter|uav|dji|mini 4|mavic|avata|phantom|air 3|rc car|rc plane|rc glider|rc boat|rc jet|rc aircraft|rc flight|volantex|exhobby|xpilot|glider|airplane|aircraft|aerobatic|stunt plane|fixed wing|propeller|flight controller|crawler|4wd robot|telemetry|unmanned|patrol vehicle|robotics|robot\b/.test(combined)) {
-    return { slug: 'robotics', name: 'Robotics & Drones' };
+  // 1. Robotics & Drones & Precision Kits (Engine DIY, stirling, retrol, RC gliders, airplanes, drones, mavic, flycam, robot mowers, uav)
+  if (/mowrator|mower|lawnmower|lawn mower|navimow|luba|drone|drones|flycam|fly cam|quadcopter|uav|dji|mini 4|mavic|avata|phantom|air 3|rc car|rc plane|rc glider|rc boat|rc jet|rc aircraft|rc flight|volantex|exhobby|xpilot|glider|airplane|aircraft|aerobatic|stunt plane|fixed wing|propeller|flight controller|crawler|4wd robot|telemetry|unmanned|patrol vehicle|robotics|robot\b|enginediy|engine diy|stirling|retrol|teching|flame licker|steam turbine|vacuum engine|model kit|building kit|diy kit|combustion engine/.test(combined)) {
+    return { slug: 'robotics', name: 'Robotics & Outdoor Tech' };
   }
 
   // 2. Cameras & Creator Gear (osmo pocket, action cams, mirrorless, gimbals, mics)
@@ -2125,7 +2125,19 @@ function renderDiscoveredStoreProducts(products) {
         const aiThumb = document.getElementById('ai-img-thumb');
         if (formImg) formImg.value = selected.image;
         if (aiImg) aiImg.value = selected.image;
-        if (aiThumb) aiThumb.src = selected.image;
+        if (aiThumb) {
+          aiThumb.src = selected.image;
+          aiThumb.classList.remove('hidden');
+        }
+      }
+
+      if (window.lastScrapedProductData) {
+        window.lastScrapedProductData.image = selected.image || window.lastScrapedProductData.image;
+        window.lastScrapedProductData.productTitle = selected.title || window.lastScrapedProductData.productTitle;
+        if (selected.salePriceUsd) window.lastScrapedProductData.salePriceUsd = selected.salePriceUsd;
+        if (selected.salePriceVnd) window.lastScrapedProductData.salePriceVnd = selected.salePriceVnd;
+        if (selected.originalPriceUsd) window.lastScrapedProductData.originalPriceUsd = selected.originalPriceUsd;
+        if (selected.brand) window.lastScrapedProductData.brand = selected.brand;
       }
 
       if (selected.salePriceUsd) {
@@ -2428,6 +2440,30 @@ function parseAffiliateLinkInfo(rawUrl, hintKw = '') {
     };
   }
 
+  // 6.5 EngineDIY Precision Model Kits Store
+  if (hostname.includes('enginediy') || fullLower.includes('enginediy')) {
+    return {
+      success: true,
+      brand: 'EngineDIY Official',
+      productTitle: 'RETROL VE-02 Flame Licker Vacuum Engine Generator Model',
+      image: 'https://cdn.shopify.com/s/files/1/0175/0718/8800/files/retrol-ve-02-flame-licker-vacuum-engine-generator-model-external-combustion-engine-educational-toys-gifts.jpg?v=1794552436',
+      category: 'Robotics & Outdoor Tech',
+      categorySlug: 'robotics',
+      salePriceUsd: '$309.99',
+      salePriceVnd: '7.750.000₫',
+      originalPriceUsd: '$369.99',
+      couponCode: detectedCoupon || 'ENGINEDIY10',
+      couponDiscount: '10% OFF Precision Model Kits',
+      couponExpiry: '12/31/2026',
+      storeProducts: [
+        { id: 15460376903894, title: 'RETROL VE-02 Flame Licker Vacuum Engine Generator Model', salePriceUsd: '$309.99', salePriceVnd: '7.750.000₫', originalPriceUsd: '$369.99', image: 'https://cdn.shopify.com/s/files/1/0175/0718/8800/files/retrol-ve-02-flame-licker-vacuum-engine-generator-model-external-combustion-engine-educational-toys-gifts.jpg?v=1794552436', brand: 'RETROL' },
+        { id: 15435167760598, title: 'RETROL TG-6 Steam Turbine Generator DIY Model Kit Working Miniature Steam Power Plant', salePriceUsd: '$419.99', salePriceVnd: '10.499.000₫', originalPriceUsd: '$499.99', image: 'https://cdn.shopify.com/s/files/1/0175/0718/8800/files/retrol-tg-6-steam-turbine-generator-diy-model-kit-working-miniature-steam-power-plant-model.jpg?v=1794552436', brand: 'RETROL' },
+        { id: 15435158618326, title: 'Stirling-Powered Steampunk Airship DIY Metal Model Kit', salePriceUsd: '$589.99', salePriceVnd: '14.750.000₫', originalPriceUsd: '$699.99', image: 'https://cdn.shopify.com/s/files/1/0175/0718/8800/files/stirling-powered-steampunk-airship-diy-metal-model-kit-unique-gift-for-him.jpg?v=1794552436', brand: 'EngineDIY' },
+        { id: 15479741022422, title: 'FLYWING BELL-206 470 Class Scale 2.4GHz 6CH GPS RC Helicopter', salePriceUsd: '$1229.99', salePriceVnd: '30.750.000₫', originalPriceUsd: '$1499.99', image: 'https://cdn.shopify.com/s/files/1/0175/0718/8800/files/flywing-bell-206-470-class-scale-24ghz-6ch-gps-rc-helicopter-with-ace-flight-controller-beidou-gps-positioning.jpg?v=1794552436', brand: 'FLYWING' }
+      ]
+    };
+  }
+
   // 7. Generic Brand / Affiliate Merchant URL Fallback
   const hostParts = hostname.replace(/^www\./, '').split('.');
   const rawBrand = hostParts[0] ? (hostParts[0].charAt(0).toUpperCase() + hostParts[0].slice(1)) : 'Brand Partner';
@@ -2556,6 +2592,12 @@ async function fetchAndApplyBrandPrice(targetUrl, silent = false) {
         }
         if ((!srvData.image || srvData.image === '') && clientParsed && clientParsed.image) {
           data.image = clientParsed.image;
+        }
+        // Never allow keyboard placeholder if real store products were discovered
+        const isKeyboardImg = !data.image || data.image.includes('photo-1587829741301-dc798b83add3');
+        const isActuallyKeyboard = /keyboard|keycap|keychron|switch/i.test((data.productTitle || '') + ' ' + (data.brand || ''));
+        if (isKeyboardImg && !isActuallyKeyboard && data.storeProducts && data.storeProducts.length > 0 && data.storeProducts[0].image) {
+          data.image = data.storeProducts[0].image;
         }
         if ((!srvData.productTitle || srvData.productTitle === 'High-Performance Hardware') && clientParsed && clientParsed.productTitle) {
           data.productTitle = clientParsed.productTitle;
@@ -2822,8 +2864,22 @@ async function generateArticleWithAi() {
     if (statusText) statusText.textContent = `⚡ Applying your exact custom price (${userOverriddenPrice.salePriceUsd})...`;
   }
 
+  // Resolve authentic product image to prevent falling back to generic keyboard
+  let resolvedCustomImg = customImage || (document.getElementById('input-image')?.value || '').trim();
+  const isGenericOrKeyboard = !resolvedCustomImg || resolvedCustomImg.includes('photo-1587829741301-dc798b83add3');
+  const isActualKeyboard = /keyboard|keycap|keychron|switch/i.test(keyword + ' ' + brand);
+  if (isGenericOrKeyboard && !isActualKeyboard) {
+    if (window.lastScrapedProductData && window.lastScrapedProductData.image && !window.lastScrapedProductData.image.includes('photo-1587829741301-dc798b83add3')) {
+      resolvedCustomImg = window.lastScrapedProductData.image;
+    } else if (window.lastScrapedProductData && window.lastScrapedProductData.storeProducts && window.lastScrapedProductData.storeProducts[0]?.image) {
+      resolvedCustomImg = window.lastScrapedProductData.storeProducts[0].image;
+    } else {
+      resolvedCustomImg = '';
+    }
+  }
+
   try {
-    const generated = buildAiArticleData(keyword, (typeof activeNiche !== "undefined" ? activeNiche : niche), brand, lang, customAffLink, customImage);
+    const generated = buildAiArticleData(keyword, (typeof activeNiche !== "undefined" ? activeNiche : niche), brand, lang, customAffLink, resolvedCustomImg);
 
     exitEditMode();
 
@@ -2964,6 +3020,7 @@ function buildAiArticleData(keyword, niche, brand, lang, customAffLink, customIm
   const isApparelComfort = /comfrt|hoodie|sweatshirt|sweater|jacket|fleece|clothing|apparel|blanket|weighted hoodie|loungewear|streetwear|pants|sweatpant/i.test(kwLower) || /comfrt/i.test(brandName) || /comfrt/i.test(customAffLink);
   const isLifestyleHome = /mug|cup|tumbler|bottle|flask|pillow|pillowcase|cushion|blanket|bedding|cover|sleep|comfort|linen|cotton|mat|decor|kitchen/i.test(kwLower) || /mug|pillow|cushion/i.test(cleanKw);
   const isCapOutdoorGear = /cap|hat|beanie|headwear|baseball[- ]*cap|visor|headlamp|flashlight|camping|fishing|outdoor/i.test(kwLower) || /cap|hat/i.test(cleanKw);
+  const isEngineModelKit = /engine|stirling|combustion|turbofan|steam[- ]*engine|model[- ]*kit|building[- ]*kit|diy[- ]*kit|retrol|teching|flame[- ]*licker|v8[- ]*engine|radial[- ]*engine|machining|cnc|mechanical[- ]*clock|tourbillon/i.test(kwLower) || /engine/i.test(brandName);
   const isMiniPcWorkstation = /bosgame|magicnuc|minisforum|gmktec|mini[- ]*pc|minipc|workstation|desktop|ryzen ai/i.test(kwLower) || /bosgame/i.test(brandName);
 
   if (isIm8Longevity) {
@@ -3021,6 +3078,17 @@ function buildAiArticleData(keyword, niche, brand, lang, customAffLink, customIm
     t_intro = `Reliable outdoor and everyday carry gear must blend effortless comfort with dependable utility. The ${cleanKw} delivers hands-free convenience and rugged reliability when you need it most.\n\nCrafted from durable, breathable materials with clean stitching, it fits comfortably right out of the box.`;
     t_body = `During night fishing and trail tests, the illumination beam was crisp and wide, providing ample forward visibility without blinding glare. The lightweight build remained comfortable through hours of continuous wear.`;
     t_verdict = `The ${cleanKw} is an innovative and highly practical companion for outdoor enthusiasts, night runners, and hobbyists alike. Top recommendation.`;
+  } else if (isEngineModelKit) {
+    catName = 'Robotics & Outdoor Tech';
+    priceU = '$309.99'; priceV = '7.750.000₫'; priceO = '$369.99';
+    t_img = resolveImage('https://cdn.shopify.com/s/files/1/0175/0718/8800/files/retrol-ve-02-flame-licker-vacuum-engine-generator-model-external-combustion-engine-educational-toys-gifts.jpg?v=1794552436');
+    t_title = `${cleanKw} Hands-On Review: Precision Machining, Assembly & Bench-Run Tested (2026)`;
+    t_excerpt = `An in-depth teardown and mechanical bench-test of the ${cleanKw}. We evaluate CNC machining tolerances, structural brass finishes, thermodynamic combustion cycles, and collector craftsmanship.`;
+    t_pros = `All-metal CNC precision machining with mirror-polished brass and stainless steel cylinder blocks\nFully functioning thermodynamic mechanical cycle with authentic combustion/vacuum operation\nExquisite desktop mechanical art piece and educational engineering showcase\nComprehensive assembly tolerances with zero mechanical binding or backlash`;
+    t_cons = `Requires careful fuel handling (pure alcohol/lamp oil) and adult supervision during active running\nHigh-precision machined parts demand periodic mechanical lubrication`;
+    t_intro = `For mechanical engineering enthusiasts and model collectors, few experiences match the visceral tactile beauty of a precision-machined miniature working engine. The ${brandName} ${cleanKw} stands out as a triumph of precision metalworking and authentic mechanical physics.\n\nFrom the moment you unbox the unit, the cold heft of precision-machined brass, aluminum, and stainless steel conveys true workshop-grade craftsmanship. Every flywheel, rocker arm, and cylinder bore has been machined to micro-tolerances.`;
+    t_body = `During bench operation, the engine demonstrated flawless thermodynamic efficiency. Once the burner is positioned, the cylinder warms rapidly, and a gentle spin of the balanced flywheel brings the engine to a rhythmic, hypnotic idle. Mechanical balance is exceptional, producing virtually zero excessive vibration on the desktop display base.`;
+    t_verdict = `The ${cleanKw} is an extraordinary desktop showcase for engineers, hobbyists, and discerning collectors. Combining historical mechanical fascination with museum-grade craftsmanship, it receives our highest 9.8/10 recommendation.`;
   } else if (isMiniPcWorkstation) {
     catName = 'Computing & Gaming';
     priceU = '$469.99'; priceV = '11.750.000₫'; priceO = '$587.49';

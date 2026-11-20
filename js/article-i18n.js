@@ -355,10 +355,26 @@
 
     // Headings for 4 Sections
     const h2s = document.querySelectorAll('article.prose h2, main article h2');
-    if (h2s.length >= 1) h2s[0].textContent = dict.section1Title;
-    if (h2s.length >= 2) h2s[1].textContent = dict.section2Title;
-    if (h2s.length >= 3) h2s[2].textContent = dict.section3Title;
-    if (h2s.length >= 4) h2s[3].textContent = dict.section4Title;
+    if (h2s.length >= 1) {
+      if (lang !== 'en' || /All-Terrain|Chassis/i.test(h2s[0].textContent)) {
+        h2s[0].textContent = dict.section1Title;
+      }
+    }
+    if (h2s.length >= 2) {
+      if (lang !== 'en' || /AWD Brushless|Powertrain|Slope Performance/i.test(h2s[1].textContent)) {
+        h2s[1].textContent = dict.section2Title;
+      }
+    }
+    if (h2s.length >= 3) {
+      if (lang !== 'en' || !h2s[2].textContent.trim()) {
+        h2s[2].textContent = dict.section3Title;
+      }
+    }
+    if (h2s.length >= 4) {
+      if (lang !== 'en' || !h2s[3].textContent.trim()) {
+        h2s[3].textContent = dict.section4Title;
+      }
+    }
 
     // Section 1 Paragraph (Intro)
     if (postData && h2s.length >= 1) {

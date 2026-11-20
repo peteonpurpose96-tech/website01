@@ -77,7 +77,11 @@ function sanitizePostHtml(html) {
 
   // 1. Replace square purple CH logo with official logo matching index.html
   html = html.replace(
-    /<div[^>]*class="[^"]*(?:bg-gradient-to-tr|bg-gradient-to-br)[^"]*from-purple-600[^"]*via-violet-600[^"]*"[^>]*>[\s\S]*?CH[\s\S]*?<\/div>/gi,
+    /<div[^>]*class="[^"]*(?:bg-gradient-to-[a-z]+|from-purple|to-indigo|shadow-purple)[^"]*"[^>]*>\s*CH\s*<\/div>/gi,
+    '<img src="images/logo.png" alt="CouponHiker Logo" class="w-9 h-9 sm:w-12 sm:h-12 xl:w-14 xl:h-14 rounded-xl sm:rounded-2xl object-cover shadow-lg shadow-cyan-500/30 group-hover:scale-105 transition-transform flex-shrink-0">'
+  );
+  html = html.replace(
+    /<div[^>]*>\s*CH\s*<\/div>/gi,
     '<img src="images/logo.png" alt="CouponHiker Logo" class="w-9 h-9 sm:w-12 sm:h-12 xl:w-14 xl:h-14 rounded-xl sm:rounded-2xl object-cover shadow-lg shadow-cyan-500/30 group-hover:scale-105 transition-transform flex-shrink-0">'
   );
 
@@ -85,7 +89,8 @@ function sanitizePostHtml(html) {
   html = html.replace(/from-\[#14082c\]\s+via-\[#240e47\]\s+to-\[#120729\]/gi, 'from-slate-100 via-slate-100 to-slate-200 dark:from-[#0a0d14] dark:via-[#0c101a] dark:to-[#0a0d14]');
   html = html.replace(/from-\[#120729\]\s+via-\[#120729\]\/80\s+to-transparent/gi, 'from-slate-100 dark:from-[#0a0d14] to-transparent');
   html = html.replace(/to-\[#120729\]/gi, 'to-slate-100 dark:to-[#0a0d14]');
-  html = html.replace(/bg-\[#14082c\]/gi, 'bg-slate-100 dark:bg-[#0a0d14]');
+  html = html.replace(/bg-\[#(?:14082c|120729|0a0218)\]/gi, 'bg-slate-100 dark:bg-[#0a0d14]');
+  html = html.replace(/text-purple-200/gi, 'text-slate-700 dark:text-slate-300');
 
   // 3. Ticker badge: replace purple with cyan gradient
   html = html.replace(/bg-gradient-to-r\s+from-purple-600\s+to-pink-600/gi, 'bg-gradient-to-r from-cyan-500 via-sky-500 to-blue-600');
@@ -121,6 +126,14 @@ function sanitizePostHtml(html) {
   // 8. Prose headings: replace Mowrator hardcoded headings if they leak
   html = html.replace(/1\.\s*Hands-On Experience & All-Terrain Chassis/gi, '1. Hands-On Experience & Build Quality');
   html = html.replace(/2\.\s*AWD Brushless Powertrain & Slope Performance/gi, '2. Real-World Performance & Lab Benchmarks');
+  html = html.replace(/:?\s*45° All-Terrain Performance Tested(?:\s*\(\d{4}\))?/gi, ': In-Depth Lab Review (2026)');
+
+  // 9. Clean up misplaced audiophile benchmarks on non-audio products
+  if (!/headphone|earphone|earbud|headset|audiophile|acoustic|hifi|soundbar|mic\b/i.test(html.slice(0, 3000))) {
+    html = html.replace(/:?\s*Audiophile Benchmarks & ANC Tested(?:\s*\(\d{4}\))?/gi, ': Hands-On Review & Buying Guide (2026)');
+    html = html.replace(/We put the [^<]+ through rigorous acoustic laboratory testing[^\.<]*\./gi, 'We evaluated this product through rigorous hands-on laboratory testing across design, build quality, and real-world durability.');
+    html = html.replace(/Finding headphones that effortlessly bridge the gap[^\.<]*\./gi, 'In today’s fast-moving market, finding products that deliver genuine quality without inflated marketing hype is essential.');
+  }
 
   return html;
 }
@@ -794,7 +807,7 @@ export default {
                 if (shopifyRes && shopifyRes.ok) {
                   const shopifyData = await shopifyRes.json().catch(() => null);
                   if (shopifyData && Array.isArray(shopifyData.products) && shopifyData.products.length > 0) {
-                    const validProducts = shopifyData.products.filter(p => {
+                    let validProducts = shopifyData.products.filter(p => {
                       const t = (p.title || '').toLowerCase();
                       const pPrice = parseFloat(p.variants?.[0]?.price || 0);
                       if (pPrice < 10) return false;
@@ -802,27 +815,74 @@ export default {
                       return true;
                     });
                     if (validProducts.length > 0) {
+                      // Smart Relevance Ranking against search query tokens
+                      const searchContext = [hintKw, productTitle, brand, targetUrl, storeOrigin].filter(Boolean).join(' ').toLowerCase();
+                      const queryTokens = searchContext.split(/[^a-z0-9]+/).filter(w => w.length >= 3 && !['https', 'http', 'com', 'org', 'net', 'www', 'store', 'shop', 'deal', 'official', 'ref'].includes(w));
+
+                      validProducts.sort((a, b) => {
+                        const aTitle = ((a.title || '') + ' ' + (a.vendor || '') + ' ' + (a.product_type || '')).toLowerCase();
+                        const bTitle = ((b.title || '') + ' ' + (b.vendor || '') + ' ' + (b.product_type || '')).toLowerCase();
+                        const aPrice = parseFloat(a.variants?.[0]?.price || 0);
+                        const bPrice = parseFloat(b.variants?.[0]?.price || 0);
+
+                        let aScore = 0;
+                        let bScore = 0;
+
+                        for (const tok of queryTokens) {
+                          if (aTitle.includes(tok)) aScore += 12;
+                          if (bTitle.includes(tok)) bScore += 12;
+                        }
+
+                        // Special boost for flagship products matching store identity
+                        if (/engine|stirling|model|kit|vacuum|combustion|retrol|turbine/i.test(searchContext)) {
+                          if (/engine|stirling|retrol|turbine|combustion|model/i.test(aTitle)) aScore += 25;
+                          if (/engine|stirling|retrol|turbine|combustion|model/i.test(bTitle)) bScore += 25;
+                        }
+
+                        // Prioritize complete models/kits over small accessories/parts under $100
+                        if (/parts|gauge|filter|compressor|silencer|pipe|clutch|bracket|cable/i.test(aTitle) && aPrice < 100) aScore -= 25;
+                        if (/parts|gauge|filter|compressor|silencer|pipe|clutch|bracket|cable/i.test(bTitle) && bPrice < 100) bScore -= 25;
+
+                        // De-prioritize novelties like humidifier, socks, mug if store is engine/tech
+                        if (/humidifier|diffuser|pillow|mug|sticker/i.test(aTitle) && !/humidifier|pillow|mug/i.test(searchContext)) aScore -= 40;
+                        if (/humidifier|diffuser|pillow|mug|sticker/i.test(bTitle) && !/humidifier|pillow|mug/i.test(searchContext)) bScore -= 40;
+
+                        if (aPrice >= 150) aScore += 15;
+                        if (bPrice >= 150) bScore += 15;
+
+                        return bScore - aScore;
+                      });
+
                       storeProducts = validProducts.slice(0, 8).map(p => {
                         const price = parseFloat(p.variants?.[0]?.price || 49);
                         const orig = parseFloat(p.variants?.[0]?.compare_at_price || 0) || Math.round(price * 1.25 * 100) / 100;
                         const vnd = Math.round(price * 25000 / 1000) * 1000;
+                        let img = p.images?.[0]?.src || '';
+                        if (img && img.startsWith('//')) img = 'https:' + img;
                         return {
                           id: p.id,
                           title: p.title,
                           salePriceUsd: '$' + price.toFixed(2),
                           salePriceVnd: vnd.toLocaleString('vi-VN').replace(/,/g, '.') + '₫',
                           originalPriceUsd: '$' + orig.toFixed(2),
-                          image: p.images?.[0]?.src || '',
+                          image: img,
                           brand: p.vendor || brand
                         };
                       });
 
-                      if (!productTitle && storeProducts.length > 0) {
-                        productTitle = storeProducts[0].title;
-                        saleUsd = parseFloat(storeProducts[0].salePriceUsd.replace('$', ''));
-                        origUsd = parseFloat(storeProducts[0].originalPriceUsd.replace('$', ''));
-                        if (!imageUrl) imageUrl = storeProducts[0].image;
-                        if (storeProducts[0].brand) brand = storeProducts[0].brand;
+                      if (storeProducts.length > 0) {
+                        const topProd = storeProducts[0];
+                        const isGenericTitle = !productTitle || /home|online store|official site|official store|adults|diy kit \|/i.test(productTitle);
+                        if (isGenericTitle || topProd) {
+                          if (isGenericTitle) productTitle = topProd.title;
+                          saleUsd = parseFloat(topProd.salePriceUsd.replace('$', '')) || saleUsd;
+                          origUsd = parseFloat(topProd.originalPriceUsd.replace('$', '')) || origUsd;
+                          if (topProd.brand && (!brand || brand === 'Verified Partner')) brand = topProd.brand;
+                        }
+                        // ALWAYS set imageUrl to top product image if imageUrl is empty or generic
+                        if (!imageUrl || imageUrl.includes('favicon') || imageUrl.includes('logo') || imageUrl.includes('unsplash.com')) {
+                          imageUrl = topProd.image;
+                        }
                       }
                     }
                   }
