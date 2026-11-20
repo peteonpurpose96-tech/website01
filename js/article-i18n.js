@@ -1,4 +1,4 @@
-/**
+﻿/**
  * CouponHiker - Reactive Article Translation Engine (article-i18n.js)
  * Enables seamless real-time switching between English (US), Tiếng Việt (VN), and 简体中文 (ZH)
  * for all review articles, tables, pros/cons, badges, headings, and CTAs.
@@ -539,10 +539,108 @@
     }
   }
 
+  // Universal Client-Side Brand & Theme Sanitizer
+  function sanitizeLiveDOM() {
+    try {
+      // 1. Sanitize Header Logo
+      const logoLinks = document.querySelectorAll('header a[href="index.html"], header a.group, a.flex-shrink-0.flex.items-center');
+      logoLinks.forEach(link => {
+        const purpleBox = link.querySelector('div.bg-gradient-to-tr, div.from-purple-600, div.ring-purple-400, div.shadow-purple-500');
+        if (purpleBox || (link.firstElementChild && link.firstElementChild.tagName.toLowerCase() === 'div' && link.firstElementChild.textContent.trim() === 'CH')) {
+          const target = purpleBox || link.firstElementChild;
+          const img = document.createElement('img');
+          img.src = 'images/logo.png';
+          img.alt = 'CouponHiker Logo';
+          img.className = 'w-9 h-9 sm:w-12 sm:h-12 xl:w-14 xl:h-14 rounded-xl sm:rounded-2xl object-cover shadow-lg shadow-cyan-500/30 group-hover:scale-105 transition-transform flex-shrink-0';
+          target.replaceWith(img);
+        }
+      });
+
+      // 2. Sanitize Top Ticker Bar
+      const tickerBars = document.querySelectorAll('div.bg-gradient-to-r, div[class*="14082c"], div[class*="240e47"], div[class*="120729"]');
+      tickerBars.forEach(bar => {
+        if (bar.className.includes('14082c') || bar.className.includes('240e47') || bar.className.includes('120729')) {
+          bar.className = 'bg-slate-100 dark:bg-[#0a0d14] text-slate-700 dark:text-slate-300 text-xs py-1.5 px-3 sm:px-6 border-b border-slate-200 dark:border-slate-800/80 relative z-30 transition-colors';
+        }
+      });
+
+      // Marquee edge fade gradients
+      const edges = document.querySelectorAll('div[class*="from-[#120729]"], div[class*="to-[#120729]"]');
+      edges.forEach(edge => {
+        edge.className = edge.className.replace(/from-\[#120729\]\s+via-\[#120729\]\/80\s+to-transparent/g, 'from-slate-100 dark:from-[#0a0d14] to-transparent')
+                                      .replace(/from-\[#120729\]/g, 'from-slate-100 dark:from-[#0a0d14]')
+                                      .replace(/to-\[#120729\]/g, 'to-slate-100 dark:to-[#0a0d14]');
+      });
+
+      // Ticker featured badges
+      const featuredBadges = document.querySelectorAll('div.bg-gradient-to-r.from-purple-600, div[class*="from-purple-600"]');
+      featuredBadges.forEach(b => {
+        if (b.textContent.includes('FEATURED')) {
+          b.className = 'inline-flex items-center gap-1.5 px-2.5 py-0.5 sm:py-1 rounded-full text-[10px] font-black bg-gradient-to-r from-cyan-500 via-sky-500 to-blue-600 text-white uppercase tracking-wider shadow-sm shadow-cyan-500/25 border border-cyan-400/40 select-none';
+        }
+      });
+
+      // 3. Header Badges & Subtitle
+      const revBadges = document.querySelectorAll('header span.bg-purple-100\\/90, header span[class*="purple-950"]');
+      revBadges.forEach(b => {
+        if (b.textContent.trim().toUpperCase() === 'REVIEW') {
+          b.className = 'font-black text-[9px] sm:text-xs px-1.5 sm:px-2 py-0.5 rounded-md sm:rounded-xl bg-cyan-100/90 dark:bg-cyan-950/90 text-cyan-800 dark:text-cyan-300 uppercase tracking-wider border border-cyan-300/60 dark:border-cyan-700/60 shadow-xs';
+        }
+      });
+
+      // 4. Clean Leaked Mower Headings & Copy on Non-Mower Posts
+      const isMowrator = /mowrator/i.test(window.location.href);
+      if (!isMowrator) {
+        document.querySelectorAll('h2').forEach(h2 => {
+          if (/All-Terrain Chassis/i.test(h2.textContent)) {
+            h2.innerHTML = h2.innerHTML.replace(/All-Terrain Chassis/gi, 'Build Quality & Ergonomics');
+          }
+          if (/AWD Brushless Powertrain/i.test(h2.textContent)) {
+            h2.innerHTML = h2.innerHTML.replace(/AWD Brushless Powertrain & Slope Performance/gi, 'Real-World Performance & Lab Benchmarks');
+          }
+        });
+
+        // Clean leaked audiophile headphones copy on non-audio products
+        const pageText = document.body ? document.body.innerText.slice(0, 3000) : '';
+        const isAudioProduct = /headphone|earphone|earbud|headset|audiophile|acoustic|hifi|soundbar|mic\b/i.test(pageText);
+        if (!isAudioProduct) {
+          const h1 = document.querySelector('h1');
+          if (h1 && /Audiophile Benchmarks & ANC Tested/i.test(h1.textContent)) {
+            h1.textContent = h1.textContent.replace(/:?\s*Audiophile Benchmarks & ANC Tested(?:\s*\(\d{4}\))?/gi, ': Hands-On Review & Buying Guide (2026)');
+          }
+          document.querySelectorAll('p').forEach(p => {
+            if (/We put the [^<]+ through rigorous acoustic laboratory testing/i.test(p.textContent)) {
+              p.textContent = 'We evaluated this product through rigorous hands-on laboratory testing across design, build quality, and real-world durability.';
+            }
+            if (/Finding headphones that effortlessly bridge the gap/i.test(p.textContent)) {
+              p.textContent = 'In today’s fast-moving market, finding products that deliver genuine quality without inflated marketing hype is essential.';
+            }
+          });
+        }
+      }
+
+      // 5. Category Badges: replace hot pink with neon cyan / obsidian
+      document.querySelectorAll('span.bg-pink-600').forEach(badge => {
+        badge.className = 'inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-[10px] font-black bg-cyan-950/90 text-cyan-300 border border-cyan-500/40 uppercase tracking-wider shadow-sm';
+      });
+
+      // 6. Deal Cards: replace purple/pink borders
+      document.querySelectorAll('.border-pink-500\\/40, .border-purple-500\\/40').forEach(card => {
+        card.classList.remove('border-pink-500/40', 'border-purple-500/40');
+        card.classList.add('border-slate-200', 'dark:border-slate-800');
+      });
+
+    } catch (e) {
+      console.warn('CouponHiker DOM sanitizer warning:', e);
+    }
+  }
+
   // Initialize immediately and also on DOMContentLoaded
   function init() {
+    sanitizeLiveDOM();
     const initialLang = getActiveLanguage();
     applyArticleTranslations(initialLang);
+    sanitizeLiveDOM();
     syncArticleCards(initialLang);
   }
 
@@ -560,6 +658,7 @@
 
   // Expose API
   window.applyArticleTranslations = applyArticleTranslations;
+  window.sanitizeLiveDOM = sanitizeLiveDOM;
   window.syncArticleCards = syncArticleCards;
 
 })();

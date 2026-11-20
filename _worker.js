@@ -3190,16 +3190,34 @@ export default {
         });
       }
 
-      // If static file exists in assets, let ASSETS serve it
+            // If static file exists in assets, let ASSETS serve it sanitized
       if (env.ASSETS) {
         const assetRes = await env.ASSETS.fetch(request);
-        if (assetRes.ok) return assetRes;
+        if (assetRes.ok) {
+          const assetText = await assetRes.text();
+          return new Response(sanitizePostHtml(assetText), {
+            headers: {
+              'Content-Type': 'text/html; charset=utf-8',
+              'Cache-Control': 'no-cache, no-store, must-revalidate',
+              'Pragma': 'no-cache',
+              'Expires': '0',
+              ...CORS_HEADERS
+            }
+          });
+        }
 
-        // Fallback to post-detail.html
+        // Fallback to post-detail.html sanitized
         const detailRes = await env.ASSETS.fetch(new Request(new URL('/post-detail.html', request.url)));
         if (detailRes.ok) {
-          return new Response(detailRes.body, {
-            headers: { 'Content-Type': 'text/html; charset=utf-8' }
+          const detailText = await detailRes.text();
+          return new Response(sanitizePostHtml(detailText), {
+            headers: {
+              'Content-Type': 'text/html; charset=utf-8',
+              'Cache-Control': 'no-cache, no-store, must-revalidate',
+              'Pragma': 'no-cache',
+              'Expires': '0',
+              ...CORS_HEADERS
+            }
           });
         }
       }

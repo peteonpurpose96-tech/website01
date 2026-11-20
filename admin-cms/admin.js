@@ -5021,7 +5021,7 @@ function renderProductsTable(products) {
 
   products.forEach(p => {
     const tr = document.createElement('tr');
-    tr.className = 'hover:bg-purple-900/20 transition-colors border-b border-purple-900/40';
+    tr.className = 'hover:bg-purple-900/20 transition-colors border-b border-slate-200 dark:border-slate-800';
 
     const title = p.titleEn || p.title || p.titleVi || p.name || 'Unnamed Product';
     const image = p.image || 'https://images.unsplash.com/photo-1505740420928-5e560c06d30e?w=600';
@@ -5494,7 +5494,7 @@ function renderHeroTop3Deck() {
           </div>
 
           <!-- Brand & Post Link -->
-          <div class="text-[11px] text-purple-300/80 mb-3 flex items-center justify-between border-t border-purple-900/40 pt-2">
+          <div class="text-[11px] text-purple-300/80 mb-3 flex items-center justify-between border-t border-slate-200 dark:border-slate-800 pt-2">
             <span class="truncate max-w-[140px] font-semibold text-purple-200">🏢 ${escapeHtml(brandDisp)}</span>
             <a href="${getLiveBaseUrl()}/${escapeHtml(item.postUrl || '#')}" target="_blank" class="text-amber-400 hover:text-amber-300 text-[10px] font-bold flex items-center gap-0.5">
               <span>Xem bài</span>
@@ -5504,7 +5504,7 @@ function renderHeroTop3Deck() {
         </div>
 
         <!-- Move Buttons & Quick Assign -->
-        <div class="space-y-2 pt-2 border-t border-purple-900/40">
+        <div class="space-y-2 pt-2 border-t border-slate-200 dark:border-slate-800">
           <!-- Reorder buttons -->
           <div class="flex items-center gap-1.5">
             ${i > 0 ? `
@@ -6516,7 +6516,7 @@ function renderMessagesList(messages) {
 
         <div class="pl-12">
           <p class="text-xs font-bold text-purple-200 mb-1">Subject: ${safeSubject}</p>
-          <div class="p-3.5 rounded-xl bg-[#0e0722] border border-purple-900/60 text-xs text-purple-100/90 whitespace-pre-wrap leading-relaxed font-normal">
+          <div class="p-3.5 rounded-xl bg-[#0e0722] border border-slate-200 dark:border-slate-800 text-xs text-purple-100/90 whitespace-pre-wrap leading-relaxed font-normal">
             ${safeMessage}
           </div>
         </div>

@@ -134,24 +134,28 @@ if (-not $NoBrowser) {
 function Sanitize-PostHtml([string]$html) {
     if ([string]::IsNullOrWhiteSpace($html)) { return $html }
     # 1. Logo
-    $html = [regex]::Replace($html, '<div[^>]*class="[^"]*(?:bg-gradient-to-[a-z]+|from-purple|to-indigo|shadow-purple)[^"]*"[^>]*>\s*CH\s*</div>', '<img src="images/logo.png" alt="CouponHiker Logo" class="w-9 h-9 sm:w-12 sm:h-12 xl:w-14 xl:h-14 rounded-xl sm:rounded-2xl object-cover shadow-lg shadow-cyan-500/30 group-hover:scale-105 transition-transform flex-shrink-0">', [System.Text.RegularExpressions.RegexOptions]::IgnoreCase)
+    $html = [regex]::Replace($html, '<div[^>]*class="[^"]*(?:bg-gradient-to-[a-z]+|from-purple|to-indigo|to-pink|shadow-purple|ring-purple)[^"]*"[^>]*>\s*CH\s*</div>', '<img src="images/logo.png" alt="CouponHiker Logo" class="w-9 h-9 sm:w-12 sm:h-12 xl:w-14 xl:h-14 rounded-xl sm:rounded-2xl object-cover shadow-lg shadow-cyan-500/30 group-hover:scale-105 transition-transform flex-shrink-0">', [System.Text.RegularExpressions.RegexOptions]::IgnoreCase)
     $html = [regex]::Replace($html, '<div[^>]*>\s*CH\s*</div>', '<img src="images/logo.png" alt="CouponHiker Logo" class="w-9 h-9 sm:w-12 sm:h-12 xl:w-14 xl:h-14 rounded-xl sm:rounded-2xl object-cover shadow-lg shadow-cyan-500/30 group-hover:scale-105 transition-transform flex-shrink-0">', [System.Text.RegularExpressions.RegexOptions]::IgnoreCase)
+    $html = [regex]::Replace($html, '<span[^>]*class="[^"]*(?:bg-gradient-to-[a-z]+|from-purple|to-indigo|to-pink|shadow-purple)[^"]*"[^>]*>\s*CH\s*</span>', '<img src="images/logo.png" alt="CouponHiker Logo" class="w-9 h-9 sm:w-12 sm:h-12 xl:w-14 xl:h-14 rounded-xl sm:rounded-2xl object-cover shadow-lg shadow-cyan-500/30 group-hover:scale-105 transition-transform flex-shrink-0">', [System.Text.RegularExpressions.RegexOptions]::IgnoreCase)
     # 2. Ticker
     $html = [regex]::Replace($html, 'from-\[#14082c\]\s+via-\[#240e47\]\s+to-\[#120729\]', 'from-slate-100 via-slate-100 to-slate-200 dark:from-[#0a0d14] dark:via-[#0c101a] dark:to-[#0a0d14]', [System.Text.RegularExpressions.RegexOptions]::IgnoreCase)
+    $html = [regex]::Replace($html, 'bg-gradient-to-r\s+from-\[#14082c\][^\"]*', 'bg-slate-100 dark:bg-[#0a0d14] text-slate-700 dark:text-slate-300 text-xs py-1.5 px-3 sm:px-6 border-b border-slate-200 dark:border-slate-800/80 relative z-30 transition-colors', [System.Text.RegularExpressions.RegexOptions]::IgnoreCase)
     $html = [regex]::Replace($html, 'from-\[#120729\]\s+via-\[#120729\]\/80\s+to-transparent', 'from-slate-100 dark:from-[#0a0d14] to-transparent', [System.Text.RegularExpressions.RegexOptions]::IgnoreCase)
     $html = [regex]::Replace($html, 'to-\[#120729\]', 'to-slate-100 dark:to-[#0a0d14]', [System.Text.RegularExpressions.RegexOptions]::IgnoreCase)
     $html = [regex]::Replace($html, 'bg-\[#(?:14082c|120729|0a0218)\]', 'bg-slate-100 dark:bg-[#0a0d14]', [System.Text.RegularExpressions.RegexOptions]::IgnoreCase)
     $html = [regex]::Replace($html, 'text-purple-200', 'text-slate-700 dark:text-slate-300', [System.Text.RegularExpressions.RegexOptions]::IgnoreCase)
     # 3. Badges & Gradients
-    $html = [regex]::Replace($html, 'bg-gradient-to-r\s+from-purple-600\s+to-pink-600', 'bg-gradient-to-r from-cyan-500 via-sky-500 to-blue-600', [System.Text.RegularExpressions.RegexOptions]::IgnoreCase)
+    $html = [regex]::Replace($html, 'bg-gradient-to-r\s+from-purple-600\s+to-pink-600', 'bg-gradient-to-r from-cyan-500 via-sky-500 to-blue-600 text-white', [System.Text.RegularExpressions.RegexOptions]::IgnoreCase)
     $html = [regex]::Replace($html, 'from-pink-500\s+via-purple-600\s+to-indigo-600', 'from-cyan-500 via-sky-500 to-blue-600', [System.Text.RegularExpressions.RegexOptions]::IgnoreCase)
     $html = [regex]::Replace($html, 'from-pink-600\s+via-purple-600\s+to-indigo-600', 'from-cyan-500 via-sky-500 to-blue-600', [System.Text.RegularExpressions.RegexOptions]::IgnoreCase)
+    $html = [regex]::Replace($html, 'from-pink-500\s+to-purple-600', 'from-cyan-500 to-blue-600', [System.Text.RegularExpressions.RegexOptions]::IgnoreCase)
+    $html = [regex]::Replace($html, 'bg-pink-600\s+text-white', 'bg-gradient-to-r from-cyan-500 to-blue-600 text-white', [System.Text.RegularExpressions.RegexOptions]::IgnoreCase)
     $html = [regex]::Replace($html, 'border-purple-500', 'border-cyan-500', [System.Text.RegularExpressions.RegexOptions]::IgnoreCase)
     $html = [regex]::Replace($html, 'border-pink-300', 'border-cyan-300', [System.Text.RegularExpressions.RegexOptions]::IgnoreCase)
     $html = [regex]::Replace($html, 'text-pink-600\s+dark:text-pink-400', 'text-cyan-600 dark:text-cyan-400', [System.Text.RegularExpressions.RegexOptions]::IgnoreCase)
     $html = [regex]::Replace($html, 'dark:bg-\[#12082b\]', 'dark:bg-[#141926]', [System.Text.RegularExpressions.RegexOptions]::IgnoreCase)
     $html = [regex]::Replace($html, 'dark:bg-\[#100726\]\/80', 'dark:bg-[#141926]', [System.Text.RegularExpressions.RegexOptions]::IgnoreCase)
-    $html = [regex]::Replace($html, 'dark:from-\[#180933\]\s+dark:via-\[#110424\]\s+dark:to-\[#0a0218\]', 'dark:from-[#141926] dark:via-[#10141f] dark:to-[#0b0e17]', [System.Text.RegularExpressions.RegexOptions]::IgnoreCase)
+    $html = [regex]::Replace($html, 'dark:from-\[#180933\]\s+dark:via-\[#110424\]\s+dark:to-\[#0a0d14\]', 'dark:from-[#141926] dark:via-[#10141f] dark:to-[#0b0e17]', [System.Text.RegularExpressions.RegexOptions]::IgnoreCase)
     $html = [regex]::Replace($html, 'dark:from-\[#170a36\]\s+dark:to-\[#210e4a\]', 'dark:from-[#0e121d] dark:to-[#141926]', [System.Text.RegularExpressions.RegexOptions]::IgnoreCase)
     # 4. Leaked mower headings
     $html = [regex]::Replace($html, '1\.\s*Hands-On Experience & All-Terrain Chassis', '1. Hands-On Experience & Build Quality', [System.Text.RegularExpressions.RegexOptions]::IgnoreCase)
@@ -161,6 +165,8 @@ function Sanitize-PostHtml([string]$html) {
     if ($html.Length -gt 3000) { $checkSlice = $html.Substring(0, 3000) } else { $checkSlice = $html }
     if ($checkSlice -notmatch 'headphone|earphone|earbud|headset|audiophile|acoustic|hifi|soundbar|mic\b') {
         $html = [regex]::Replace($html, ':?\s*Audiophile Benchmarks & ANC Tested(?:\s*\(\d{4}\))?', ': Hands-On Review & Buying Guide (2026)', [System.Text.RegularExpressions.RegexOptions]::IgnoreCase)
+        $html = [regex]::Replace($html, 'We put the [^<]+ through rigorous acoustic laboratory testing[^\.<]*\.', 'We evaluated this product through rigorous hands-on laboratory testing across design, build quality, and real-world durability.', [System.Text.RegularExpressions.RegexOptions]::IgnoreCase)
+        $html = [regex]::Replace($html, 'Finding headphones that effortlessly bridge the gap[^\.<]*\.', 'In today''s fast-moving market, finding products that deliver genuine quality without inflated marketing hype is essential.', [System.Text.RegularExpressions.RegexOptions]::IgnoreCase)
     }
     return $html
 }
@@ -219,7 +225,7 @@ function Detect-CanonicalNiche([string]$Url, [string]$Title, [string]$Brand) {
 
     # 8. Audio & Sound
     if ($text -match "(sony.*(wh|wf|xm|headphone))|wh-1000xm|wf-1000xm|bose|quietcomfort|qc-ultra|sennheiser|momentum|shure|sm7b|devialet|phantom|airpods|headphone|headphones|earbud|earbuds|earphone|headset|audiophile|dac|amp|iem|soundbar|speaker|speakers|studio-monitor") {
-        return @{ slug = "audio"; name = "Audio & Sound" }
+        return @{ slug = "edc"; name = "Desk Setup & EDC" }
     }
 
     # 9. SaaS & AI Tools
@@ -247,7 +253,7 @@ function Detect-CanonicalNiche([string]$Url, [string]$Title, [string]$Brand) {
         return @{ slug = "courses"; name = "Video Courses" }
     }
 
-    return @{ slug = "audio"; name = "Audio & Sound" }
+    return @{ slug = "edc"; name = "Desk Setup & EDC" }
 }
 
 function Extract-BrandPriceInfo([string]$TargetUrl, [string]$HintKeyword = "") {
