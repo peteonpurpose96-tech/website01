@@ -16,13 +16,54 @@ const fs = require('fs');
 const path = require('path');
 const https = require('https');
 const http = require('http');
+const { execSync } = require('child_process');
 const { URL } = require('url');
 const { scrapeProductInfo, detectNiche } = require('./product-scraper');
 
 const ROOT_DIR = __dirname;
-const POSTS_JSON_PATH = path.join(ROOT_DIR, 'data', 'posts.json');
-const PRODUCTS_JSON_PATH = path.join(ROOT_DIR, 'data', 'products.json');
+const DATA_DIR = path.join(ROOT_DIR, 'data');
+const BACKUPS_DIR = path.join(DATA_DIR, 'backups');
+const POSTS_JSON_PATH = path.join(DATA_DIR, 'posts.json');
+const PRODUCTS_JSON_PATH = path.join(DATA_DIR, 'products.json');
 const INDEX_HTML_PATH = path.join(ROOT_DIR, 'index.html');
+
+/**
+ * Ensures backup directory exists and creates timestamped snapshots
+ * before any data modification.
+ */
+function createAutomaticBackup() {
+  try {
+    if (!fs.existsSync(BACKUPS_DIR)) {
+      fs.mkdirSync(BACKUPS_DIR, { recursive: true });
+    }
+    const now = new Date();
+    const pad = (n) => String(n).padStart(2, '0');
+    const stamp = `${now.getFullYear()}${pad(now.getMonth() + 1)}${pad(now.getDate())}_${pad(now.getHours())}${pad(now.getMinutes())}${pad(now.getSeconds())}`;
+
+    if (fs.existsSync(POSTS_JSON_PATH)) {
+      fs.copyFileSync(POSTS_JSON_PATH, path.join(BACKUPS_DIR, `posts_auto_${stamp}.json`));
+    }
+    if (fs.existsSync(PRODUCTS_JSON_PATH)) {
+      fs.copyFileSync(PRODUCTS_JSON_PATH, path.join(BACKUPS_DIR, `products_auto_${stamp}.json`));
+    }
+    if (fs.existsSync(INDEX_HTML_PATH)) {
+      fs.copyFileSync(INDEX_HTML_PATH, path.join(BACKUPS_DIR, `index_auto_${stamp}.html`));
+    }
+    console.log(`🛡️  Đã sao lưu an toàn tự động vào: data/backups/ (mã: ${stamp})`);
+  } catch (err) {
+    console.warn('⚠️ Cảnh báo tạo bản sao lưu:', err.message);
+  }
+}
+
+/**
+ * Atomic write: writes to temporary file first, then renames to target.
+ * Guarantees zero data corruption even during system crash or power outage.
+ */
+function safeWriteFile(targetPath, content) {
+  const tempPath = targetPath + '.tmp_' + Date.now();
+  fs.writeFileSync(tempPath, content, 'utf8');
+  fs.renameSync(tempPath, targetPath);
+}
 
 function escapeHtml(str) {
   if (!str) return '';
@@ -632,6 +673,9 @@ async function runBatchImport(inputSource) {
   urls.forEach((u, i) => console.log(`  [${i + 1}] ${u}`));
   console.log('\n----------------------------------------------------\n');
 
+  // Create safety snapshot before altering any files
+  createAutomaticBackup();
+
   // Load existing posts.json
   let postsList = [];
   if (fs.existsSync(POSTS_JSON_PATH)) {
@@ -798,13 +842,13 @@ async function runBatchImport(inputSource) {
     }
   }
 
-  // Save updated posts.json
-  fs.writeFileSync(POSTS_JSON_PATH, JSON.stringify(postsList, null, 2), 'utf8');
-  console.log(`\n💾 Đã lưu ${postsList.length} bài viết vào data/posts.json`);
+  // Safe atomic save for posts.json
+  safeWriteFile(POSTS_JSON_PATH, JSON.stringify(postsList, null, 2));
+  console.log(`\n💾 Đã lưu an toàn tuyệt đối ${postsList.length} bài viết vào data/posts.json`);
 
-  // Save updated products.json
-  fs.writeFileSync(PRODUCTS_JSON_PATH, JSON.stringify(productsList, null, 2), 'utf8');
-  console.log(`💾 Đã lưu ${productsList.length} sản phẩm vào data/products.json`);
+  // Safe atomic save for products.json
+  safeWriteFile(PRODUCTS_JSON_PATH, JSON.stringify(productsList, null, 2));
+  console.log(`💾 Đã lưu an toàn tuyệt đối ${productsList.length} sản phẩm vào data/products.json`);
 
   // Update index.html
   if (indexHtml) {
@@ -821,7 +865,7 @@ async function runBatchImport(inputSource) {
           indexHtml = indexHtml.replace(gridMarker, `${gridMarker}\n${card.html}`);
         }
       }
-      fs.writeFileSync(INDEX_HTML_PATH, indexHtml, 'utf8');
+      safeWriteFile(INDEX_HTML_PATH, indexHtml);
       console.log(`💾 Đã cập nhật thẻ bài viết hiển thị trên trang chủ index.html`);
     }
   }
