@@ -564,6 +564,23 @@ export default {
           }
           coupon = 'MEOWANT15'; discount = '15% OFF Pet Care Series';
           category = 'Smart Home & IoT'; categorySlug = 'smarthome';
+        } else if (lowerUrl.includes('furlife') || lowerUrl.includes('fur1ife') || (lowerUrl.includes('snwbl.io') && (lowerUrl.includes('pet') || lowerUrl.includes('fur')))) {
+          brand = 'FurLife™';
+          category = 'Smart Home & IoT';
+          categorySlug = 'smarthome';
+          coupon = 'PETF86954';
+          discount = '15% OFF Pet Care (Code: PETF86954)';
+          productTitle = 'FurLife™ 12 Months Flea and Tick Free (Dog & Cat)';
+          saleUsd = 39.99;
+          origUsd = 59.99;
+          imageUrl = 'https://cdn.shopify.com/s/files/1/0718/1041/6922/files/LimitedPendantDog.webp?v=1794915508';
+          storeProducts = [
+            { id: 10539745837338, title: 'FurLife™ 12 Months Flea and Tick Free (Dog & Cat)', salePriceUsd: '$39.99', salePriceVnd: '1.000.000₫', originalPriceUsd: '$59.99', image: 'https://cdn.shopify.com/s/files/1/0718/1041/6922/files/LimitedPendantDog.webp?v=1794915508', brand: 'FurLife™' },
+            { id: 10539745181978, title: 'FurLife™ - 8 Months All Natural Flea and Tick Collar', salePriceUsd: '$39.99', salePriceVnd: '1.000.000₫', originalPriceUsd: '$59.99', image: 'https://cdn.shopify.com/s/files/1/0718/1041/6922/files/DogGreen_1.jpg?v=1707491524', brand: 'FurLife™' },
+            { id: 10536430829850, title: 'FurLife™ Happy Ears - Natural Ear Cleaner for Pets', salePriceUsd: '$49.99', salePriceVnd: '1.250.000₫', originalPriceUsd: '$59.99', image: 'https://cdn.shopify.com/s/files/1/0718/1041/6922/files/12_632d1a35-8afe-45e2-825b-792607f7fff2.png?v=1786973554', brand: 'FurLife™' },
+            { id: 10490409222426, title: 'FurLife™ Imprint - Calming Pheromone Pendant for Cats', salePriceUsd: '$39.99', salePriceVnd: '1.000.000₫', originalPriceUsd: '$49.99', image: 'https://cdn.shopify.com/s/files/1/0718/1041/6922/files/LimitedPendantCat.webp?v=1794915418', brand: 'FurLife™' },
+            { id: 10483680215322, title: 'FurLife™ - Colostrum+ Immune & Gut Support for Pets', salePriceUsd: '$44.99', salePriceVnd: '1.125.000₫', originalPriceUsd: '$54.99', image: 'https://cdn.shopify.com/s/files/1/0718/1041/6922/files/12_632d1a35-8afe-45e2-825b-792607f7fff2.png?v=1786973554', brand: 'FurLife™' }
+          ];
         } else if (lowerUrl.includes('comfrt') || lowerUrl.includes('hoodie') || lowerUrl.includes('fleece') || lowerUrl.includes('sweatshirt')) {
           brand = 'Comfrt Official';
           productTitle = 'Rockies Teddy Full-Zip Jacket';
