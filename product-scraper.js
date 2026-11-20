@@ -256,7 +256,8 @@ const CANONICAL_STORE_DOMAINS = {
   'furlife.com': 'getfurlife.com',
   'www.furlife.com': 'getfurlife.com',
   'furlife.co': 'getfurlife.com',
-  'furlifepets.com': 'getfurlife.com'
+  'furlifepets.com': 'getfurlife.com',
+  'im8health.com': 'www.im8health.com'
 };
 
 function resolveCanonicalStoreUrl(rawUrl) {
@@ -270,6 +271,14 @@ function resolveCanonicalStoreUrl(rawUrl) {
           canonicalUrl: 'https://getfurlife.com',
           originalUrl: rawUrl,
           canonicalHost: 'getfurlife.com',
+          wasRemapped: true
+        };
+      }
+      if (lower.includes('im8') || lower.includes('viral')) {
+        return {
+          canonicalUrl: 'https://www.im8health.com',
+          originalUrl: rawUrl,
+          canonicalHost: 'www.im8health.com',
           wasRemapped: true
         };
       }
@@ -516,6 +525,94 @@ const FLAGSHIP_STORE_REGISTRY = {
         originalPriceUsd: '$54.99',
         image: 'https://cdn.shopify.com/s/files/1/0718/1041/6922/files/12_632d1a35-8afe-45e2-825b-792607f7fff2.png?v=1786973554',
         brand: 'FurLife™'
+      }
+    ]
+  },
+  im8health: {
+    brand: 'IM8 Health Official',
+    categorySlug: 'edc',
+    category: 'Desk Setup & EDC',
+    couponCode: 'VIRAL',
+    defaultProduct: {
+      title: 'Daily Ultimate Essentials Pro: All-in-One Supplement',
+      salePriceUsd: '$89.00',
+      numericPriceUsd: 89.00,
+      originalPriceUsd: '$112.00',
+      image: 'https://cdn.shopify.com/s/files/1/0637/4460/6375/files/USD_30DAY_ESSENTIALS_COPY1_VISUAL_B_97edb232-7b04-4be6-8eb5-f6a3187588be.jpg?v=1778121212',
+      description: 'David Beckham’s foundational daily longevity nutrition with 92 bio-active nutrients, acai berry flavor, and cellular NAD+ support.'
+    },
+    products: [
+      {
+        id: 8721876517031,
+        title: 'Daily Ultimate Essentials Pro: All-in-One Supplement',
+        handle: 'daily-ultimate-essentials',
+        productUrl: 'https://im8health.com/products/daily-ultimate-essentials',
+        salePriceUsd: '$89.00',
+        numericPriceUsd: 89.00,
+        salePriceVnd: '2.225.000₫',
+        originalPriceUsd: '$112.00',
+        image: 'https://cdn.shopify.com/s/files/1/0637/4460/6375/files/USD_30DAY_ESSENTIALS_COPY1_VISUAL_B_97edb232-7b04-4be6-8eb5-f6a3187588be.jpg?v=1778121212',
+        brand: 'IM8 Health'
+      },
+      {
+        id: 8721973084327,
+        title: 'The Beckham Stack: Essentials Pro + Longevity Set',
+        handle: 'the-beckham-stack',
+        productUrl: 'https://im8health.com/products/the-beckham-stack',
+        salePriceUsd: '$208.00',
+        numericPriceUsd: 208.00,
+        salePriceVnd: '5.200.000₫',
+        originalPriceUsd: '$260.00',
+        image: 'https://cdn.shopify.com/s/files/1/0637/4460/6375/files/USD_30DAY_BECKHAMSTACK_COPY1_VISUAL_B.jpg?v=1778071113',
+        brand: 'IM8 Health'
+      },
+      {
+        id: 8642040594599,
+        title: 'Daily Ultimate Longevity - Cellular NAD+ & Anti-Aging',
+        handle: 'daily-ultimate-longevity',
+        productUrl: 'https://im8health.com/products/daily-ultimate-longevity',
+        salePriceUsd: '$79.00',
+        numericPriceUsd: 79.00,
+        salePriceVnd: '1.975.000₫',
+        originalPriceUsd: '$99.00',
+        image: 'https://cdn.shopify.com/s/files/1/0637/4460/6375/files/202610_longevity-bonus5_peach.jpg?v=1792483182',
+        brand: 'IM8 Health'
+      },
+      {
+        id: 11189329723559,
+        title: 'Double Refills Upgrade (60-Day Travel Refills)',
+        handle: 'double-refills-upgrade',
+        productUrl: 'https://im8health.com/products/double-refills-upgrade',
+        salePriceUsd: '$146.00',
+        numericPriceUsd: 146.00,
+        salePriceVnd: '3.650.000₫',
+        originalPriceUsd: '$182.50',
+        image: 'https://cdn.shopify.com/s/files/1/0637/4460/6375/files/202602_essentialsV2acai-travel30-2x_peach_5ac4ffbe-a3bb-436d-9fa1-8e9def9c6846.jpg?v=1771836196',
+        brand: 'IM8 Health'
+      },
+      {
+        id: 10234012237991,
+        title: 'Luxe Edition Signature Bottle (Welcome Gift)',
+        handle: 'luxe-edition-signature-bottle',
+        productUrl: 'https://im8health.com/products/luxe-edition-signature-bottle',
+        salePriceUsd: '$45.00',
+        numericPriceUsd: 45.00,
+        salePriceVnd: '1.125.000₫',
+        originalPriceUsd: '$56.25',
+        image: 'https://cdn.shopify.com/s/files/1/0637/4460/6375/files/month3_shaker.jpg?v=1771991554',
+        brand: 'IM8 Health'
+      },
+      {
+        id: 8735812944039,
+        title: 'IM8 Luxe Edition Mixer (Wireless High-Speed Frother)',
+        handle: 'im8-luxe-edition-mixer',
+        productUrl: 'https://im8health.com/products/im8-luxe-edition-mixer',
+        salePriceUsd: '$25.00',
+        numericPriceUsd: 25.00,
+        salePriceVnd: '625.000₫',
+        originalPriceUsd: '$31.25',
+        image: 'https://cdn.shopify.com/s/files/1/0637/4460/6375/files/month2_frother.jpg?v=1771991229',
+        brand: 'IM8 Health'
       }
     ]
   }

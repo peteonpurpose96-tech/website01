@@ -1322,7 +1322,7 @@ function detectNicheFromUrlAndKeyword(url = '', keyword = '', title = '', brand 
   }
 
   // 3. Smart Home & IoT (robovacs, roborock, dreame, matter, aqara, projectors, smart pet care & appliances)
-  if (/roborock|dreame|ecovacs|roomba|vacuum|robot vacuum|robot mop|smart mop|aqara|matter|smart home|smarthome|smart lock|smart plug|mmwave|presence sensor|smart bulb|smart curtain|thermostat|magcubic|projector|hy350|video doorbell|home assistant|zigbee|thread hub|sliding gate|meowant|litter box|cat litter|automatic feeder|pet feeder|pet fountain|smart pet|pet care|pet odor|cat box|pet appliance|furlife|fur1ife|getfurlife|snwbl|flea|tick|pet collar|cat collar|dog collar|pet pendant|ear cleaner|pheromone|colostrum|pet\b|dog\b|cat\b/.test(combined)) {
+  if (/roborock|dreame|ecovacs|roomba|vacuum|robot vacuum|robot mop|smart mop|aqara|matter|smart home|smarthome|smart lock|smart plug|mmwave|presence sensor|smart bulb|smart curtain|thermostat|magcubic|projector|hy350|video doorbell|home assistant|zigbee|thread hub|sliding gate|meowant|litter box|cat litter|automatic feeder|pet feeder|pet fountain|smart pet|pet care|pet odor|cat box|pet appliance|furlife|fur1ife|getfurlife|flea|tick|pet collar|cat collar|dog collar|pet pendant|ear cleaner|pheromone|colostrum|pet\b|dog\b|cat\b/.test(combined)) {
     return { slug: 'smarthome', name: 'Smart Home & IoT' };
   }
 
@@ -1331,8 +1331,8 @@ function detectNicheFromUrlAndKeyword(url = '', keyword = '', title = '', brand 
     return { slug: 'wearables', name: 'Smart Wearables' };
   }
 
-  // 5. Desk Setup & EDC (keyboards, keychron, mx master, desk mats, slings, backpacks, comfrt, apparel)
-  if (/keychron|keyboard|keyboards|mechanical keyboard|custom keyboard|qmk|via|key switch|keycap|mx master|logitech mx|trackball|desk mat|deskmat|stream deck|elgato|wrist rest|monitor arm|pegboard|desk shelf|sling bag|sling|matein|everyday carry|edc|multitool|screen protector|comfrt|hoodie|sweatshirt|jacket|fleece|clothing|apparel|blanket|weighted hoodie|loungewear|streetwear/.test(combined)) {
+  // 5. Desk Setup & EDC (keyboards, keychron, mx master, desk mats, slings, backpacks, comfrt, apparel, daily nutrition & longevity)
+  if (/keychron|keyboard|keyboards|mechanical keyboard|custom keyboard|qmk|via|key switch|keycap|mx master|logitech mx|trackball|desk mat|deskmat|stream deck|elgato|wrist rest|monitor arm|pegboard|desk shelf|sling bag|sling|matein|everyday carry|edc|multitool|screen protector|comfrt|hoodie|sweatshirt|jacket|fleece|clothing|apparel|blanket|weighted hoodie|loungewear|streetwear|im8|im8health|daily ultimate|essentials pro|beckham stack|longevity|supplement|vitamin|nutraceutical|wellness stack/.test(combined)) {
     return { slug: 'edc', name: 'Desk Setup & EDC' };
   }
 
@@ -2111,8 +2111,13 @@ function renderDiscoveredStoreProducts(products) {
       // Populate input fields
       const aiKw = document.getElementById('ai-input-keyword');
       const inputTitle = document.getElementById('input-title');
+      const inputSlug = document.getElementById('input-slug');
       if (aiKw) aiKw.value = selected.title;
       if (inputTitle) inputTitle.value = selected.title;
+      if (inputSlug) {
+        inputSlug.value = 'post-' + slugify(selected.title);
+        delete inputSlug.dataset.manual;
+      }
 
       if (selected.image) {
         const formImg = document.getElementById('input-image');
@@ -2364,13 +2369,84 @@ function parseAffiliateLinkInfo(rawUrl, hintKw = '') {
     };
   }
 
-  // 6. Generic Brand / Affiliate Merchant URL Fallback
+  // 6. IM8 Health Official Store (David Beckham's Longevity Brand: im8health.com)
+  if (hostname.includes('im8health') || hostname.includes('im8') || fullLower.includes('im8health') || fullLower.includes('snowball=viral')) {
+    let code = 'VIRAL';
+    if (detectedCoupon) code = detectedCoupon.toUpperCase();
+    else if (pathSegments[0] && pathSegments[0].toLowerCase() !== 'products') {
+      code = pathSegments[0].toUpperCase();
+    }
+    if (code.toLowerCase() === 'viral') code = 'VIRAL';
+
+    let chosenProduct = {
+      title: 'Daily Ultimate Essentials Pro: All-in-One Supplement',
+      saleUsd: '$89.00',
+      saleVnd: '2.225.000₫',
+      origUsd: '$112.00',
+      img: 'https://cdn.shopify.com/s/files/1/0637/4460/6375/files/USD_30DAY_ESSENTIALS_COPY1_VISUAL_B_97edb232-7b04-4be6-8eb5-f6a3187588be.jpg?v=1778121212'
+    };
+
+    if (fullLower.includes('beckham') || fullLower.includes('stack')) {
+      chosenProduct = {
+        title: 'The Beckham Stack: Essentials Pro + Longevity Set',
+        saleUsd: '$208.00',
+        saleVnd: '5.200.000₫',
+        origUsd: '$260.00',
+        img: 'https://cdn.shopify.com/s/files/1/0637/4460/6375/files/USD_30DAY_BECKHAMSTACK_COPY1_VISUAL_B.jpg?v=1778071113'
+      };
+    } else if (fullLower.includes('longevity')) {
+      chosenProduct = {
+        title: 'Daily Ultimate Longevity - Cellular NAD+ & Anti-Aging',
+        saleUsd: '$79.00',
+        saleVnd: '1.975.000₫',
+        origUsd: '$99.00',
+        img: 'https://cdn.shopify.com/s/files/1/0637/4460/6375/files/202610_longevity-bonus5_peach.jpg?v=1792483182'
+      };
+    }
+
+    return {
+      success: true,
+      brand: 'IM8 Health Official',
+      productTitle: chosenProduct.title,
+      image: chosenProduct.img,
+      category: 'Desk Setup & EDC',
+      categorySlug: 'edc',
+      salePriceUsd: chosenProduct.saleUsd,
+      salePriceVnd: chosenProduct.saleVnd,
+      originalPriceUsd: chosenProduct.origUsd,
+      couponCode: code,
+      couponDiscount: `15% OFF Complete Stack (Code: ${code})`,
+      couponExpiry: '12/31/2026',
+      storeProducts: [
+        { id: 8721876517031, title: 'Daily Ultimate Essentials Pro: All-in-One Supplement', salePriceUsd: '$89.00', salePriceVnd: '2.225.000₫', originalPriceUsd: '$112.00', image: 'https://cdn.shopify.com/s/files/1/0637/4460/6375/files/USD_30DAY_ESSENTIALS_COPY1_VISUAL_B_97edb232-7b04-4be6-8eb5-f6a3187588be.jpg?v=1778121212', brand: 'IM8 Health' },
+        { id: 8721973084327, title: 'The Beckham Stack: Essentials Pro + Longevity Set', salePriceUsd: '$208.00', salePriceVnd: '5.200.000₫', originalPriceUsd: '$260.00', image: 'https://cdn.shopify.com/s/files/1/0637/4460/6375/files/USD_30DAY_BECKHAMSTACK_COPY1_VISUAL_B.jpg?v=1778071113', brand: 'IM8 Health' },
+        { id: 8642040594599, title: 'Daily Ultimate Longevity - Cellular NAD+ & Anti-Aging', salePriceUsd: '$79.00', salePriceVnd: '1.975.000₫', originalPriceUsd: '$99.00', image: 'https://cdn.shopify.com/s/files/1/0637/4460/6375/files/202610_longevity-bonus5_peach.jpg?v=1792483182', brand: 'IM8 Health' },
+        { id: 11189329723559, title: 'Double Refills Upgrade (60-Day Travel Refills)', salePriceUsd: '$146.00', salePriceVnd: '3.650.000₫', originalPriceUsd: '$182.50', image: 'https://cdn.shopify.com/s/files/1/0637/4460/6375/files/202602_essentialsV2acai-travel30-2x_peach_5ac4ffbe-a3bb-436d-9fa1-8e9def9c6846.jpg?v=1771836196', brand: 'IM8 Health' },
+        { id: 10234012237991, title: 'Luxe Edition Signature Bottle (Welcome Gift)', salePriceUsd: '$45.00', salePriceVnd: '1.125.000₫', originalPriceUsd: '$56.25', image: 'https://cdn.shopify.com/s/files/1/0637/4460/6375/files/month3_shaker.jpg?v=1771991554', brand: 'IM8 Health' },
+        { id: 8735812944039, title: 'IM8 Luxe Edition Mixer (Wireless High-Speed Frother)', salePriceUsd: '$25.00', salePriceVnd: '625.000₫', originalPriceUsd: '$31.25', image: 'https://cdn.shopify.com/s/files/1/0637/4460/6375/files/month2_frother.jpg?v=1771991229', brand: 'IM8 Health' }
+      ]
+    };
+  }
+
+  // 7. Generic Brand / Affiliate Merchant URL Fallback
   const hostParts = hostname.replace(/^www\./, '').split('.');
   const rawBrand = hostParts[0] ? (hostParts[0].charAt(0).toUpperCase() + hostParts[0].slice(1)) : 'Brand Partner';
 
-  let derivedTitle = hintKw || '';
+  // Only use hintKw if it matches this domain
+  let cleanHint = '';
+  if (hintKw && hintKw.trim()) {
+    const kwLower = hintKw.toLowerCase();
+    const domainHost = hostParts[0].toLowerCase();
+    if (!kwLower.includes('furlife') && !kwLower.includes('mowrator') && !kwLower.includes('sony') && !kwLower.includes('keychron') && !kwLower.includes('im8')) {
+      if (domainHost.length > 2 && kwLower.includes(domainHost)) {
+        cleanHint = hintKw.trim();
+      }
+    }
+  }
+
+  let derivedTitle = cleanHint || '';
   const lastSeg = pathSegments[pathSegments.length - 1] || '';
-  if (!derivedTitle && lastSeg && !lastSeg.match(/^[0-9]+$/)) {
+  if (!derivedTitle && lastSeg && !lastSeg.match(/^[0-9]+$/) && !['viral', 'ref', 'aff', 'shop'].includes(lastSeg.toLowerCase())) {
     derivedTitle = lastSeg.replace(/[-_]/g, ' ').replace(/\b\w/g, l => l.toUpperCase());
   }
   if (!derivedTitle) derivedTitle = `${rawBrand} Verified Deal`;
@@ -2418,7 +2494,19 @@ async function fetchAndApplyBrandPrice(targetUrl, silent = false) {
   }
 
   const hintKw = document.getElementById('ai-input-keyword')?.value?.trim() || '';
-  const clientParsed = parseAffiliateLinkInfo(url, hintKw);
+
+  // Clean hintKw so unrelated product keywords from previous scans don't pollute the new scan
+  let cleanHintKw = '';
+  if (hintKw) {
+    const hintLow = hintKw.toLowerCase();
+    const urlLow = url.toLowerCase();
+    const domainHost = urlLow.replace(/^https?:\/\//, '').split('/')[0].replace(/^www\./, '').split('.')[0] || '';
+    if (domainHost.length > 2 && hintLow.includes(domainHost)) {
+      cleanHintKw = hintKw;
+    }
+  }
+
+  const clientParsed = parseAffiliateLinkInfo(url, cleanHintKw);
   let data = null;
 
   try {
@@ -2428,7 +2516,7 @@ async function fetchAndApplyBrandPrice(targetUrl, silent = false) {
     const res = await fetch('/api/fetch-brand-price', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ url, keyword: hintKw }),
+      body: JSON.stringify({ url, keyword: cleanHintKw }),
       signal: controller.signal
     }).catch(() => null);
     clearTimeout(timeoutId);
@@ -2436,10 +2524,19 @@ async function fetchAndApplyBrandPrice(targetUrl, silent = false) {
     if (res && res.ok) {
       const srvData = await res.json().catch(() => null);
       if (srvData && srvData.success) {
-        if (srvData.brand === 'Verified Partner' && clientParsed && clientParsed.brand !== 'Verified Partner') {
-          data = { ...srvData, ...clientParsed };
-        } else {
-          data = srvData;
+        data = { ...clientParsed, ...srvData };
+        if ((!srvData.storeProducts || srvData.storeProducts.length === 0) && clientParsed && clientParsed.storeProducts && clientParsed.storeProducts.length > 0) {
+          data.storeProducts = clientParsed.storeProducts;
+        }
+        if ((!srvData.image || srvData.image === '') && clientParsed && clientParsed.image) {
+          data.image = clientParsed.image;
+        }
+        if ((!srvData.productTitle || srvData.productTitle === 'High-Performance Hardware') && clientParsed && clientParsed.productTitle) {
+          data.productTitle = clientParsed.productTitle;
+        }
+        if ((!srvData.couponCode || srvData.couponCode === 'PURPOSE15') && clientParsed && clientParsed.couponCode) {
+          data.couponCode = clientParsed.couponCode;
+          data.couponDiscount = clientParsed.couponDiscount;
         }
       }
     }
@@ -2483,21 +2580,22 @@ async function fetchAndApplyBrandPrice(targetUrl, silent = false) {
       if (aiKw) {
         aiKw.value = validProductTitle;
       }
-      if (inputTitle && (!inputTitle.value.trim() || inputTitle.value.includes('Sony WH-1000XM5') || inputTitle.value.includes('Sample') || inputTitle.value.includes('Mowrator') || isJunkTitle(inputTitle.value))) {
+      if (inputTitle) {
         inputTitle.value = validProductTitle;
       }
-      if (inputSlug && !inputSlug.dataset.manual) {
+      if (inputSlug) {
         inputSlug.value = 'post-' + slugify(validProductTitle);
+        delete inputSlug.dataset.manual;
       }
     }
 
-    // Auto-fill direct affiliate URL in form if empty
+    // Auto-fill direct affiliate URL in form
     const formAff = document.getElementById('input-aff-url');
     const aiAff = document.getElementById('ai-input-aff-link');
-    if (formAff && (!formAff.value.trim() || formAff.value === '#')) {
+    if (formAff) {
       formAff.value = url;
     }
-    if (aiAff && !aiAff.value.trim()) {
+    if (aiAff) {
       aiAff.value = url;
     }
 
@@ -2508,7 +2606,10 @@ async function fetchAndApplyBrandPrice(targetUrl, silent = false) {
       const aiThumb = document.getElementById('ai-img-thumb');
       if (formImg) formImg.value = data.image;
       if (aiImg) aiImg.value = data.image;
-      if (aiThumb) aiThumb.src = data.image;
+      if (aiThumb) {
+        aiThumb.src = data.image;
+        aiThumb.classList.remove('hidden');
+      }
     }
 
     // Auto-fill Exact Live Prices
@@ -2827,6 +2928,7 @@ function buildAiArticleData(keyword, niche, brand, lang, customAffLink, customIm
   let t_verdict = `The ${cleanKw} is a triumph of modern engineering that definitively justifies its flagship price tag. For power users and enthusiasts unwilling to compromise, this is the current gold standard.`;
 
   // Specialized Hardware & Digital Generators
+  const isIm8Longevity = /im8|im8health|daily ultimate|essentials pro|beckham stack|longevity|nad\+|anti[- ]*aging|supplement|multivitamin/i.test(kwLower) || /im8/i.test(brandName) || /im8health/i.test(customAffLink);
   const isRcPlaneGlider = /rc[- ]*(plane|glider|jet|airplane|aircraft|flight)|glider|airplane|aircraft|aerobatic|stunt[- ]*plane|volantex|ranger[- ]*600|xpilot|fixed[- ]*wing/i.test(kwLower);
   const isActualMower = (/mowrator|lawnmower|lawn[- ]*mower|navimow|luba|mower/i.test(kwLower)) && !/plane|glider|drone|flycam/i.test(kwLower);
   const isDroneFlycam = /drone|drones|flycam|quadcopter|uav|dji|mavic|avata|phantom|betafpv|mini[- ]*4/i.test(kwLower);
@@ -2836,7 +2938,18 @@ function buildAiArticleData(keyword, niche, brand, lang, customAffLink, customIm
   const isApparelComfort = /comfrt|hoodie|sweatshirt|sweater|jacket|fleece|clothing|apparel|blanket|weighted hoodie|loungewear|streetwear|pants|sweatpant/i.test(kwLower) || /comfrt/i.test(brandName) || /comfrt/i.test(customAffLink);
   const isMiniPcWorkstation = /bosgame|magicnuc|minisforum|gmktec|mini[- ]*pc|minipc|workstation|desktop|ryzen ai/i.test(kwLower) || /bosgame/i.test(brandName);
 
-  if (isPetCare) {
+  if (isIm8Longevity) {
+    catName = 'Desk Setup & EDC';
+    priceU = '$89.00'; priceV = '2.225.000₫'; priceO = '$112.00';
+    t_img = resolveImage('https://cdn.shopify.com/s/files/1/0637/4460/6375/files/USD_30DAY_ESSENTIALS_COPY1_VISUAL_B_97edb232-7b04-4be6-8eb5-f6a3187588be.jpg?v=1778121212');
+    t_title = `${cleanKw} Review: David Beckham’s Longevity Protocol & Daily Nutrition Tested (2026)`;
+    t_excerpt = `We tested the ${cleanKw} for 30 consecutive days. Here is our rigorous clinical and lifestyle breakdown of its 92 bio-available nutrients, cellular NAD+ support, Acai berry taste profile, and sustained energy performance.`;
+    t_pros = `Comprehensive 92-in-1 nutrient matrix replaces 16+ separate daily supplements in a single 30-second morning drink\nClinically validated cellular longevity ingredients including NAD+ precursors, antioxidants, and bio-available adaptogens\nDelicious natural Acai & Mixed Berry flavor profile with zero artificial aftertaste, chalkiness, or clumping\nPremium amber UV-protective glass storage jar and stainless steel mixing accessories included with initial membership`;
+    t_cons = `Premium monthly investment compared to basic synthetic drugstore multivitamins\nMust be taken consistently on an empty or light stomach every morning to maximize cellular absorption`;
+    t_intro = `Maintaining peak physical stamina, mental clarity, and cellular vitality in an era of relentless daily schedules is a formidable challenge. Co-founded by David Beckham alongside leading longevity scientists, IM8 Health engineered the ${cleanKw} to redefine daily foundational nutrition.\n\nFormulated with 92 pharmaceutical-grade bio-active ingredients, it targets cellular energy, gut microbiome health, healthy aging, and rapid daily recovery in a single synergistic formulation.`;
+    t_body = `Across 30 days of strict morning testing, our testers noted significant uplifts in sustained afternoon energy without caffeine crashes, noticeable improvements in digestive comfort, and faster workout recovery. The micronized powder dissolves effortlessly in cold water, delivering a refreshing Acai berry profile that is genuinely enjoyable to drink every morning.`;
+    t_verdict = `The ${cleanKw} represents the gold standard in premium daily longevity nutrition. For busy professionals, athletes, and health optimizers wanting a proven all-in-one daily regimen, it earns our top 2026 recommendation.`;
+  } else if (isPetCare) {
     catName = 'Smart Home & IoT';
     priceU = '$39.99'; priceV = '1.000.000₫'; priceO = '$59.99';
     t_img = resolveImage('https://cdn.shopify.com/s/files/1/0718/1041/6922/files/DogGreen_1.jpg?v=1707491524');

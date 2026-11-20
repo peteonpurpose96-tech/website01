@@ -573,6 +573,33 @@ export default {
             { id: 10490409222426, title: 'FurLife™ Imprint - Calming Pheromone Pendant for Cats', salePriceUsd: '$39.99', salePriceVnd: '1.000.000₫', originalPriceUsd: '$49.99', image: 'https://cdn.shopify.com/s/files/1/0718/1041/6922/files/LimitedPendantCat.webp?v=1794915418', brand: 'FurLife™' },
             { id: 10483680215322, title: 'FurLife™ - Colostrum+ Immune & Gut Support for Pets', salePriceUsd: '$44.99', salePriceVnd: '1.125.000₫', originalPriceUsd: '$54.99', image: 'https://cdn.shopify.com/s/files/1/0718/1041/6922/files/12_632d1a35-8afe-45e2-825b-792607f7fff2.png?v=1786973554', brand: 'FurLife™' }
           ];
+        } else if (lowerUrl.includes('im8health') || lowerUrl.includes('im8') || (lowerUrl.includes('snowball') && lowerUrl.includes('viral')) || (lowerUrl.includes('snwbl.io') && lowerUrl.includes('viral'))) {
+          brand = 'IM8 Health Official';
+          category = 'Desk Setup & EDC';
+          categorySlug = 'edc';
+          coupon = 'VIRAL';
+          discount = '15% OFF Complete Stack (Code: VIRAL)';
+          productTitle = 'Daily Ultimate Essentials Pro: All-in-One Supplement';
+          saleUsd = 89.00;
+          origUsd = 112.00;
+          imageUrl = 'https://cdn.shopify.com/s/files/1/0637/4460/6375/files/USD_30DAY_ESSENTIALS_COPY1_VISUAL_B_97edb232-7b04-4be6-8eb5-f6a3187588be.jpg?v=1778121212';
+          if (lowerUrl.includes('beckham') || lowerUrl.includes('stack')) {
+            productTitle = 'The Beckham Stack: Essentials Pro + Longevity Set';
+            saleUsd = 208.00; origUsd = 260.00;
+            imageUrl = 'https://cdn.shopify.com/s/files/1/0637/4460/6375/files/USD_30DAY_BECKHAMSTACK_COPY1_VISUAL_B.jpg?v=1778071113';
+          } else if (lowerUrl.includes('longevity')) {
+            productTitle = 'Daily Ultimate Longevity - Cellular NAD+ & Anti-Aging';
+            saleUsd = 79.00; origUsd = 99.00;
+            imageUrl = 'https://cdn.shopify.com/s/files/1/0637/4460/6375/files/202610_longevity-bonus5_peach.jpg?v=1792483182';
+          }
+          storeProducts = [
+            { id: 8721876517031, title: 'Daily Ultimate Essentials Pro: All-in-One Supplement', salePriceUsd: '$89.00', salePriceVnd: '2.225.000₫', originalPriceUsd: '$112.00', image: 'https://cdn.shopify.com/s/files/1/0637/4460/6375/files/USD_30DAY_ESSENTIALS_COPY1_VISUAL_B_97edb232-7b04-4be6-8eb5-f6a3187588be.jpg?v=1778121212', brand: 'IM8 Health' },
+            { id: 8721973084327, title: 'The Beckham Stack: Essentials Pro + Longevity Set', salePriceUsd: '$208.00', salePriceVnd: '5.200.000₫', originalPriceUsd: '$260.00', image: 'https://cdn.shopify.com/s/files/1/0637/4460/6375/files/USD_30DAY_BECKHAMSTACK_COPY1_VISUAL_B.jpg?v=1778071113', brand: 'IM8 Health' },
+            { id: 8642040594599, title: 'Daily Ultimate Longevity - Cellular NAD+ & Anti-Aging', salePriceUsd: '$79.00', salePriceVnd: '1.975.000₫', originalPriceUsd: '$99.00', image: 'https://cdn.shopify.com/s/files/1/0637/4460/6375/files/202610_longevity-bonus5_peach.jpg?v=1792483182', brand: 'IM8 Health' },
+            { id: 11189329723559, title: 'Double Refills Upgrade (60-Day Travel Refills)', salePriceUsd: '$146.00', salePriceVnd: '3.650.000₫', originalPriceUsd: '$182.50', image: 'https://cdn.shopify.com/s/files/1/0637/4460/6375/files/202602_essentialsV2acai-travel30-2x_peach_5ac4ffbe-a3bb-436d-9fa1-8e9def9c6846.jpg?v=1771836196', brand: 'IM8 Health' },
+            { id: 10234012237991, title: 'Luxe Edition Signature Bottle (Welcome Gift)', salePriceUsd: '$45.00', salePriceVnd: '1.125.000₫', originalPriceUsd: '$56.25', image: 'https://cdn.shopify.com/s/files/1/0637/4460/6375/files/month3_shaker.jpg?v=1771991554', brand: 'IM8 Health' },
+            { id: 8735812944039, title: 'IM8 Luxe Edition Mixer (Wireless High-Speed Frother)', salePriceUsd: '$25.00', salePriceVnd: '625.000₫', originalPriceUsd: '$31.25', image: 'https://cdn.shopify.com/s/files/1/0637/4460/6375/files/month2_frother.jpg?v=1771991229', brand: 'IM8 Health' }
+          ];
         } else if (lowerUrl.includes('comfrt') || lowerUrl.includes('hoodie') || lowerUrl.includes('fleece') || lowerUrl.includes('sweatshirt')) {
           brand = 'Comfrt Official';
           productTitle = 'Rockies Teddy Full-Zip Jacket';
