@@ -131,6 +131,29 @@ if (-not $NoBrowser) {
 }
 
 
+function Sanitize-PostHtml([string]$html) {
+    if ([string]::IsNullOrWhiteSpace($html)) { return $html }
+    # 1. Logo
+    $html = [regex]::Replace($html, '<div[^>]*class="[^"]*(?:bg-gradient-to-tr|bg-gradient-to-br)[^"]*from-purple-600[^"]*via-violet-600[^"]*"[^>]*>[\s\S]*?CH[\s\S]*?</div>', '<img src="images/logo.png" alt="CouponHiker Logo" class="w-9 h-9 sm:w-12 sm:h-12 xl:w-14 xl:h-14 rounded-xl sm:rounded-2xl object-cover shadow-lg shadow-cyan-500/30 group-hover:scale-105 transition-transform flex-shrink-0">', [System.Text.RegularExpressions.RegexOptions]::IgnoreCase)
+    # 2. Ticker
+    $html = [regex]::Replace($html, 'from-\[#14082c\]\s+via-\[#240e47\]\s+to-\[#120729\]', 'from-slate-100 via-slate-100 to-slate-200 dark:from-[#0a0d14] dark:via-[#0c101a] dark:to-[#0a0d14]', [System.Text.RegularExpressions.RegexOptions]::IgnoreCase)
+    $html = [regex]::Replace($html, 'from-\[#120729\]\s+via-\[#120729\]\/80\s+to-transparent', 'from-slate-100 dark:from-[#0a0d14] to-transparent', [System.Text.RegularExpressions.RegexOptions]::IgnoreCase)
+    $html = [regex]::Replace($html, 'to-\[#120729\]', 'to-slate-100 dark:to-[#0a0d14]', [System.Text.RegularExpressions.RegexOptions]::IgnoreCase)
+    $html = [regex]::Replace($html, 'bg-\[#14082c\]', 'bg-slate-100 dark:bg-[#0a0d14]', [System.Text.RegularExpressions.RegexOptions]::IgnoreCase)
+    # 3. Badges & Gradients
+    $html = [regex]::Replace($html, 'bg-gradient-to-r\s+from-purple-600\s+to-pink-600', 'bg-gradient-to-r from-cyan-500 via-sky-500 to-blue-600', [System.Text.RegularExpressions.RegexOptions]::IgnoreCase)
+    $html = [regex]::Replace($html, 'from-pink-500\s+via-purple-600\s+to-indigo-600', 'from-cyan-500 via-sky-500 to-blue-600', [System.Text.RegularExpressions.RegexOptions]::IgnoreCase)
+    $html = [regex]::Replace($html, 'from-pink-600\s+via-purple-600\s+to-indigo-600', 'from-cyan-500 via-sky-500 to-blue-600', [System.Text.RegularExpressions.RegexOptions]::IgnoreCase)
+    $html = [regex]::Replace($html, 'border-purple-500', 'border-cyan-500', [System.Text.RegularExpressions.RegexOptions]::IgnoreCase)
+    $html = [regex]::Replace($html, 'border-pink-300', 'border-cyan-300', [System.Text.RegularExpressions.RegexOptions]::IgnoreCase)
+    $html = [regex]::Replace($html, 'text-pink-600\s+dark:text-pink-400', 'text-cyan-600 dark:text-cyan-400', [System.Text.RegularExpressions.RegexOptions]::IgnoreCase)
+    $html = [regex]::Replace($html, 'dark:bg-\[#12082b\]', 'dark:bg-[#141926]', [System.Text.RegularExpressions.RegexOptions]::IgnoreCase)
+    $html = [regex]::Replace($html, 'dark:bg-\[#100726\]\/80', 'dark:bg-[#141926]', [System.Text.RegularExpressions.RegexOptions]::IgnoreCase)
+    $html = [regex]::Replace($html, 'dark:from-\[#180933\]\s+dark:via-\[#110424\]\s+dark:to-\[#0a0218\]', 'dark:from-[#141926] dark:via-[#10141f] dark:to-[#0b0e17]', [System.Text.RegularExpressions.RegexOptions]::IgnoreCase)
+    $html = [regex]::Replace($html, 'dark:from-\[#170a36\]\s+dark:to-\[#210e4a\]', 'dark:from-[#0e121d] dark:to-[#141926]', [System.Text.RegularExpressions.RegexOptions]::IgnoreCase)
+    return $html
+}
+
 function Format-UsdPrice([double]$usd) {
     if ($usd -ge 1000) {
         return ("$" + ("{0:N2}" -f $usd))
@@ -1253,6 +1276,7 @@ try {
                 if ([string]::IsNullOrWhiteSpace($contentToWrite)) {
                     $contentToWrite = $json.content
                 }
+                $contentToWrite = Sanitize-PostHtml $contentToWrite
                 [System.IO.File]::WriteAllText($savePath, $contentToWrite, [System.Text.Encoding]::UTF8)
 
                 # 3. Update data/posts.json
