@@ -252,13 +252,28 @@ const CANONICAL_STORE_DOMAINS = {
   'www.bosgamepc.com': 'www.bosgame.com',
   'bosgameminipc.com': 'www.bosgame.com',
   'exhobby.com': 'www.volantexrc.com',
-  'www.exhobby.com': 'www.volantexrc.com'
+  'www.exhobby.com': 'www.volantexrc.com',
+  'furlife.com': 'getfurlife.com',
+  'www.furlife.com': 'getfurlife.com',
+  'furlife.co': 'getfurlife.com',
+  'furlifepets.com': 'getfurlife.com'
 };
 
 function resolveCanonicalStoreUrl(rawUrl) {
   try {
     const u = new URL(rawUrl);
     const host = u.hostname.toLowerCase();
+    const lower = rawUrl.toLowerCase();
+    if (host.includes('snwbl.io') || host.includes('socialsnowball.io')) {
+      if (lower.includes('fur') || lower.includes('pet')) {
+        return {
+          canonicalUrl: 'https://getfurlife.com',
+          originalUrl: rawUrl,
+          canonicalHost: 'getfurlife.com',
+          wasRemapped: true
+        };
+      }
+    }
     if (CANONICAL_STORE_DOMAINS[host]) {
       const canonicalHost = CANONICAL_STORE_DOMAINS[host];
       return {
@@ -423,6 +438,84 @@ const FLAGSHIP_STORE_REGISTRY = {
         originalPriceUsd: '$399.99',
         image: 'https://cdn.shopify.com/s/files/1/0697/3466/2441/files/WR01_a77973d4-52a0-43ac-9fc0-c91c0a94aaf8.png?v=1793348621',
         brand: 'Meowant'
+      }
+    ]
+  },
+  furlife: {
+    brand: 'FurLife™',
+    categorySlug: 'smarthome',
+    category: 'Smart Home & IoT',
+    couponCode: 'PETF86954',
+    couponDiscount: '15% OFF Pet Care (Code: PETF86954)',
+    defaultProduct: {
+      title: 'FurLife™ 12 Months Flea and Tick Free (Dog & Cat)',
+      salePriceUsd: '$39.99',
+      numericPriceUsd: 39.99,
+      salePriceVnd: '1.000.000₫',
+      originalPriceUsd: '$59.99',
+      image: 'https://cdn.shopify.com/s/files/1/0718/1041/6922/files/LimitedPendantDog.webp?v=1794915508',
+      description: 'All-natural, 100% non-toxic flea and tick repellent pendant offering up to 12 months continuous defense against parasites. Completely waterproof and hypoallergenic for active dogs and cats.'
+    },
+    products: [
+      {
+        id: 10539745837338,
+        title: 'FurLife™ 12 Months Flea and Tick Free (Dog & Cat)',
+        handle: 'dog-pendant-thanksgiving',
+        productUrl: 'https://getfurlife.com/products/dog-pendant-thanksgiving',
+        salePriceUsd: '$39.99',
+        numericPriceUsd: 39.99,
+        salePriceVnd: '1.000.000₫',
+        originalPriceUsd: '$59.99',
+        image: 'https://cdn.shopify.com/s/files/1/0718/1041/6922/files/LimitedPendantDog.webp?v=1794915508',
+        brand: 'FurLife™'
+      },
+      {
+        id: 10539745181978,
+        title: 'FurLife™ - 8 Months All Natural Flea and Tick Collar',
+        handle: 'dog-collar-thanksgiving',
+        productUrl: 'https://getfurlife.com/products/dog-collar-thanksgiving',
+        salePriceUsd: '$39.99',
+        numericPriceUsd: 39.99,
+        salePriceVnd: '1.000.000₫',
+        originalPriceUsd: '$59.99',
+        image: 'https://cdn.shopify.com/s/files/1/0718/1041/6922/files/DogGreen_1.jpg?v=1707491524',
+        brand: 'FurLife™'
+      },
+      {
+        id: 10536430829850,
+        title: 'FurLife™ Happy Ears - Natural Ear Cleaner for Pets',
+        handle: 'furlife-happy-ears-ear-cleaner-1',
+        productUrl: 'https://getfurlife.com/products/furlife™-happy-ears-ear-cleaner-1',
+        salePriceUsd: '$49.99',
+        numericPriceUsd: 49.99,
+        salePriceVnd: '1.250.000₫',
+        originalPriceUsd: '$59.99',
+        image: 'https://cdn.shopify.com/s/files/1/0718/1041/6922/files/12_632d1a35-8afe-45e2-825b-792607f7fff2.png?v=1786973554',
+        brand: 'FurLife™'
+      },
+      {
+        id: 10490409222426,
+        title: 'FurLife™ Imprint - Calming Pheromone Pendant for Cats',
+        handle: 'calming-pendant-cat-v4',
+        productUrl: 'https://getfurlife.com/products/calming-pendant-cat-v4',
+        salePriceUsd: '$39.99',
+        numericPriceUsd: 39.99,
+        salePriceVnd: '1.000.000₫',
+        originalPriceUsd: '$49.99',
+        image: 'https://cdn.shopify.com/s/files/1/0718/1041/6922/files/LimitedPendantCat.webp?v=1794915418',
+        brand: 'FurLife™'
+      },
+      {
+        id: 10483680215322,
+        title: 'FurLife™ - Colostrum+ Immune & Gut Support for Pets',
+        handle: 'colostrum-oct',
+        productUrl: 'https://getfurlife.com/products/colostrum-oct',
+        salePriceUsd: '$44.99',
+        numericPriceUsd: 44.99,
+        salePriceVnd: '1.125.000₫',
+        originalPriceUsd: '$54.99',
+        image: 'https://cdn.shopify.com/s/files/1/0718/1041/6922/files/12_632d1a35-8afe-45e2-825b-792607f7fff2.png?v=1786973554',
+        brand: 'FurLife™'
       }
     ]
   }
@@ -912,16 +1005,30 @@ async function scrapeProductInfo(url, hintKeyword = '') {
   const formattedOrigUsd = '$' + originalPriceUsd.toFixed(2);
   const formattedVnd = (Math.round(salePriceUsd * 25000 / 1000) * 1000).toLocaleString('vi-VN').replace(/,/g, '.') + '₫';
 
+  // Extract custom coupon code if present in tracking url
+  let customCoupon = '';
+  const affMatch = cleanUrl.match(/(?:code|coupon|promo|ref|discount|tag)=([^&#]+)/i) || cleanUrl.match(/snwbl\.io\/[^\/]+\/([a-zA-Z0-9_\-]+)/i);
+  if (affMatch && affMatch[1]) {
+    customCoupon = affMatch[1].trim();
+  }
+
   // Generate coupon
   const brandCleanUpper = (brandName || 'TECH').replace(/[^a-zA-Z0-9]/g, '').toUpperCase().substring(0, 8);
-  const couponCode = `${brandCleanUpper}15`;
+  const couponCode = customCoupon || (regKey && FLAGSHIP_STORE_REGISTRY[regKey].couponCode) || `${brandCleanUpper}15`;
+
+  let cleanBrandDisplay = brandName || 'Official Brand';
+  if (/furlife|fur1ife/i.test(cleanUrl) || /furlife|fur1ife/i.test(finalUrl)) {
+    cleanBrandDisplay = 'FurLife™';
+  } else if (!cleanBrandDisplay.endsWith('Official') && !cleanBrandDisplay.endsWith('Store') && !cleanBrandDisplay.includes('™')) {
+    cleanBrandDisplay = `${cleanBrandDisplay} Official`;
+  }
 
   return {
     success: true,
     url: cleanUrl,
     finalUrl: finalUrl,
     productTitle: productTitle || 'High-Performance Verified Hardware',
-    brand: brandName ? (brandName.endsWith('Official') || brandName.endsWith('Store') ? brandName : `${brandName} Official`) : 'Official Brand',
+    brand: cleanBrandDisplay,
     category: niche.name,
     categorySlug: niche.slug,
     salePriceUsd: formattedUsd,
