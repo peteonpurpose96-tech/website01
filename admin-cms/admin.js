@@ -2187,7 +2187,7 @@ function parseAffiliateLinkInfo(rawUrl, hintKw = '') {
 
   // Extract potential coupon or affiliate tracking code from query parameters
   let detectedCoupon = '';
-  for (const p of ['ref', 'coupon', 'code', 'promo', 'aff', 'discount', 'voucher', 'c', 'tag', 'subid']) {
+  for (const p of ['ref', 'coupon', 'code', 'promo', 'aff', 'discount', 'voucher', 'c', 'tag', 'subid', 'snowball', 'via', 'promocode']) {
     if (searchParams.has(p) && searchParams.get(p).trim()) {
       detectedCoupon = searchParams.get(p).trim();
       break;
@@ -2444,27 +2444,53 @@ function parseAffiliateLinkInfo(rawUrl, hintKw = '') {
     }
   }
 
+  // Smart Title extraction from URL path segments
   let derivedTitle = cleanHint || '';
-  const lastSeg = pathSegments[pathSegments.length - 1] || '';
-  if (!derivedTitle && lastSeg && !lastSeg.match(/^[0-9]+$/) && !['viral', 'ref', 'aff', 'shop'].includes(lastSeg.toLowerCase())) {
-    derivedTitle = lastSeg.replace(/[-_]/g, ' ').replace(/\b\w/g, l => l.toUpperCase());
+  if (!derivedTitle) {
+    let prodSeg = '';
+    const prodIdx = pathSegments.findIndex(s => ['products', 'product', 'p', 'dp', 'item', 'items', 'buy', 'shop', 'goods'].includes(s.toLowerCase()));
+    if (prodIdx !== -1 && pathSegments[prodIdx + 1]) {
+      prodSeg = pathSegments[prodIdx + 1];
+    } else if (pathSegments.length > 0) {
+      prodSeg = pathSegments[pathSegments.length - 1];
+    }
+    if (prodSeg && !['products', 'collections', 'pages', 'shop', 'viral', 'ref', 'aff', 'deal', 'cart'].includes(prodSeg.toLowerCase())) {
+      prodSeg = prodSeg.replace(/\.(html?|php|aspx?)$/i, '').replace(/-[0-9]{5,}$/i, '');
+      derivedTitle = prodSeg.replace(/[-_]+/g, ' ').replace(/\b\w/g, l => l.toUpperCase()).trim();
+      if (rawBrand && rawBrand !== 'Brand Partner' && !derivedTitle.toLowerCase().includes(rawBrand.toLowerCase())) {
+        derivedTitle = `${rawBrand} ${derivedTitle}`;
+      }
+    }
   }
   if (!derivedTitle) derivedTitle = `${rawBrand} Verified Deal`;
 
-  const detectedNiche = detectNicheFromUrlAndKeyword(url, derivedTitle, '', rawBrand) || { slug: 'smarthome', name: 'Smart Home & IoT' };
+  const detectedNiche = detectNicheFromUrlAndKeyword(url, derivedTitle, '', rawBrand) || { slug: 'edc', name: 'Desk Setup & EDC' };
+
+  const categoryPlaceholders = {
+    'robotics': 'https://images.unsplash.com/photo-1508614589041-895b88991e3e?auto=format&fit=crop&w=800&q=80',
+    'cameras': 'https://images.unsplash.com/photo-1516035069371-29a1b244cc32?auto=format&fit=crop&w=800&q=80',
+    'smarthome': 'https://images.unsplash.com/photo-1558002038-1055907df827?auto=format&fit=crop&w=800&q=80',
+    'wearables': 'https://images.unsplash.com/photo-1508685096489-7aacd43bd3b1?auto=format&fit=crop&w=800&q=80',
+    'computing': 'https://images.unsplash.com/photo-1587831990711-23ca6441447b?auto=format&fit=crop&w=800&q=80',
+    'power': 'https://images.unsplash.com/photo-1583863788434-e58a36330cf0?auto=format&fit=crop&w=800&q=80',
+    'audio': 'https://images.unsplash.com/photo-1505740420928-5e560c06d30e?auto=format&fit=crop&w=800&q=80',
+    'edc': 'https://images.unsplash.com/photo-1587829741301-dc798b83add3?auto=format&fit=crop&w=800&q=80',
+    'saas': 'https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe?auto=format&fit=crop&w=800&q=80'
+  };
+  const fallbackImg = categoryPlaceholders[detectedNiche.slug] || 'https://images.unsplash.com/photo-1505740420928-5e560c06d30e?auto=format&fit=crop&w=800&q=80';
 
   return {
     success: true,
     brand: rawBrand,
     productTitle: derivedTitle,
-    image: '',
+    image: fallbackImg,
     category: detectedNiche.name,
     categorySlug: detectedNiche.slug,
     salePriceUsd: '$49.99',
     salePriceVnd: '1.250.000₫',
     originalPriceUsd: '$69.99',
-    couponCode: detectedCoupon || 'SAVE10',
-    couponDiscount: '10% OFF Special Partner Deal',
+    couponCode: detectedCoupon || 'DEAL15',
+    couponDiscount: detectedCoupon ? `15% OFF (Code: ${detectedCoupon})` : '15% OFF Special Partner Deal',
     couponExpiry: '12/31/2026',
     storeProducts: []
   };

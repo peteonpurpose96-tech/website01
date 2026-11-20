@@ -609,16 +609,253 @@ export default {
           category = 'Desk Setup & EDC'; categorySlug = 'edc';
         }
 
+        // =========================================================================
+        // UNIVERSAL AI PRODUCT ENGINE (Scrapes live data for ANY URL on the Web)
+        // =========================================================================
+        if (!productTitle && targetUrl) {
+          try {
+            let scrapeUrl = targetUrl;
+            if (!scrapeUrl.startsWith('http://') && !scrapeUrl.startsWith('https://')) {
+              scrapeUrl = 'https://' + scrapeUrl;
+            }
+            const parsedTarget = new URL(scrapeUrl);
+            const hostParts = parsedTarget.hostname.replace(/^www\./, '').split('.');
+            if (!brand || brand === 'Verified Partner') {
+              brand = hostParts[0] ? (hostParts[0].charAt(0).toUpperCase() + hostParts[0].slice(1)) : 'Brand Partner';
+            }
+
+            // Detect coupon from search params or URL segments
+            for (const param of ['coupon', 'code', 'discount', 'ref', 'snowball', 'aff', 'via', 'promocode', 'promo']) {
+              const val = parsedTarget.searchParams.get(param);
+              if (val && val.trim()) {
+                coupon = val.trim().toUpperCase();
+                discount = `15% OFF (Code: ${coupon})`;
+                break;
+              }
+            }
+            const pathParts = parsedTarget.pathname.split('/').filter(Boolean);
+            if ((!coupon || coupon === 'PURPOSE15') && pathParts.length > 0) {
+              const lastSeg = pathParts[pathParts.length - 1];
+              if (lastSeg && lastSeg.length <= 16 && !lastSeg.includes('.') && !lastSeg.includes('-') && /^[A-Z0-9_]+$/i.test(lastSeg) && !['products', 'collections', 'pages', 'shop'].includes(lastSeg.toLowerCase())) {
+                coupon = lastSeg.toUpperCase();
+                discount = `15% OFF (Code: ${coupon})`;
+              }
+            }
+
+            // Live fetch webpage with modern headers and redirect following
+            const abortCtrl = new AbortController();
+            const timeoutTimer = setTimeout(() => abortCtrl.abort(), 4500);
+
+            const fetchRes = await fetch(scrapeUrl, {
+              headers: {
+                'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/128.0.0.0 Safari/537.36',
+                'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,*/*;q=0.8',
+                'Accept-Language': 'en-US,en;q=0.9'
+              },
+              redirect: 'follow',
+              signal: abortCtrl.signal
+            }).catch(() => null);
+            clearTimeout(timeoutTimer);
+
+            if (fetchRes && fetchRes.ok) {
+              const finalFetchUrl = fetchRes.url || scrapeUrl;
+              const finalObj = new URL(finalFetchUrl);
+              const storeOrigin = finalObj.origin;
+              const html = await fetchRes.text().catch(() => '');
+
+              if (html) {
+                // 1. JSON-LD schema.org/Product
+                const jsonLdMatches = html.match(/<script[^>]*type=["']application\/ld\+json["'][^>]*>([\s\S]*?)<\/script>/gi) || [];
+                for (const m of jsonLdMatches) {
+                  try {
+                    const inner = m.replace(/<script[^>]*>/i, '').replace(/<\/script>/i, '').trim();
+                    const parsed = JSON.parse(inner);
+                    const candidates = Array.isArray(parsed) ? parsed : (parsed['@graph'] ? parsed['@graph'] : [parsed]);
+                    for (const item of candidates) {
+                      if (item && (item['@type'] === 'Product' || (Array.isArray(item['@type']) && item['@type'].includes('Product')))) {
+                        if (!productTitle && item.name) {
+                          productTitle = item.name.replace(/&amp;/g, '&').replace(/&#39;/g, "'").trim();
+                        }
+                        if (!imageUrl) {
+                          if (typeof item.image === 'string') imageUrl = item.image;
+                          else if (Array.isArray(item.image) && item.image[0]) imageUrl = typeof item.image[0] === 'string' ? item.image[0] : (item.image[0].url || '');
+                          else if (item.image && item.image.url) imageUrl = item.image.url;
+                        }
+                        if (item.brand) {
+                          if (typeof item.brand === 'string') brand = item.brand;
+                          else if (item.brand.name) brand = item.brand.name;
+                        }
+                        if (item.offers) {
+                          const offers = Array.isArray(item.offers) ? item.offers : [item.offers];
+                          const validPrices = offers.map(o => parseFloat(o.price || o.lowPrice || 0)).filter(p => p > 0);
+                          if (validPrices.length > 0) saleUsd = Math.min(...validPrices);
+                          const highPrices = offers.map(o => parseFloat(o.highPrice || 0)).filter(p => p > saleUsd);
+                          if (highPrices.length > 0) origUsd = Math.max(...highPrices);
+                        }
+                      }
+                    }
+                  } catch(e) {}
+                }
+
+                // 2. OpenGraph & Twitter Meta Tags
+                if (!productTitle) {
+                  const ogTitle = html.match(/<meta[^>]*property=["'](?:og:title|twitter:title)["'][^>]*content=["']([^"']+)["']/i) ||
+                                  html.match(/<meta[^>]*content=["']([^"']+)["'][^>]*property=["'](?:og:title|twitter:title)["']/i);
+                  if (ogTitle && ogTitle[1]) {
+                    productTitle = ogTitle[1].replace(/&amp;/g, '&').replace(/&#39;/g, "'").trim();
+                  }
+                }
+                if (!imageUrl) {
+                  const ogImg = html.match(/<meta[^>]*property=["'](?:og:image|twitter:image)["'][^>]*content=["']([^"']+)["']/i) ||
+                                html.match(/<meta[^>]*content=["']([^"']+)["'][^>]*property=["'](?:og:image|twitter:image)["']/i);
+                  if (ogImg && ogImg[1]) imageUrl = ogImg[1].trim();
+                }
+                if (saleUsd === 79.0) {
+                  const ogPrice = html.match(/<meta[^>]*property=["'](?:product:price:amount|og:price:amount)["'][^>]*content=["']([^"']+)["']/i) ||
+                                  html.match(/<meta[^>]*content=["']([^"']+)["'][^>]*property=["'](?:product:price:amount|og:price:amount)["']/i);
+                  if (ogPrice && ogPrice[1] && parseFloat(ogPrice[1]) > 0) {
+                    saleUsd = parseFloat(ogPrice[1]);
+                    origUsd = Math.round(saleUsd * 1.25 * 100) / 100;
+                  }
+                }
+                const ogSite = html.match(/<meta[^>]*property=["']og:site_name["'][^>]*content=["']([^"']+)["']/i);
+                if (ogSite && ogSite[1] && (!brand || brand === 'Verified Partner' || brand === 'Brand Partner')) {
+                  brand = ogSite[1].trim();
+                }
+
+                // 3. Fallback to HTML <title>
+                if (!productTitle) {
+                  const titleTag = html.match(/<title[^>]*>([^<]+)<\/title>/i);
+                  if (titleTag && titleTag[1]) {
+                    productTitle = titleTag[1].replace(/&amp;/g, '&').replace(/&#39;/g, "'").trim();
+                  }
+                }
+              }
+
+              // 4. Try Shopify store discovery (/products.json?limit=20)
+              try {
+                const shopifyRes = await fetch(storeOrigin + '/products.json?limit=20', {
+                  headers: { 'User-Agent': 'Mozilla/5.0' }
+                }).catch(() => null);
+                if (shopifyRes && shopifyRes.ok) {
+                  const shopifyData = await shopifyRes.json().catch(() => null);
+                  if (shopifyData && Array.isArray(shopifyData.products) && shopifyData.products.length > 0) {
+                    const validProducts = shopifyData.products.filter(p => {
+                      const t = (p.title || '').toLowerCase();
+                      const pPrice = parseFloat(p.variants?.[0]?.price || 0);
+                      if (pPrice < 10) return false;
+                      if (/gift\s*card|donation|tip|insurance|warranty|sample|shipping|test/i.test(t)) return false;
+                      return true;
+                    });
+                    if (validProducts.length > 0) {
+                      storeProducts = validProducts.slice(0, 8).map(p => {
+                        const price = parseFloat(p.variants?.[0]?.price || 49);
+                        const orig = parseFloat(p.variants?.[0]?.compare_at_price || 0) || Math.round(price * 1.25 * 100) / 100;
+                        const vnd = Math.round(price * 25000 / 1000) * 1000;
+                        return {
+                          id: p.id,
+                          title: p.title,
+                          salePriceUsd: '$' + price.toFixed(2),
+                          salePriceVnd: vnd.toLocaleString('vi-VN').replace(/,/g, '.') + '₫',
+                          originalPriceUsd: '$' + orig.toFixed(2),
+                          image: p.images?.[0]?.src || '',
+                          brand: p.vendor || brand
+                        };
+                      });
+
+                      if (!productTitle && storeProducts.length > 0) {
+                        productTitle = storeProducts[0].title;
+                        saleUsd = parseFloat(storeProducts[0].salePriceUsd.replace('$', ''));
+                        origUsd = parseFloat(storeProducts[0].originalPriceUsd.replace('$', ''));
+                        if (!imageUrl) imageUrl = storeProducts[0].image;
+                        if (storeProducts[0].brand) brand = storeProducts[0].brand;
+                      }
+                    }
+                  }
+                }
+              } catch(e) {}
+            }
+          } catch(e) {}
+        }
+
+        // 5. Intelligent Fallback Title from URL Path Slug
+        if (!productTitle) {
+          try {
+            const parsedTarget = new URL(targetUrl.startsWith('http') ? targetUrl : 'https://' + targetUrl);
+            const pathSegments = parsedTarget.pathname.split('/').filter(Boolean);
+            let slug = '';
+            const prodIdx = pathSegments.findIndex(s => ['products', 'product', 'p', 'dp', 'item', 'items', 'buy', 'shop', 'goods'].includes(s.toLowerCase()));
+            if (prodIdx !== -1 && pathSegments[prodIdx + 1]) {
+              slug = pathSegments[prodIdx + 1];
+            } else if (pathSegments.length > 0) {
+              slug = pathSegments[pathSegments.length - 1];
+            }
+            if (slug && !['products', 'collections', 'pages', 'shop', 'viral', 'ref', 'aff', 'deal'].includes(slug.toLowerCase())) {
+              slug = slug.replace(/\.(html?|php|aspx?)$/i, '').replace(/-[0-9]{5,}$/i, '');
+              productTitle = slug.replace(/[-_]+/g, ' ').replace(/\b\w/g, l => l.toUpperCase()).trim();
+              if (brand && brand !== 'Brand Partner' && brand !== 'Verified Partner' && !productTitle.toLowerCase().includes(brand.toLowerCase())) {
+                productTitle = `${brand} ${productTitle}`;
+              }
+            }
+          } catch(e) {}
+        }
+
+        if (!productTitle) {
+          productTitle = `${brand} Verified Deal`;
+        }
+
+        productTitle = productTitle.replace(/\s*[\-\|\–\—]\s*(?:Official Store|Official|Store|Shop|Amazon\.com|Walmart|Aliexpress|Shopify|Buy Online|Best Price|Free Shipping)\s*$/i, '').trim();
+        if (brand && brand.length >= 4) {
+          productTitle = productTitle.replace(new RegExp('\\s*[\\-\\|\\–\\—]\\s*' + brand.replace(/[.*+?^${}()|[\\]\\\\]/g, '\\\\$&') + '\\s*$', 'i'), '').trim();
+        }
+
+        // 6. Intelligent Category / Vertical Detection
+        const combined = `${targetUrl} ${productTitle} ${brand}`.toLowerCase();
+        if (/drone|dji|mowrator|mower|lawnmower|quadcopter|uav|rc car|rc plane|glider|airplane|robot\b|robotics/.test(combined)) {
+          category = 'Robotics & Drones'; categorySlug = 'robotics';
+        } else if (/camera|gopro|insta360|osmo|lens|tripod|lumix|fujifilm|sony a7|creator combo/.test(combined)) {
+          category = 'Cameras & Creator Gear'; categorySlug = 'cameras';
+        } else if (/roborock|dreame|ecovacs|roomba|vacuum|mop|aqara|smarthome|smart lock|smart home|feeder|pet|cat|dog|furlife|meowant|litter/.test(combined)) {
+          category = 'Smart Home & IoT'; categorySlug = 'smarthome';
+        } else if (/watch|smartwatch|garmin|fitbit|ring|oura|whoop|wearable|fitness tracker/.test(combined)) {
+          category = 'Smart Wearables'; categorySlug = 'wearables';
+        } else if (/pc|mini pc|laptop|gaming|gpu|rtx|ryzen|desktop|workstation|rog ally|steam deck|bosgame|magicnuc/.test(combined)) {
+          category = 'Computing & Gaming'; categorySlug = 'computing';
+        } else if (/charger|powerbank|gan|power bank|fast charge|anker|ugreen|nexode|battery station|ecoflow/.test(combined)) {
+          category = 'Power & GaN Charging'; categorySlug = 'power';
+        } else if (/headphone|earbud|speaker|soundbar|dac|iem|audio|sony xm|bose|quietcomfort|sennheiser/.test(combined)) {
+          category = 'Audio & Sound'; categorySlug = 'audio';
+        } else if (/saas|ai tool|software|perplexity|chatgpt|subscription|license|cloud/.test(combined)) {
+          category = 'SaaS & AI Tools'; categorySlug = 'saas';
+        } else {
+          category = 'Desk Setup & EDC'; categorySlug = 'edc';
+        }
+
+        if (!imageUrl) {
+          const categoryPlaceholders = {
+            'robotics': 'https://images.unsplash.com/photo-1508614589041-895b88991e3e?auto=format&fit=crop&w=800&q=80',
+            'cameras': 'https://images.unsplash.com/photo-1516035069371-29a1b244cc32?auto=format&fit=crop&w=800&q=80',
+            'smarthome': 'https://images.unsplash.com/photo-1558002038-1055907df827?auto=format&fit=crop&w=800&q=80',
+            'wearables': 'https://images.unsplash.com/photo-1508685096489-7aacd43bd3b1?auto=format&fit=crop&w=800&q=80',
+            'computing': 'https://images.unsplash.com/photo-1587831990711-23ca6441447b?auto=format&fit=crop&w=800&q=80',
+            'power': 'https://images.unsplash.com/photo-1583863788434-e58a36330cf0?auto=format&fit=crop&w=800&q=80',
+            'audio': 'https://images.unsplash.com/photo-1505740420928-5e560c06d30e?auto=format&fit=crop&w=800&q=80',
+            'edc': 'https://images.unsplash.com/photo-1587829741301-dc798b83add3?auto=format&fit=crop&w=800&q=80',
+            'saas': 'https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe?auto=format&fit=crop&w=800&q=80'
+          };
+          imageUrl = categoryPlaceholders[categorySlug] || 'https://images.unsplash.com/photo-1505740420928-5e560c06d30e?auto=format&fit=crop&w=800&q=80';
+        }
+
         const saleVnd = Math.round(saleUsd * 25000 / 1000) * 1000;
         const origVnd = Math.round(origUsd * 25000 / 1000) * 1000;
 
         return new Response(JSON.stringify({
           success: true,
           brand: brand,
-          productTitle: productTitle || 'High-Performance Hardware',
+          productTitle: productTitle,
           image: imageUrl || '',
-          category: category || 'Smart Home & IoT',
-          categorySlug: categorySlug || 'smarthome',
+          category: category || 'Desk Setup & EDC',
+          categorySlug: categorySlug || 'edc',
           salePriceUsd: '$' + saleUsd.toFixed(2),
           salePriceVnd: saleVnd.toLocaleString('vi-VN').replace(/,/g, '.') + '₫',
           originalPriceUsd: '$' + origUsd.toFixed(2),
