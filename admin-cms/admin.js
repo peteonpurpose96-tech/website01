@@ -1,4 +1,4 @@
-// CouponHiker Creator Studio - Admin CMS Logic (With Full Edit, Auth & Delete Support)
+﻿// CouponHiker Creator Studio - Admin CMS Logic (With Full Edit, Auth & Delete Support)
 
 window.allPosts = [];
 window.allProducts = [];
@@ -2962,6 +2962,8 @@ function buildAiArticleData(keyword, niche, brand, lang, customAffLink, customIm
   const isMechanicalKeyboard = /keychron|keyboard|keyboards|mechanical[- ]*keyboard|qmk|via|keycap|mx[- ]*master|logitech[- ]*mx/i.test(kwLower) || (niche === 'edc' && /keyboard|keycap|switch/i.test(kwLower));
   const isPetCare = /furlife|fur1ife|meowant|flea|tick|pet collar|cat collar|dog collar|pet pendant|ear cleaner|pheromone|colostrum|cat litter|litter box|automatic feeder|pet feeder|puppy|kitten|dog|cat|pet\b/i.test(kwLower) || /furlife|fur1ife|meowant/i.test(brandName) || /snwbl\.io\/(?:fur1?ife|furlife)|getfurlife|meowant/i.test(customAffLink);
   const isApparelComfort = /comfrt|hoodie|sweatshirt|sweater|jacket|fleece|clothing|apparel|blanket|weighted hoodie|loungewear|streetwear|pants|sweatpant/i.test(kwLower) || /comfrt/i.test(brandName) || /comfrt/i.test(customAffLink);
+  const isLifestyleHome = /mug|cup|tumbler|bottle|flask|pillow|pillowcase|cushion|blanket|bedding|cover|sleep|comfort|linen|cotton|mat|decor|kitchen/i.test(kwLower) || /mug|pillow|cushion/i.test(cleanKw);
+  const isCapOutdoorGear = /cap|hat|beanie|headwear|baseball[- ]*cap|visor|headlamp|flashlight|camping|fishing|outdoor/i.test(kwLower) || /cap|hat/i.test(cleanKw);
   const isMiniPcWorkstation = /bosgame|magicnuc|minisforum|gmktec|mini[- ]*pc|minipc|workstation|desktop|ryzen ai/i.test(kwLower) || /bosgame/i.test(brandName);
 
   if (isIm8Longevity) {
@@ -2997,6 +2999,28 @@ function buildAiArticleData(keyword, niche, brand, lang, customAffLink, customIm
     t_intro = `Finding loungewear that transcends ordinary cheap fleece to provide genuine calming comfort and durable quality is remarkably rare. ${brandName} designed the ${cleanKw} with intentional weighted density to ease daily tension and elevate everyday comfort.\n\nFrom the moment you slip it on, the difference in fabric density is immediately palpable. The heavy drape creates an embracing sensation, and the brushed interior fleece feels exceptionally soft against the skin.`;
     t_body = `Over four weeks of daily testing, including 15 machine wash cycles on cold, the fabric exhibited zero pilling, seam distortion, or color fading. The hood maintains its structured shape without collapsing, and the weighted feel provides noticeable relaxation during long desk work sessions and evening wind-down.`;
     t_verdict = `The ${cleanKw} elevates casual loungewear into a therapeutic comfort essential. For anyone looking for top-tier heavyweight fabric, impeccable stitching, and supreme relaxation, it earns our enthusiastic recommendation.`;
+  } else if (isLifestyleHome) {
+    catName = 'Desk Setup & EDC';
+    priceU = '$24.99'; priceV = '625.000₫'; priceO = '$34.99';
+    t_img = resolveImage('https://images.unsplash.com/photo-1584100936595-c0654b55a2e2?auto=format&fit=crop&w=1200&q=80');
+    t_title = `${cleanKw} Hands-On Review: Daily Comfort, Materials & Durability (2026)`;
+    t_excerpt = `An exhaustive hands-on evaluation of the ${cleanKw}. We test material resilience, ergonomic support, tactile feel, and long-term daily durability.`;
+    t_pros = `High-density premium materials with ultra-soft tactile feel and reinforced stitching\nErgonomically contoured for optimal daily comfort and fatigue reduction\nMachine-washable, shrink-resistant textile blend retains original softness and vibrant tone\nVersatile, minimalist design integrates seamlessly into home and desk aesthetics`;
+    t_cons = `Boutique handcrafted finish commands a slight premium over mass-market alternatives\nHigh demand can lead to limited regional warehouse stock availability`;
+    t_intro = `Everyday lifestyle essentials quietly define our comfort and quality of life. The ${cleanKw} was crafted to elevate everyday routines with refined tactile materials, thoughtful design, and durable craftsmanship.\n\nFrom the moment you handle it, the difference in material density and precision finishing is immediately noticeable.`;
+    t_body = `Over four weeks of continuous daily use, the ${cleanKw} delivered outstanding comfort. It held up effortlessly to repeated wash cycles without color degradation, pilling, or seam stress, retaining its plush, original form.`;
+    t_verdict = `The ${cleanKw} offers an outstanding balance of luxurious tactile comfort, durable construction, and timeless design. A clear winner for elevating daily lifestyle spaces.`;
+  } else if (isCapOutdoorGear) {
+    catName = 'Desk Setup & EDC';
+    priceU = '$29.99'; priceV = '750.000₫'; priceO = '$39.99';
+    t_img = resolveImage('https://images.unsplash.com/photo-1588850561407-ed78c282e89b?auto=format&fit=crop&w=1200&q=80');
+    t_title = `${cleanKw} Hands-On Review: Field Tested Build, Utility & Durability (2026)`;
+    t_excerpt = `We field-tested the ${cleanKw} across outdoor, night-time, and camping conditions. Here is our in-depth evaluation of build quality, battery life, and hands-free utility.`;
+    t_pros = `Rugged weather-resistant construction engineered for outdoor night expeditions\nErgonomic lightweight profile ensures all-day comfort without forehead pressure points\nConvenient USB-C rechargeable power with bright, even LED beam illumination\nIntuitive controls and practical utility for fishing, camping, night running, and repairs`;
+    t_cons = `Rechargeable unit requires periodic USB-C top-ups before extended expeditions\nHand-wash recommended to preserve integrated electronics`;
+    t_intro = `Reliable outdoor and everyday carry gear must blend effortless comfort with dependable utility. The ${cleanKw} delivers hands-free convenience and rugged reliability when you need it most.\n\nCrafted from durable, breathable materials with clean stitching, it fits comfortably right out of the box.`;
+    t_body = `During night fishing and trail tests, the illumination beam was crisp and wide, providing ample forward visibility without blinding glare. The lightweight build remained comfortable through hours of continuous wear.`;
+    t_verdict = `The ${cleanKw} is an innovative and highly practical companion for outdoor enthusiasts, night runners, and hobbyists alike. Top recommendation.`;
   } else if (isMiniPcWorkstation) {
     catName = 'Computing & Gaming';
     priceU = '$469.99'; priceV = '11.750.000₫'; priceO = '$587.49';
@@ -3676,48 +3700,65 @@ function collectFormData() {
 // -------------------------------------------------------------
 // 6. HTML GENERATION ENGINE (FULL POST & CARD)
 // -------------------------------------------------------------
+// -------------------------------------------------------------
+// 6. HTML GENERATION ENGINE (FULL POST & CARD)
+// -------------------------------------------------------------
 function generateCardHtml(data) {
   const affLink = data.affiliateLink || '#';
-  return `      <!-- Review: ${escapeHtml(data.title)} -->
-      <article class="bg-white dark:bg-[#120a26] rounded-3xl border border-purple-200/80 dark:border-purple-800/60 overflow-hidden shadow-sm card-hover flex flex-col">
-        <div class="relative">
-          <img src="${escapeHtml(data.image)}" alt="${escapeHtml(data.title)}" class="w-full h-48 object-cover">
-          <span class="absolute top-3 left-3 bg-pink-600 text-white text-[10px] font-bold px-3 py-1 rounded-full shadow-sm">${escapeHtml(data.category)}</span>
-          <span class="absolute top-3 right-3 bg-black/70 backdrop-blur-md text-amber-300 text-xs font-bold px-2 py-0.5 rounded-lg flex items-center gap-1">
-            <i data-lucide="star" class="w-3.5 h-3.5 fill-amber-400"></i> ${data.rating}
-          </span>
-        </div>
-        <div class="p-6 flex-1 flex flex-col justify-between">
-          <div>
-            <div class="flex items-center gap-2.5 text-xs text-slate-400 mb-2">
-              <span>${data.date}</span>
-              <span>•</span>
-              <span>8 min read</span>
-            </div>
-            <h3 class="font-bold text-slate-900 dark:text-white text-base line-clamp-2 hover:text-pink-500 transition-colors">
-              <a href="${data.fileName}">${escapeHtml(data.title)}</a>
-            </h3>
-            <p class="text-xs text-slate-600 dark:text-purple-300/70 mt-2 line-clamp-3">
-              ${escapeHtml(data.excerpt)}
-            </p>
+  return `      <!-- Article: ${escapeHtml(data.title)} -->
+      <article class="bg-white dark:bg-[#0e121d] rounded-2xl border border-slate-200 dark:border-slate-800/90 hover:border-cyan-500/60 overflow-hidden shadow-sm dark:shadow-[0_4px_20px_rgba(0,0,0,0.4)] card-hover flex flex-col justify-between group">
+        <div>
+          <div class="relative h-40 sm:h-44 w-full bg-slate-900/40 overflow-hidden">
+            <img 
+              src="${escapeHtml(data.image)}" 
+              alt="${escapeHtml(data.title)}" 
+              class="w-full h-full object-cover transition-transform duration-300 group-hover:scale-105" 
+              loading="lazy"
+              onerror="this.src='https://images.unsplash.com/photo-1587829741301-dc798b83add3?auto=format&fit=crop&w=700&q=80'"
+            >
+            <span class="absolute top-2.5 left-2.5 bg-cyan-950/90 backdrop-blur-md text-cyan-300 border border-cyan-500/40 text-[9px] sm:text-[10px] font-extrabold px-2.5 py-0.5 rounded-full shadow-xs font-mono uppercase tracking-wider">
+              ${escapeHtml(data.category)}
+            </span>
+            <span class="absolute top-2.5 right-2.5 bg-black/70 backdrop-blur-md text-amber-300 text-[11px] font-bold px-2 py-0.5 rounded-lg flex items-center gap-1 shadow-xs">
+              <i data-lucide="star" class="w-3 h-3 fill-amber-400"></i> ${data.rating}
+            </span>
+            ${data.coupon ? `
+              <div class="absolute bottom-2.5 left-2.5 bg-gradient-to-r from-cyan-500 to-blue-600 text-white text-[9px] sm:text-[10px] font-mono font-bold px-2 py-0.5 rounded-lg shadow-sm flex items-center gap-1">
+                <i data-lucide="tag" class="w-2.5 h-2.5"></i> Code: ${escapeHtml(data.coupon)}
+              </div>` : ''}
           </div>
-
-          <div class="mt-5 pt-4 border-t border-purple-100 dark:border-purple-900/60">
-            <div class="flex items-baseline justify-between mb-3 text-xs">
-              <div>
-                <span class="text-slate-400" data-i18n="price_from_label">From:</span>
-                <span class="font-bold text-rose-600 dark:text-rose-400 text-base ml-1 price-val font-display" data-vnd="${escapeHtml(data.priceVnd)}" data-usd="${escapeHtml(data.priceUsd)}">${escapeHtml(data.priceUsd)}</span>
+          <div class="p-4 sm:p-5 flex-1 flex flex-col justify-between">
+            <div>
+              <div class="flex items-center gap-2 text-[11px] text-slate-400 mb-1.5">
+                <span>${data.date || 'Today'}</span>
+                <span>•</span>
+                <span>8 min read</span>
+                <span>•</span> <span class="font-bold text-cyan-400 truncate max-w-[110px]">${escapeHtml(data.brand)}</span>
               </div>
-              <span class="text-[11px] font-semibold text-emerald-600 dark:text-emerald-400 flex items-center gap-1">
-                <i data-lucide="shield-check" class="w-3.5 h-3.5"></i> Verified
-              </span>
+              <h3 class="font-bold text-slate-900 dark:text-white text-sm sm:text-[15px] leading-snug line-clamp-2 hover:text-cyan-400 transition-colors">
+                <a href="${data.fileName}">${escapeHtml(data.title)}</a>
+              </h3>
+              <p class="text-xs text-slate-600 dark:text-slate-400 mt-1.5 line-clamp-2 leading-relaxed">
+                ${escapeHtml(data.excerpt)}
+              </p>
+            </div>
+          </div>
+        </div>
+        <div class="p-4 sm:p-5 pt-0 mt-auto">
+          <div class="mt-3 pt-3 border-t border-slate-100 dark:border-slate-800/80">
+            <div class="flex items-baseline justify-between mb-2.5 text-xs">
+              <div>
+                <span class="text-slate-400 text-[11px]">From:</span>
+                <span class="font-bold text-cyan-400 text-sm sm:text-base ml-1 price-val font-display font-mono" data-vnd="${escapeHtml(data.priceVnd)}" data-usd="${escapeHtml(data.priceUsd)}">${escapeHtml(data.priceUsd)}</span>
+              </div>
+              <span class="text-[11px] text-slate-400 line-through strike-val" data-usd="${escapeHtml(data.priceOrig)}" data-vnd="${escapeHtml(data.priceVnd)}">${escapeHtml(data.priceOrig)}</span>
             </div>
             <div class="grid grid-cols-2 gap-2">
-              <a href="${data.fileName}" class="py-2.5 px-2 rounded-xl bg-purple-100/90 dark:bg-purple-950/80 hover:bg-purple-200 dark:hover:bg-purple-900 text-purple-700 dark:text-purple-300 font-bold text-xs flex items-center justify-center gap-1.5 transition-all border border-purple-200/80 dark:border-purple-800/60 shadow-2xs text-center">
-                <span data-i18n="btn_read_review">Read Review</span> <i data-lucide="arrow-right" class="w-3.5 h-3.5 flex-shrink-0"></i>
+              <a href="${data.fileName}" class="py-2 px-1.5 sm:px-2 rounded-xl bg-slate-100 dark:bg-[#141926] hover:bg-cyan-950/60 text-slate-700 dark:text-cyan-300 font-bold text-xs flex items-center justify-center gap-1 transition-all border border-slate-300 dark:border-slate-800 hover:border-cyan-500/40 shadow-2xs text-center">
+                <span>Read Review</span> <i data-lucide="arrow-right" class="w-3 h-3 flex-shrink-0"></i>
               </a>
-              <a href="${escapeHtml(affLink)}" target="_blank" rel="noopener noreferrer" class="py-2.5 px-2 rounded-xl bg-gradient-to-r from-purple-600 via-pink-600 to-rose-600 hover:from-purple-700 hover:to-rose-700 text-white font-extrabold text-xs flex items-center justify-center gap-1.5 shadow-md shadow-pink-500/20 active:scale-95 whitespace-nowrap transition-all text-center">
-                <span data-i18n="order_now">ORDER NOW</span> <i data-lucide="external-link" class="w-3.5 h-3.5 flex-shrink-0"></i>
+              <a href="${escapeHtml(affLink)}" target="_blank" rel="noopener noreferrer" class="py-2 px-1.5 sm:px-2 rounded-xl bg-gradient-to-r from-cyan-500 via-sky-500 to-blue-600 hover:from-cyan-400 hover:to-blue-500 text-white font-extrabold text-xs flex items-center justify-center gap-1 shadow-md shadow-cyan-500/25 active:scale-95 whitespace-nowrap transition-all text-center">
+                <span>${escapeHtml(data.btnText || 'ORDER NOW')}</span> <i data-lucide="external-link" class="w-3 h-3 flex-shrink-0"></i>
               </a>
             </div>
           </div>
@@ -3763,21 +3804,35 @@ function generateFullPostHtml(data) {
     : (data.priceOrig || data.priceVnd);
 
   const prosHtml = data.pros.map(p => `
-              <li class="flex items-start gap-2 text-xs text-slate-700 dark:text-purple-200">
+              <li class="flex items-start gap-2 text-xs text-slate-700 dark:text-slate-300">
                 <i data-lucide="check" class="w-4 h-4 text-emerald-500 flex-shrink-0 mt-0.5"></i>
-                <span>${escapeHtml(p.replace(/^[•\-\*]\s*/, ''))}</span>
+                <span>${escapeHtml(p.replace(/^[••\*]\s*/, ''))}</span>
               </li>`).join('');
 
   const consHtml = data.cons.map(c => `
-              <li class="flex items-start gap-2 text-xs text-slate-700 dark:text-purple-200">
+              <li class="flex items-start gap-2 text-xs text-slate-700 dark:text-slate-300">
                 <i data-lucide="x" class="w-4 h-4 text-rose-500 flex-shrink-0 mt-0.5"></i>
-                <span>${escapeHtml(c.replace(/^[•\-\*]\s*/, ''))}</span>
+                <span>${escapeHtml(c.replace(/^[••\*]\s*/, ''))}</span>
               </li>`).join('');
 
   return `<!DOCTYPE html>
 <html lang="en" class="scroll-smooth">
 <head>
   <meta charset="UTF-8">
+  <script>
+    (function() {
+      try {
+        var t = localStorage.getItem('blog_theme');
+        if (t === 'light') {
+          document.documentElement.classList.remove('dark');
+          document.documentElement.style.backgroundColor = '#f8fafc';
+        } else {
+          document.documentElement.classList.add('dark');
+          document.documentElement.style.backgroundColor = '#07080e';
+        }
+      } catch (e) {}
+    })();
+  </script>
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>${escapeHtml(data.title)} | CouponHiker</title>
   <meta name="description" content="${escapeHtml(data.excerpt)}">
@@ -3789,193 +3844,260 @@ function generateFullPostHtml(data) {
       theme: {
         extend: {
           fontFamily: {
-            sans: ['"Be Vietnam Pro"', '"Plus Jakarta Sans"', 'ui-sans-serif', 'system-ui', 'sans-serif'],
-            display: ['"Outfit"', '"Be Vietnam Pro"', 'sans-serif']
+            sans: ['"Plus Jakarta Sans"', '"Be Vietnam Pro"', 'system-ui', '-apple-system', 'sans-serif'],
+            display: ['"Plus Jakarta Sans"', '"Be Vietnam Pro"', 'sans-serif'],
+            mono: ['"JetBrains Mono"', 'Fira Code', 'monospace']
           },
           colors: {
+            brand: {
+              50: '#f0fdfa',
+              100: '#e0f2fe',
+              200: '#bae6fd',
+              300: '#7dd3fc',
+              400: '#38bdf8',
+              500: '#06b6d4',
+              600: '#0284c7',
+              700: '#0369a1',
+              800: '#075985',
+              900: '#0c4a6e',
+              950: '#082f49',
+            },
+            // Legacy purple alias mapped to futuristic cyan/sky/slate
             purple: {
-              50: '#faf5ff', 100: '#f3e8ff', 200: '#e9d5ff', 300: '#d8b4fe',
-              400: '#c084fc', 500: '#a855f7', 600: '#9333ea', 700: '#7e22ce',
-              800: '#6b21a8', 900: '#581c87', 950: '#2e1065',
+              50: '#f0f9ff',
+              100: '#e0f2fe',
+              200: '#bae6fd',
+              300: '#7dd3fc',
+              400: '#38bdf8',
+              500: '#06b6d4',
+              600: '#0284c7',
+              700: '#0369a1',
+              800: '#1e293b',
+              900: '#0f172a',
+              950: '#020617',
+            },
+            // Legacy pink alias mapped to electric neon cyan / arctic sky
+            pink: {
+              50: '#ecfeff',
+              100: '#cffafe',
+              200: '#a5f3fc',
+              300: '#67e8f9',
+              400: '#22d3ee',
+              500: '#06b6d4',
+              600: '#0891b2',
+              700: '#0e7490',
+              800: '#155e75',
+              900: '#164e63',
+              950: '#083344',
+            },
+            slate: {
+              800: '#131722',
+              850: '#0f131c',
+              900: '#090b10',
+              950: '#050609'
             }
           }
         }
       }
     }
   </script>
-
   <script src="https://unpkg.com/lucide@latest"></script>
-    <!-- Google Fonts Preconnect & Stylesheet -->
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Be+Vietnam+Pro:ital,wght@0,300;0,400;0,500;0,600;0,700;0,800;0,900;1,400;1,600&family=Outfit:wght@400;500;600;700;800;900&family=Plus+Jakarta+Sans:ital,wght@0,400;0,500;0,600;0,700;0,800;1,400;1,600&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Be+Vietnam+Pro:ital,wght@0,300;0,400;0,500;0,600;0,700;0,800;0,900;1,400;1,600&family=Outfit:wght@400;500;600;700;800;900&family=Plus+Jakarta+Sans:ital,wght@0,400;0,500;0,600;0,700;0,800;1,400;1,600&family=Space+Grotesk:wght@500;600;700;800&family=JetBrains+Mono:wght@400;500;600;700&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="css/custom.css">
+  <link rel="icon" type="image/png" href="images/favicon.png">
+  <link rel="apple-touch-icon" href="images/logo.png">
   <script src="js/i18n.js"></script>
   <script src="js/article-i18n.js"></script>
 </head>
-<body class="bg-[#faf7ff] text-slate-900 dark:bg-[#090514] dark:text-purple-100 transition-colors duration-200 min-h-screen flex flex-col">
+<body class="bg-[#f4f6fc] text-slate-900 dark:bg-[#070913] dark:text-purple-100 min-h-screen flex flex-col selection:bg-cyan-500 selection:text-white">
 
   <!-- Reading Progress Bar -->
   <div id="reading-progress"></div>
 
-  <!-- Top Projects Ticker Bar: Cosmic Indigo / Lavender Gradient -->
-  <div class="bg-gradient-to-r from-[#14082c] via-[#240e47] to-[#120729] text-purple-200 text-xs py-2 px-3 sm:px-6 border-b border-purple-800/60 relative z-30 shadow-inner">
-    <div class="max-w-[1560px] mx-auto flex items-center justify-between gap-3 sm:gap-5">
+  <!-- Top Projects Ticker Bar -->
+  <div class="bg-slate-100 dark:bg-[#0a0d14] text-slate-700 dark:text-slate-300 text-xs py-1.5 px-3 sm:px-6 border-b border-slate-200 dark:border-slate-800/80 relative z-30 transition-colors">
+    <div class="max-w-[1560px] mx-auto flex items-center justify-between gap-2 sm:gap-4">
       
-      <!-- 1. Left Fixed Badge (Cleanly isolated, never overlapped by scrolling items) -->
-      <div class="flex-shrink-0 flex items-center pr-3 sm:pr-4 border-r border-purple-800/60 z-20">
-        <div class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-[10px] font-black bg-gradient-to-r from-pink-500 via-purple-600 to-indigo-600 text-white shadow-md shadow-pink-500/20 uppercase tracking-wider border border-pink-400/40 select-none">
+      <!-- 1. Left Fixed Badge -->
+      <div class="flex-shrink-0 flex items-center pr-2.5 sm:pr-3 border-r border-slate-200 dark:border-slate-800/80 z-20">
+        <div class="inline-flex items-center gap-1.5 px-2.5 py-0.5 sm:py-1 rounded-full text-[10px] font-black bg-gradient-to-r from-cyan-500 via-sky-500 to-blue-600 text-white uppercase tracking-wider shadow-sm shadow-cyan-500/25 border border-cyan-400/40 select-none">
           <i data-lucide="sparkles" class="w-3 h-3 text-amber-300"></i>
-          <span class="whitespace-nowrap hidden sm:inline" data-i18n="top_bar_featured_badge">FEATURED PROJECT</span>
-          <span class="whitespace-nowrap sm:hidden" data-i18n="top_bar_featured_badge_short">HOT</span>
+          <span class="whitespace-nowrap hidden sm:inline" data-i18n="top_bar_featured_badge">FEATURED PROJECTS</span>
+          <span class="whitespace-nowrap sm:hidden" data-i18n="top_bar_featured_badge_short">FEATURED</span>
         </div>
       </div>
 
       <!-- 2. Self-Contained Marquee Window -->
       <div class="flex-1 relative overflow-hidden min-w-0 cursor-pointer group py-0.5">
-        <div class="absolute left-0 top-0 bottom-0 w-8 sm:w-12 bg-gradient-to-r from-[#14082c] via-[#14082c]/80 to-transparent z-10 pointer-events-none"></div>
-        <div class="absolute right-0 top-0 bottom-0 w-8 sm:w-12 bg-gradient-to-l from-[#120729] via-[#120729]/80 to-transparent z-10 pointer-events-none"></div>
-
-        <!-- Continuous Smooth Scrolling Track -->
-        <div class="top-bar-ticker-track animate-top-ticker items-center">
-          <!-- Populated dynamically with projects by app.js & i18n -->
-        </div>
+        <div class="absolute left-0 top-0 bottom-0 w-8 sm:w-12 bg-gradient-to-r from-slate-100 dark:from-[#0a0d14] to-transparent z-10 pointer-events-none"></div>
+        <div class="absolute right-0 top-0 bottom-0 w-8 sm:w-12 bg-gradient-to-l from-slate-100 dark:from-[#0a0d14] to-transparent z-10 pointer-events-none"></div>
+        <div class="top-bar-ticker-track animate-top-ticker items-center"></div>
       </div>
 
       <!-- 3. Right Controls -->
-      <div class="hidden md:flex items-center gap-2 text-xs font-semibold flex-shrink-0 pl-2.5 sm:pl-3 border-l border-purple-800/60 z-20">
-        <a href="sponsor.html" class="flex items-center gap-1.5 px-2.5 py-1 rounded-xl bg-purple-900/60 hover:bg-pink-600 text-pink-200 hover:text-white border border-purple-700/60 hover:border-pink-500 transition-all font-bold text-[11px] whitespace-nowrap shadow-xs hover:shadow-pink-500/20">
-          <i data-lucide="award" class="w-3.5 h-3.5 text-pink-400 group-hover:text-white"></i>
-          <span data-i18n="sponsor_booking_link">Sponsorships</span>
+      <div class="hidden md:flex items-center gap-2 text-xs font-semibold flex-shrink-0 pl-2.5 sm:pl-3 border-l border-slate-200 dark:border-slate-800/80 z-20">
+        <a href="sponsor.html" class="flex items-center gap-1.5 px-2.5 py-1 rounded-xl bg-white dark:bg-[#141926] hover:bg-cyan-950/60 text-slate-700 dark:text-cyan-300 border border-slate-200 dark:border-slate-800 hover:border-cyan-500/40 transition-all font-bold text-[11px] whitespace-nowrap shadow-xs">
+          <i data-lucide="award" class="w-3.5 h-3.5 text-cyan-400 group-hover:text-white"></i>
+          <span data-i18n="sponsor_booking_link">Sponsorship Inquiries</span>
         </a>
       </div>
 
     </div>
   </div>
 
-  <!-- Header Navigation -->
-  <header class="sticky top-0 z-40 bg-white/90 dark:bg-[#0c071b]/90 backdrop-blur-xl border-b border-purple-200/60 dark:border-purple-900/50 transition-colors">
-    <div class="max-w-[1560px] mx-auto px-3 sm:px-4 lg:px-6 xl:px-8 h-20 sm:h-24 py-2 flex items-center justify-between gap-2 sm:gap-3 xl:gap-5">
+  <!-- Header Navigation: CouponHiker -->
+  <header class="sticky top-0 z-40 bg-white/95 dark:bg-[#07080e]/95 backdrop-blur-xl border-b border-slate-200 dark:border-slate-800/80 transition-colors">
+    <div class="max-w-[1560px] mx-auto px-3 sm:px-4 lg:px-6 xl:px-8 h-16 sm:h-20 py-2 flex items-center justify-between gap-1.5 sm:gap-3 xl:gap-5">
       
-      <!-- Brand Logo: CouponHiker -->
-      <a href="index.html" class="flex-shrink-0 flex items-center gap-2.5 sm:gap-3.5 group">
-        <div class="w-12 h-12 sm:w-14 sm:h-14 xl:w-16 xl:h-16 rounded-xl sm:rounded-2xl bg-gradient-to-tr from-purple-600 via-violet-600 to-pink-500 flex items-center justify-center text-white font-black text-xl sm:text-2xl xl:text-3xl shadow-xl shadow-purple-500/30 group-hover:scale-105 transition-transform ring-2 sm:ring-4 ring-purple-400/25">
-          CH
-        </div>
-        <div class="flex flex-col justify-center">
-          <div class="flex items-center gap-1.5 sm:gap-2 leading-none">
-            <span class="font-black text-2xl sm:text-3xl lg:text-[2rem] xl:text-[2.2rem] tracking-tight text-slate-900 dark:text-white font-display">Coupon<span class="text-gradient-purple">Hiker</span></span>
-            <span class="font-black text-[10px] sm:text-xs px-2 sm:px-2.5 py-0.5 sm:py-1 rounded-lg sm:rounded-xl bg-purple-100/90 dark:bg-purple-950/90 text-purple-700 dark:text-purple-300 uppercase tracking-wider border border-purple-300/60 dark:border-purple-700/60 shadow-xs">Review</span>
+      <!-- Brand Logo -->
+      <a href="index.html" class="flex-shrink-0 flex items-center gap-2 sm:gap-3.5 group min-w-0">
+        <img src="images/logo.png" alt="CouponHiker Logo" class="w-9 h-9 sm:w-12 sm:h-12 xl:w-14 xl:h-14 rounded-xl sm:rounded-2xl object-cover shadow-lg shadow-cyan-500/30 group-hover:scale-105 transition-transform flex-shrink-0">
+        <div class="flex flex-col justify-center min-w-0">
+          <div class="flex items-center gap-1 sm:gap-2 leading-none">
+            <span class="font-black text-xl sm:text-2xl lg:text-[2rem] xl:text-[2.2rem] tracking-tight text-slate-900 dark:text-white font-display">Coupon<span class="text-gradient-purple">Hiker</span></span>
+            <span class="font-black text-[9px] sm:text-xs px-1.5 sm:px-2 py-0.5 rounded-md sm:rounded-xl bg-cyan-100/90 dark:bg-cyan-950/90 text-cyan-800 dark:text-cyan-300 uppercase tracking-wider border border-cyan-300/60 dark:border-cyan-700/60 shadow-xs">Review</span>
           </div>
-          <span class="hidden 2xl:block text-[11px] font-extrabold tracking-[0.18em] text-purple-600 dark:text-purple-400 uppercase mt-1">Curated Tech & Buying Guides</span>
+          <span class="hidden 2xl:block text-[11px] font-extrabold tracking-[0.18em] text-cyan-500 dark:text-cyan-400 uppercase mt-1" data-i18n="header_subtitle">Curated Reviews & Buying Guides</span>
         </div>
       </a>
 
       <!-- Desktop Nav Links -->
       <nav class="hidden lg:flex items-center gap-1 xl:gap-2 text-xs xl:text-sm font-semibold flex-shrink-0">
-        <a href="index.html" class="whitespace-nowrap flex-shrink-0 px-2.5 xl:px-3 py-1.5 rounded-xl text-slate-600 dark:text-purple-200/80 hover:text-purple-600 hover:bg-purple-50 dark:hover:bg-purple-900/30 transition-all" data-i18n="nav_home">Home</a>
-        <a href="post.html" class="whitespace-nowrap flex-shrink-0 px-2.5 xl:px-3 py-1.5 rounded-xl bg-purple-100/70 dark:bg-purple-950/80 text-purple-700 dark:text-purple-300 font-bold transition-colors flex items-center gap-1">
-          <span data-i18n="nav_reviews">Reviews</span>
-          <span class="bg-gradient-to-r from-pink-500 to-rose-500 text-white text-[9px] px-1.5 py-0.2 rounded-full font-extrabold shadow-xs">HOT</span>
+        <a href="index.html" class="whitespace-nowrap flex-shrink-0 px-2.5 xl:px-3 py-1.5 rounded-xl text-slate-600 dark:text-slate-300 hover:text-cyan-600 dark:hover:text-cyan-400 hover:bg-slate-100 dark:hover:bg-[#141926] transition-all" data-i18n="nav_home">Home</a>
+        <a href="post.html" class="whitespace-nowrap flex-shrink-0 px-2.5 xl:px-3 py-1.5 rounded-xl bg-cyan-50 dark:bg-cyan-950/60 text-cyan-700 dark:text-cyan-300 border border-cyan-200 dark:border-cyan-800/80 font-bold transition-colors flex items-center gap-1">
+          <span data-i18n="nav_reviews">Reviews & Guides</span>
+          <span class="bg-gradient-to-r from-cyan-500 to-blue-600 text-white text-[9px] px-1.5 py-0.5 rounded-full font-black shadow-xs font-sans">LAB</span>
         </a>
-        <a href="shop.html" class="whitespace-nowrap flex-shrink-0 px-2.5 xl:px-3 py-1.5 rounded-xl text-slate-600 dark:text-purple-200/80 hover:text-purple-600 hover:bg-purple-50 dark:hover:bg-purple-900/30 transition-all flex items-center gap-1">
-          <i data-lucide="shopping-bag" class="w-3.5 h-3.5 text-purple-500"></i>
-          <span data-i18n="nav_shop">Shop</span>
+        <a href="shop.html" class="whitespace-nowrap flex-shrink-0 px-2.5 xl:px-3 py-1.5 rounded-xl text-slate-600 dark:text-slate-300 hover:text-cyan-600 dark:hover:text-cyan-400 hover:bg-slate-100 dark:hover:bg-[#141926] transition-all flex items-center gap-1">
+          <i data-lucide="shopping-bag" class="w-3.5 h-3.5 text-cyan-500"></i>
+          <span data-i18n="nav_shop">Curated Store</span>
         </a>
-        <a href="sponsor.html" class="whitespace-nowrap flex-shrink-0 px-2.5 xl:px-3 py-1.5 rounded-xl text-slate-600 dark:text-purple-200/80 hover:text-purple-600 dark:hover:text-purple-300 hover:bg-purple-50 dark:hover:bg-purple-900/30 transition-all" data-i18n="nav_sponsor">Sponsors</a>
+        <a href="sponsor.html" class="whitespace-nowrap flex-shrink-0 px-2.5 xl:px-3 py-1.5 rounded-xl text-slate-600 dark:text-slate-300 hover:text-cyan-500 dark:hover:text-cyan-400 hover:bg-slate-100 dark:hover:bg-[#141926] transition-all" data-i18n="nav_sponsor">Sponsorships</a>
       </nav>
 
-      <!-- Spotlight Search Trigger -->
+      <!-- Search Trigger -->
       <button 
         type="button" 
-        class="search-trigger-btn flex-shrink-0 flex items-center gap-2 px-3 xl:px-3.5 py-2 rounded-2xl bg-purple-50/90 dark:bg-[#120a26] hover:bg-purple-100/90 dark:hover:bg-[#1a0f35] border border-purple-200/90 dark:border-purple-800/80 hover:border-purple-400 dark:hover:border-purple-500 text-xs font-semibold text-slate-700 dark:text-purple-200 transition-all shadow-xs hover:scale-[1.02] cursor-pointer group w-28 sm:w-36 md:w-40 lg:w-36 xl:w-48 2xl:w-60 text-left"
+        class="search-trigger-btn flex-shrink-0 flex items-center justify-center sm:justify-start gap-2 p-2 sm:px-3 sm:py-2 xl:px-3.5 rounded-xl sm:rounded-2xl bg-slate-100 dark:bg-[#0e121d] hover:bg-slate-200/70 dark:hover:bg-[#141926] border border-slate-200 dark:border-slate-800 hover:border-cyan-500/50 text-xs font-semibold text-slate-600 dark:text-slate-300 transition-all shadow-xs hover:scale-[1.02] cursor-pointer group w-9 h-9 sm:w-36 md:w-40 lg:w-36 xl:w-48 2xl:w-60 text-left"
         title="Search reviews & products (⌘K)"
       >
-        <i data-lucide="search" class="w-3.5 h-3.5 text-purple-500 group-hover:scale-110 transition-transform flex-shrink-0"></i>
-        <span class="truncate text-slate-600 dark:text-purple-200/80 font-medium text-xs" data-i18n="search_placeholder_short">Search...</span>
-        <kbd class="hidden xl:inline-flex items-center px-1.5 py-0.5 text-[9px] font-extrabold text-purple-600 dark:text-purple-400 bg-white dark:bg-purple-950 border border-purple-200 dark:border-purple-800 rounded-md shadow-2xs ml-auto flex-shrink-0">⌘K</kbd>
+        <i data-lucide="search" class="w-4 h-4 sm:w-3.5 sm:h-3.5 text-cyan-500 group-hover:scale-110 transition-transform flex-shrink-0"></i>
+        <span class="hidden sm:inline truncate text-slate-600 dark:text-slate-300 font-medium text-xs" data-i18n="search_placeholder_short">Search reviews...</span>
+        <kbd class="hidden xl:inline-flex items-center px-1.5 py-0.5 text-[9px] font-extrabold text-cyan-400 bg-white dark:bg-[#141926] border border-slate-200 dark:border-slate-800 rounded-md shadow-2xs ml-auto flex-shrink-0">⌘K</kbd>
       </button>
 
       <div class="flex-shrink-0 flex items-center gap-1.5 sm:gap-2">
         <!-- Currency Selector -->
-        <div class="relative">
-          <button id="currency-dropdown-btn" class="flex items-center gap-1 px-2 sm:px-2.5 py-1.5 rounded-xl border border-purple-200 dark:border-purple-800/80 bg-purple-50/80 dark:bg-purple-950/50 hover:bg-purple-100 text-xs font-bold text-slate-800 dark:text-purple-200 transition-all shadow-xs" title="Select Currency">
+        <div class="hidden sm:block relative">
+          <button id="currency-dropdown-btn" class="flex items-center gap-1 px-2 sm:px-2.5 py-1.5 rounded-xl border border-slate-200 dark:border-slate-800 bg-slate-100 dark:bg-[#0e121d] hover:border-cyan-500/50 text-xs font-bold text-slate-700 dark:text-slate-200 transition-all shadow-xs" title="Select Currency">
             <span id="current-currency-flag">🇺🇸</span>
             <span id="current-currency-code">USD</span>
-            <span id="current-currency-symbol" class="text-purple-600 dark:text-purple-400 font-extrabold">($)</span>
+            <span id="current-currency-symbol" class="text-cyan-400 font-bold">($)</span>
             <i data-lucide="chevron-down" class="w-3 h-3 opacity-70"></i>
           </button>
-          <div id="currency-dropdown-menu" class="hidden absolute right-0 mt-2 w-36 bg-white dark:bg-[#120a26] rounded-2xl shadow-2xl border border-purple-200 dark:border-purple-800/80 py-2 z-50">
+          <div id="currency-dropdown-menu" class="hidden absolute right-0 mt-2 w-36 bg-white dark:bg-[#0e121d] rounded-2xl shadow-2xl border border-slate-200 dark:border-slate-800 py-2 z-50">
             <div class="px-3 py-1 text-[10px] font-bold text-slate-400 uppercase tracking-wider">Currency</div>
-            <button class="currency-option w-full text-left px-3.5 py-2 text-xs flex items-center justify-between hover:bg-purple-50 dark:hover:bg-purple-900/40" data-currency="USD">
+            <button class="currency-option w-full text-left px-3.5 py-2 text-xs flex items-center justify-between hover:bg-slate-100 dark:hover:bg-[#141926] transition-colors" data-currency="USD">
               <span class="flex items-center gap-2"><span>🇺🇸</span> <span class="font-bold">USD</span></span>
-              <span class="text-purple-600 dark:text-purple-400 font-bold">$</span>
+              <span class="text-cyan-400 font-bold">$</span>
             </button>
-            <button class="currency-option w-full text-left px-3.5 py-2 text-xs flex items-center justify-between hover:bg-purple-50 dark:hover:bg-purple-900/40" data-currency="VND">
+            <button class="currency-option w-full text-left px-3.5 py-2 text-xs flex items-center justify-between hover:bg-slate-100 dark:hover:bg-[#141926] transition-colors" data-currency="VND">
               <span class="flex items-center gap-2"><span>🇻🇳</span> <span class="font-bold">VND</span></span>
-              <span class="text-purple-600 dark:text-purple-400 font-bold">₫</span>
+              <span class="text-cyan-400 font-bold">₫</span>
             </button>
           </div>
         </div>
 
         <!-- Language Selector -->
-        <div class="relative">
-          <button id="lang-dropdown-btn" class="flex items-center gap-1 px-2 sm:px-2.5 py-1.5 rounded-xl border border-purple-200 dark:border-purple-800/80 bg-purple-50/80 dark:bg-purple-950/50 hover:bg-purple-100 text-xs font-bold text-slate-800 dark:text-purple-200 transition-all shadow-xs">
+        <div class="hidden sm:block relative">
+          <button id="lang-dropdown-btn" class="flex items-center gap-1 px-2 sm:px-2.5 py-1.5 rounded-xl border border-slate-200 dark:border-slate-800 bg-slate-100 dark:bg-[#0e121d] hover:border-cyan-500/50 text-xs font-bold text-slate-700 dark:text-slate-200 transition-all shadow-xs" title="Select Language">
             <span id="current-lang-flag">🇺🇸</span>
             <span id="current-lang-text">ENG</span>
             <i data-lucide="chevron-down" class="w-3 h-3 opacity-70"></i>
           </button>
-          <div id="lang-dropdown-menu" class="hidden absolute right-0 mt-2 w-44 bg-white dark:bg-[#120a26] rounded-2xl shadow-2xl border border-purple-200 dark:border-purple-800 py-2 z-50">
-            <button class="lang-option w-full text-left px-3.5 py-2 text-xs flex items-center gap-2.5 hover:bg-purple-50 dark:hover:bg-purple-900/40 transition-colors" data-lang="en">
+          <div id="lang-dropdown-menu" class="hidden absolute right-0 mt-2 w-44 bg-white dark:bg-[#0e121d] rounded-2xl shadow-2xl border border-slate-200 dark:border-slate-800 py-2 z-50">
+            <button class="lang-option w-full text-left px-3.5 py-2 text-xs flex items-center gap-2.5 hover:bg-slate-100 dark:hover:bg-[#141926] transition-colors" data-lang="en">
               <span class="text-base">🇺🇸</span> <span>English (US)</span>
             </button>
-            <button class="lang-option w-full text-left px-3.5 py-2 text-xs flex items-center gap-2.5 hover:bg-purple-50 dark:hover:bg-purple-900/40 transition-colors" data-lang="vi">
+            <button class="lang-option w-full text-left px-3.5 py-2 text-xs flex items-center gap-2.5 hover:bg-slate-100 dark:hover:bg-[#141926] transition-colors" data-lang="vi">
               <span class="text-base">🇻🇳</span> <span>Tiếng Việt</span>
             </button>
-            <button class="lang-option w-full text-left px-3.5 py-2 text-xs flex items-center gap-2.5 hover:bg-purple-50 dark:hover:bg-purple-900/40 transition-colors" data-lang="zh">
+            <button class="lang-option w-full text-left px-3.5 py-2 text-xs flex items-center gap-2.5 hover:bg-slate-100 dark:hover:bg-[#141926] transition-colors" data-lang="zh">
               <span class="text-base">🇨🇳</span> <span>简体中文</span>
             </button>
           </div>
         </div>
 
-        <button class="theme-toggle p-1.5 sm:p-2 rounded-xl text-slate-600 dark:text-purple-300 hover:bg-purple-100 dark:hover:bg-purple-950/60 transition-colors" aria-label="Toggle theme">
-          <i data-lucide="moon" class="w-4 h-4 dark:hidden"></i>
-          <i data-lucide="sun" class="w-4 h-4 hidden dark:block"></i>
+        <!-- Dark Mode Toggle -->
+        <button class="theme-toggle p-2 rounded-xl text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-[#141926] transition-colors flex-shrink-0" aria-label="Toggle theme">
+          <i data-lucide="sun" class="w-4 h-4 hidden dark:block text-amber-300"></i>
+          <i data-lucide="moon" class="w-4 h-4 block dark:hidden text-cyan-700"></i>
         </button>
 
-
-
-        <button id="mobile-menu-btn" class="lg:hidden p-1.5 sm:p-2 rounded-xl text-slate-700 dark:text-purple-300 hover:bg-purple-100 dark:hover:bg-purple-900/40">
+        <!-- Mobile Menu Button -->
+        <button id="mobile-menu-btn" class="lg:hidden p-2 rounded-xl text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-[#141926] flex-shrink-0" aria-label="Open mobile menu">
           <i data-lucide="menu" class="w-5 h-5"></i>
         </button>
       </div>
+
+    </div>
+
+    <!-- Mobile Dropdown Menu -->
+    <div id="mobile-menu" class="hidden lg:hidden border-t border-slate-200 dark:border-slate-800/80 bg-white/95 dark:bg-[#07080e]/95 backdrop-blur-xl px-4 py-4 space-y-3 shadow-2xl">
+      <div>
+        <button 
+          type="button" 
+          class="search-trigger-btn w-full flex items-center gap-2.5 px-4 py-2.5 rounded-2xl bg-slate-100 dark:bg-[#0e121d] border border-slate-200 dark:border-slate-800 text-xs font-semibold text-slate-700 dark:text-slate-200 text-left cursor-pointer hover:border-cyan-500/50 transition-all shadow-xs"
+        >
+          <i data-lucide="search" class="w-4 h-4 text-cyan-500 flex-shrink-0"></i>
+          <span class="truncate" data-i18n="search_placeholder_short">Search reviews, products...</span>
+          <kbd class="ml-auto px-2 py-0.5 text-[10px] font-extrabold bg-white dark:bg-[#141926] text-cyan-400 rounded-lg border border-slate-200 dark:border-slate-800 shadow-2xs">⌘K</kbd>
+        </button>
+      </div>
+
+      <div class="p-3 rounded-2xl bg-slate-100 dark:bg-[#0e121d] border border-slate-200 dark:border-slate-800 space-y-2.5">
+        <div class="flex items-center justify-between">
+          <span class="text-[11px] font-extrabold text-cyan-700 dark:text-cyan-300 uppercase tracking-wider">Currency</span>
+          <div class="flex items-center gap-1.5">
+            <button class="currency-option px-2.5 py-1 rounded-lg text-xs font-bold transition-all border border-slate-200 dark:border-slate-800" data-currency="USD">🇺🇸 USD ($)</button>
+            <button class="currency-option px-2.5 py-1 rounded-lg text-xs font-bold transition-all border border-slate-200 dark:border-slate-800" data-currency="VND">🇻🇳 VND (₫)</button>
+          </div>
+        </div>
+        <div class="flex items-center justify-between pt-2 border-t border-slate-200 dark:border-slate-800/80">
+          <span class="text-[11px] font-extrabold text-cyan-700 dark:text-cyan-300 uppercase tracking-wider">Language</span>
+          <div class="flex items-center gap-1.5">
+            <button class="lang-option px-2 py-1 rounded-lg text-xs font-bold transition-all border border-slate-200 dark:border-slate-800" data-lang="en">🇺🇸 ENG</button>
+            <button class="lang-option px-2 py-1 rounded-lg text-xs font-bold transition-all border border-slate-200 dark:border-slate-800" data-lang="vi">🇻🇳 VIE</button>
+            <button class="lang-option px-2 py-1 rounded-lg text-xs font-bold transition-all border border-slate-200 dark:border-slate-800" data-lang="zh">🇨🇳 CHN</button>
+          </div>
+        </div>
+      </div>
+
+      <a href="index.html" class="block py-2 text-sm font-semibold text-slate-700 dark:text-slate-300 hover:text-cyan-400" data-i18n="nav_home">Home</a>
+      <a href="post.html" class="block py-2 text-sm font-semibold text-slate-700 dark:text-slate-300 hover:text-cyan-400" data-i18n="nav_reviews">Reviews & Guides</a>
+      <a href="shop.html" class="block py-2 text-sm font-semibold text-slate-700 dark:text-slate-300 hover:text-cyan-400" data-i18n="nav_shop">Curated Store</a>
+      <a href="sponsor.html" class="block py-2 text-sm font-semibold text-slate-700 dark:text-slate-300 hover:text-cyan-400" data-i18n="nav_sponsor">Sponsorships</a>
     </div>
   </header>
 
   <!-- ARTICLE MAIN CONTENT -->
-  <main class="flex-1 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 sm:py-10 w-full">
-
-    <!-- Breadcrumb -->
-    <div class="flex items-center gap-2 text-xs text-slate-500 dark:text-purple-300/70 mb-6">
-      <a href="index.html" class="hover:text-purple-600 transition-colors" data-i18n="nav_home">Home</a>
+  <main class="flex-1 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 w-full">
+    <div class="flex items-center gap-2 text-xs text-slate-500 dark:text-slate-400 mb-6">
+      <a href="index.html" class="hover:text-cyan-500 dark:hover:text-cyan-400 transition-colors" data-i18n="nav_home">Home</a>
       <i data-lucide="chevron-right" class="w-3.5 h-3.5"></i>
-      <a href="post.html" class="hover:text-purple-600 transition-colors" data-i18n="nav_reviews">Reviews</a>
+      <a href="post.html" class="hover:text-cyan-500 dark:hover:text-cyan-400 transition-colors" data-i18n="nav_reviews">Reviews</a>
       <i data-lucide="chevron-right" class="w-3.5 h-3.5"></i>
-      <span class="text-pink-600 dark:text-pink-400 font-bold">${escapeHtml(data.category)}</span>
+      <span class="text-cyan-600 dark:text-cyan-400 font-bold">${escapeHtml(data.category)}</span>
     </div>
 
-    <!-- 2-COLUMN SPLIT LAYOUT -->
-    <div class="grid grid-cols-1 lg:grid-cols-12 gap-8 lg:gap-10 items-start">
-
-      <!-- ========================================== -->
-      <!-- LEFT COLUMN: PRODUCT IMAGE, PRICE & DEALS  -->
-      <!-- ========================================== -->
+    <div class="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
+      <!-- LEFT COLUMN: PRODUCT HERO & DEALS -->
       <div class="lg:col-span-5 space-y-6 lg:sticky lg:top-28">
-
-        <!-- 1. Luxury Product Showcase (Never Cropped) -->
-        <div class="product-hero-container relative rounded-3xl overflow-hidden border border-purple-200/80 dark:border-purple-800/60 shadow-xl bg-gradient-to-b from-slate-50 via-white to-slate-100 dark:from-[#180933] dark:via-[#110424] dark:to-[#0a0218] p-5 sm:p-6 flex flex-col items-center justify-center">
+        <div class="product-hero-container relative rounded-3xl overflow-hidden border border-slate-200 dark:border-slate-800 shadow-xl bg-gradient-to-b from-slate-50 via-white to-slate-100 dark:from-[#141926] dark:via-[#10141f] dark:to-[#0b0e17] p-6 flex flex-col items-center">
           <div class="w-full flex items-center justify-between mb-3 z-10">
-            <span class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-[10px] font-black bg-gradient-to-r from-pink-500 via-purple-600 to-indigo-600 text-white shadow-md uppercase tracking-wider">
+            <span class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-[10px] font-black bg-gradient-to-r from-cyan-500 via-sky-500 to-blue-600 text-white shadow-sm shadow-cyan-500/25 border border-cyan-400/40 uppercase tracking-wider">
               <i data-lucide="sparkles" class="w-3 h-3 text-amber-300"></i>
               <span>Verified Product</span>
             </span>
@@ -3984,21 +4106,19 @@ function generateFullPostHtml(data) {
               <span>${data.rating || '9.8'} / 10</span>
             </div>
           </div>
-
-          <div class="w-full flex items-center justify-center py-2 min-h-[260px] sm:min-h-[300px]">
-            <img src="${escapeHtml(data.image)}" alt="${escapeHtml(data.title)}" class="max-h-[340px] sm:max-h-[380px] w-auto max-w-full h-auto object-contain rounded-2xl drop-shadow-2xl mx-auto transition-transform duration-300 hover:scale-[1.03]">
+          <div class="py-4 min-h-[260px] flex items-center justify-center">
+            <img src="${escapeHtml(data.image)}" alt="${escapeHtml(data.title)}" class="max-h-[340px] w-auto max-w-full h-auto object-contain rounded-2xl drop-shadow-2xl mx-auto transition-transform duration-300 hover:scale-[1.03]">
           </div>
-
-          <p class="text-[11px] text-center text-slate-400 dark:text-purple-300/60 mt-2 font-medium">
+          <p class="text-[11px] text-center text-slate-400 dark:text-slate-300/60 mt-2 font-medium">
             Hands-on evaluated in our testing lab • 100% Genuine
           </p>
         </div>
 
-        <!-- 2. Editor's Choice Deal & Price Box -->
-        <div class="p-6 rounded-3xl bg-gradient-to-tr from-purple-50 to-pink-50 dark:from-[#170a36] dark:to-[#210e4a] border-2 border-purple-300 dark:border-purple-800 shadow-xl space-y-5">
-          <div class="flex items-start justify-between gap-4 pb-4 border-b border-purple-200/70 dark:border-purple-900/60">
+        <!-- Deal Card -->
+        <div class="p-6 rounded-3xl bg-slate-50 dark:bg-[#0e121d] border border-slate-200 dark:border-slate-800 shadow-xl space-y-5">
+          <div class="flex items-start justify-between gap-4 pb-4 border-b border-slate-200 dark:border-slate-800">
             <div>
-              <span class="text-xs font-black uppercase text-pink-600 dark:text-pink-400 tracking-wider">Editor's Choice Deal:</span>
+              <span class="text-xs font-black uppercase text-cyan-600 dark:text-cyan-400 tracking-wider">Editor's Choice Deal:</span>
               <div class="flex items-baseline gap-3 mt-1">
                 <span class="text-3xl sm:text-4xl font-black text-slate-900 dark:text-white font-mono price-val font-display" data-usd="${escapeHtml(data.priceUsd)}" data-vnd="${escapeHtml(data.priceVnd)}">${escapeHtml(data.priceUsd)}</span>
                 <span class="text-sm text-slate-400 line-through font-mono strike-val price-val font-display" data-usd="${escapeHtml(data.priceOrig)}" data-vnd="${escapeHtml(priceOrigVnd)}">${escapeHtml(data.priceOrig)}</span>
@@ -4009,83 +4129,67 @@ function generateFullPostHtml(data) {
             </span>
           </div>
 
-          <!-- Exclusive Coupon Box -->
-          <div class="p-3.5 rounded-2xl bg-white dark:bg-[#12082b] border border-amber-400/40 shadow-sm flex items-center justify-between gap-3">
+          <div class="p-3.5 rounded-2xl bg-white dark:bg-[#141926] border border-amber-400/40 shadow-sm flex items-center justify-between gap-3">
             <div class="min-w-0">
               <span class="text-[10px] font-extrabold uppercase text-amber-500 block">Exclusive Promo Coupon</span>
               <code class="text-sm font-black font-mono text-amber-600 dark:text-amber-300 block truncate">${escapeHtml(data.coupon)}</code>
             </div>
-            <button onclick="copyToClipboard('${escapeHtml(data.coupon)}', 'Copied coupon code!')" class="px-3 py-1.5 rounded-xl bg-amber-500 hover:bg-amber-600 text-white text-xs font-bold transition-all shadow-xs flex items-center gap-1.5 flex-shrink-0 cursor-pointer">
+            <button onclick="navigator.clipboard.writeText('${escapeHtml(data.coupon)}'); alert('Copied coupon: ${escapeHtml(data.coupon)}');" class="px-3 py-1.5 rounded-xl bg-amber-500 hover:bg-amber-600 text-white text-xs font-bold transition-all shadow-xs flex items-center gap-1.5 cursor-pointer flex-shrink-0">
               <i data-lucide="copy" class="w-3.5 h-3.5"></i>
               <span>Copy</span>
             </button>
           </div>
 
-          <!-- Primary CTA Button -->
           <div>
-            <a href="${escapeHtml(data.affiliateLink)}" target="_blank" rel="sponsored noopener" class="w-full py-4 px-6 rounded-2xl bg-gradient-to-r from-pink-500 via-purple-600 to-indigo-600 hover:from-pink-600 hover:to-indigo-700 text-white font-black text-sm sm:text-base flex items-center justify-center gap-2 shadow-xl shadow-purple-600/30 transition-all btn-shimmer group">
+            <a href="${escapeHtml(data.affiliateLink)}" target="_blank" rel="sponsored noopener" class="w-full py-4 px-6 rounded-2xl bg-gradient-to-r from-cyan-500 via-sky-500 to-blue-600 hover:from-cyan-400 hover:to-blue-500 text-white font-black text-center flex items-center justify-center gap-2 shadow-lg shadow-cyan-500/25 transition-all btn-shimmer group">
               <span>${escapeHtml(data.btnText)}</span>
               <i data-lucide="external-link" class="w-4 h-4 group-hover:translate-x-0.5 transition-transform"></i>
             </a>
-            <p class="text-[11px] text-center text-slate-400 dark:text-purple-300/60 mt-2">
+            <p class="text-[11px] text-center text-slate-400 dark:text-slate-300/60 mt-2">
               Direct verified merchant link • Official warranty • Fast delivery
             </p>
           </div>
 
-          <!-- Pros & Cons Matrix -->
-          <div class="space-y-3 pt-2 border-t border-purple-200/60 dark:border-purple-900/50">
-            <div class="p-3.5 rounded-2xl bg-white/80 dark:bg-[#100726]/80 border border-emerald-500/30">
+          <!-- Pros & Cons -->
+          <div class="space-y-3 pt-2 border-t border-slate-200 dark:border-slate-800">
+            <div class="p-3.5 rounded-2xl bg-white dark:bg-[#141926] border border-emerald-500/30">
               <h4 class="font-extrabold text-emerald-600 dark:text-emerald-400 text-xs uppercase mb-2 flex items-center gap-1.5">
-                <i data-lucide="check-circle" class="w-4 h-4 flex-shrink-0"></i>
-                Key Advantages (Pros)
+                <i data-lucide="check-circle" class="w-4 h-4 flex-shrink-0"></i> Key Advantages (Pros)
               </h4>
-              <ul class="space-y-1.5">
-                ${prosHtml}
-              </ul>
+              <ul class="space-y-1.5">${prosHtml}</ul>
             </div>
-
-            <div class="p-3.5 rounded-2xl bg-white/80 dark:bg-[#100726]/80 border border-rose-500/30">
+            <div class="p-3.5 rounded-2xl bg-white dark:bg-[#141926] border border-rose-500/30">
               <h4 class="font-extrabold text-rose-600 dark:text-rose-400 text-xs uppercase mb-2 flex items-center gap-1.5">
-                <i data-lucide="x-circle" class="w-4 h-4 flex-shrink-0"></i>
-                Points to Consider (Cons)
+                <i data-lucide="x-circle" class="w-4 h-4 flex-shrink-0"></i> Points to Consider (Cons)
               </h4>
-              <ul class="space-y-1.5">
-                ${consHtml}
-              </ul>
+              <ul class="space-y-1.5">${consHtml}</ul>
             </div>
           </div>
         </div>
-
       </div>
 
-      <!-- ========================================== -->
-      <!-- RIGHT COLUMN: FULL REVIEW ARTICLE CONTENT -->
-      <!-- ========================================== -->
+      <!-- RIGHT COLUMN: ARTICLE -->
       <div class="lg:col-span-7 space-y-8">
-
-        <!-- Article Header & Meta -->
-        <div class="space-y-4 pb-6 border-b border-purple-200/60 dark:border-purple-900/50">
+        <div class="space-y-4 pb-6 border-b border-slate-200 dark:border-slate-800">
           <div class="flex flex-wrap items-center gap-2">
-            <span class="inline-block bg-pink-600 text-white text-xs font-black uppercase px-3 py-1 rounded-full shadow-sm">
+            <span class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-[10px] font-black bg-cyan-950/90 text-cyan-300 border border-cyan-500/40 uppercase tracking-wider">
               ${escapeHtml(data.category)}
             </span>
             <span class="bg-emerald-100 dark:bg-emerald-950 text-emerald-700 dark:text-emerald-300 text-xs font-bold px-3 py-1 rounded-full flex items-center gap-1">
               <i data-lucide="check-circle-2" class="w-3.5 h-3.5"></i> Hands-On Tested & Verified
             </span>
           </div>
-
           <h1 class="text-2xl sm:text-3xl lg:text-4xl font-black text-slate-900 dark:text-white tracking-tight leading-snug font-display">
             ${escapeHtml(data.title)}
           </h1>
-
-          <p class="text-base sm:text-lg text-slate-600 dark:text-purple-200/90 leading-relaxed font-normal">
+          <p class="text-base sm:text-lg text-slate-600 dark:text-slate-300 leading-relaxed font-normal">
             ${escapeHtml(data.excerpt)}
           </p>
 
           <!-- Author / Date / Rating Meta Bar -->
-          <div class="flex flex-wrap items-center justify-between gap-4 pt-4 border-t border-purple-100 dark:border-purple-900/40 text-xs text-slate-500 dark:text-purple-300/70">
+          <div class="flex flex-wrap items-center justify-between gap-4 pt-4 border-t border-slate-200 dark:border-slate-800 text-xs text-slate-500 dark:text-slate-400">
             <div class="flex items-center gap-3">
-              <img src="https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=120&q=80" alt="Editorial Team" class="w-10 h-10 rounded-full border-2 border-pink-500/50 object-cover">
+              <img src="https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=120&q=80" alt="Editorial Team" class="w-10 h-10 rounded-full border-2 border-cyan-500/50 object-cover ring-2 ring-cyan-500/30">
               <div>
                 <div class="font-bold text-slate-900 dark:text-white text-sm">Editorial Team</div>
                 <div class="text-xs text-slate-400">${data.date || 'Today'} • 8 min read</div>
@@ -4099,45 +4203,36 @@ function generateFullPostHtml(data) {
           </div>
 
           <!-- Editorial Transparency Disclosure -->
-          <div class="p-3.5 rounded-2xl bg-purple-50/80 dark:bg-purple-950/40 border-l-4 border-purple-500 text-xs text-purple-900 dark:text-purple-200 leading-relaxed">
+          <div class="p-3.5 rounded-2xl bg-slate-100/80 dark:bg-[#141926] border-l-4 border-cyan-500 text-xs text-slate-800 dark:text-slate-300 leading-relaxed">
             <strong>⚠️ Editorial Disclosure:</strong> We independently test and evaluate products. If you purchase through links on our site, we may earn an affiliate commission at zero additional cost to you.
           </div>
         </div>
 
-        <!-- Narrative Review Body -->
-        <article class="prose prose-purple dark:prose-invert max-w-none space-y-6 text-sm sm:text-base leading-relaxed">
-          
-          <!-- Section 1 -->
+        <article class="prose prose-slate dark:prose-invert max-w-none space-y-6 text-sm sm:text-base leading-relaxed text-slate-700 dark:text-slate-300">
           <div class="space-y-3">
             <h2 class="text-xl sm:text-2xl font-black text-slate-900 dark:text-white font-display flex items-center gap-2">
-              <span class="w-7 h-7 rounded-xl bg-purple-100 dark:bg-purple-900/60 text-purple-700 dark:text-purple-300 text-xs font-black inline-flex items-center justify-center">1</span>
+              <span class="w-7 h-7 rounded-xl bg-cyan-50 dark:bg-cyan-950/80 text-cyan-700 dark:text-cyan-300 border border-cyan-200 dark:border-cyan-500/40 text-xs font-black inline-flex items-center justify-center">1</span>
               Hands-On Experience & Design Overview
             </h2>
-            <p class="text-slate-700 dark:text-purple-200/90 leading-relaxed">
-              ${escapeHtml(data.intro || data.excerpt)}
-            </p>
+            <p class="leading-relaxed">${escapeHtml(data.intro)}</p>
           </div>
-
-          <!-- Section 2 -->
           <div class="space-y-3">
             <h2 class="text-xl sm:text-2xl font-black text-slate-900 dark:text-white font-display flex items-center gap-2">
-              <span class="w-7 h-7 rounded-xl bg-purple-100 dark:bg-purple-900/60 text-purple-700 dark:text-purple-300 text-xs font-black inline-flex items-center justify-center">2</span>
+              <span class="w-7 h-7 rounded-xl bg-cyan-50 dark:bg-cyan-950/80 text-cyan-700 dark:text-cyan-300 border border-cyan-200 dark:border-cyan-500/40 text-xs font-black inline-flex items-center justify-center">2</span>
               In-Depth Performance & Technical Analysis
             </h2>
-            <p class="text-slate-700 dark:text-purple-200/90 leading-relaxed">
-              ${escapeHtml(data.body || 'Engineered with high-precision tolerances and verified under demanding real-world conditions.')}
-            </p>
+            <p class="leading-relaxed">${escapeHtml(data.body)}</p>
           </div>
 
-          <!-- Section 3: Live Comparison Table -->
+          <!-- Live Comparison Table -->
           <div class="space-y-3">
             <h2 class="text-xl sm:text-2xl font-black text-slate-900 dark:text-white font-display flex items-center gap-2">
-              <span class="w-7 h-7 rounded-xl bg-purple-100 dark:bg-purple-900/60 text-purple-700 dark:text-purple-300 text-xs font-black inline-flex items-center justify-center">3</span>
+              <span class="w-7 h-7 rounded-xl bg-cyan-50 dark:bg-cyan-950/80 text-cyan-700 dark:text-cyan-300 border border-cyan-200 dark:border-cyan-500/40 text-xs font-black inline-flex items-center justify-center">3</span>
               Price Comparison & Where to Buy
             </h2>
-            <div class="comparison-table-wrapper w-full max-w-full rounded-3xl border border-purple-200/80 dark:border-purple-800/60 shadow-sm overflow-x-auto bg-white dark:bg-[#120a26]">
+            <div class="comparison-table-wrapper w-full max-w-full rounded-3xl border border-slate-200 dark:border-slate-800 shadow-sm overflow-x-auto bg-white dark:bg-[#141926]">
               <table class="comparison-table text-xs text-left w-full min-w-[600px]">
-                <thead class="bg-purple-50 dark:bg-purple-950/70 text-purple-900 dark:text-purple-200 font-bold">
+                <thead class="bg-slate-100 dark:bg-[#0e121d] text-slate-800 dark:text-cyan-300 font-bold">
                   <tr>
                     <th class="p-3">Store / Channel</th>
                     <th class="p-3">Price</th>
@@ -4147,23 +4242,23 @@ function generateFullPostHtml(data) {
                   </tr>
                 </thead>
                 <tbody>
-                  <tr class="comparison-highlight border-l-4 border-l-pink-500 bg-pink-50/30 dark:bg-pink-950/20">
+                  <tr class="comparison-highlight border-l-4 border-l-cyan-500 bg-cyan-50/30 dark:bg-cyan-950/20">
                     <td class="p-3 font-bold text-slate-900 dark:text-white">
                       ${escapeHtml(data.brand)} Official
-                      <span class="block text-[10px] text-pink-500 font-normal">Direct Verified Store</span>
+                      <span class="block text-[10px] text-cyan-500 font-normal">Direct Verified Store</span>
                     </td>
                     <td class="p-3">
-                      <span class="font-extrabold text-pink-600 text-sm price-val" data-vnd="${escapeHtml(data.priceVnd)}" data-usd="${escapeHtml(data.priceUsd)}">${escapeHtml(data.priceUsd)}</span>
+                      <span class="font-extrabold text-cyan-500 text-sm price-val" data-vnd="${escapeHtml(data.priceVnd)}" data-usd="${escapeHtml(data.priceUsd)}">${escapeHtml(data.priceUsd)}</span>
                     </td>
                     <td class="p-3">100% Genuine Direct Stock with Manufacturer Warranty</td>
                     <td class="p-3"><span class="bg-emerald-100 text-emerald-800 dark:bg-emerald-950 dark:text-emerald-300 text-[10px] font-bold px-2 py-0.5 rounded-full">Lowest Price</span></td>
                     <td class="p-3 text-right">
-                      <a href="${escapeHtml(data.affiliateLink)}" target="_blank" rel="sponsored noopener" class="px-3.5 py-1.5 bg-gradient-to-r from-pink-600 to-purple-600 hover:from-pink-700 hover:to-purple-700 text-white font-bold rounded-xl text-xs inline-block shadow-sm">
+                      <a href="${escapeHtml(data.affiliateLink)}" target="_blank" rel="sponsored noopener" class="px-3.5 py-1.5 bg-gradient-to-r from-cyan-500 via-sky-500 to-blue-600 hover:from-cyan-400 hover:to-blue-500 text-white font-bold rounded-xl text-xs inline-block shadow-sm">
                         ORDER NOW &rarr;
                       </a>
                     </td>
                   </tr>
-                  <tr class="border-t border-purple-100 dark:border-purple-900/40">
+                  <tr class="border-t border-slate-200 dark:border-slate-800/80">
                     <td class="p-3 font-bold text-slate-900 dark:text-white">Authorized Retail Partners</td>
                     <td class="p-3"><span class="font-bold text-sm price-val" data-vnd="${escapeHtml(priceOrigVnd)}" data-usd="${escapeHtml(data.priceOrig)}">${escapeHtml(data.priceOrig)}</span></td>
                     <td class="p-3">Original retail box & standard guarantee</td>
@@ -4172,7 +4267,7 @@ function generateFullPostHtml(data) {
                       <span class="text-slate-400 font-semibold">Standard Retail</span>
                     </td>
                   </tr>
-                  <tr class="border-t border-purple-100 dark:border-purple-900/40">
+                  <tr class="border-t border-slate-200 dark:border-slate-800/80">
                     <td class="p-3 font-bold text-slate-900 dark:text-white">Third-Party Marketplaces</td>
                     <td class="p-3"><span class="font-bold text-sm text-slate-400">Fluctuating / Variable</span></td>
                     <td class="p-3">Unverified seller sources</td>
@@ -4186,49 +4281,40 @@ function generateFullPostHtml(data) {
             </div>
           </div>
 
-          <!-- Section 4: Final Verdict -->
           <div class="space-y-3">
             <h2 class="text-xl sm:text-2xl font-black text-slate-900 dark:text-white font-display flex items-center gap-2">
-              <span class="w-7 h-7 rounded-xl bg-purple-100 dark:bg-purple-900/60 text-purple-700 dark:text-purple-300 text-xs font-black inline-flex items-center justify-center">4</span>
+              <span class="w-7 h-7 rounded-xl bg-cyan-50 dark:bg-cyan-950/80 text-cyan-700 dark:text-cyan-300 border border-cyan-200 dark:border-cyan-500/40 text-xs font-black inline-flex items-center justify-center">4</span>
               Final Verdict: Is It Worth It?
             </h2>
-            <p class="text-slate-700 dark:text-purple-200/90 leading-relaxed">
-              ${escapeHtml(data.verdict || 'With its class-leading design and proven performance, this is an undeniable recommendation for anyone looking for the best in class.')}
-            </p>
+            <p class="leading-relaxed">${escapeHtml(data.verdict)}</p>
           </div>
-
         </article>
 
-        <!-- Bottom Final CTA Banner -->
-        <div class="p-6 sm:p-8 rounded-3xl bg-gradient-to-r from-purple-900 via-violet-900 to-pink-900 text-white space-y-4 shadow-2xl">
-          <h3 class="text-xl sm:text-2xl font-black">Ready to Experience ${escapeHtml(data.brand)}?</h3>
-          <p class="text-xs sm:text-sm text-purple-200 leading-relaxed">
-            Order through the verified direct affiliate link below to secure exclusive promotional pricing with promo code: <strong class="text-amber-300 font-mono">${escapeHtml(data.coupon)}</strong>.
-          </p>
+        <!-- Final CTA -->
+        <div class="p-6 sm:p-8 rounded-3xl bg-gradient-to-r from-[#0c1e3a] via-[#0f284e] to-[#08182b] border border-cyan-500/30 text-white space-y-4 shadow-2xl">
+          <h3 class="text-xl sm:text-2xl font-black">Ready to Order from ${escapeHtml(data.brand)}?</h3>
+          <p class="text-xs sm:text-sm text-slate-300 leading-relaxed">Unlock your verified promotional discount with code: <strong class="text-amber-300 font-mono">${escapeHtml(data.coupon)}</strong></p>
           <div class="pt-2 flex flex-col sm:flex-row items-center gap-3">
-            <a href="${escapeHtml(data.affiliateLink)}" target="_blank" rel="sponsored noopener" class="w-full sm:w-auto inline-flex items-center justify-center gap-2 px-8 py-3.5 rounded-2xl bg-white text-purple-900 hover:bg-pink-100 font-black text-sm shadow-xl transition-all">
+            <a href="${escapeHtml(data.affiliateLink)}" target="_blank" rel="sponsored noopener" class="w-full sm:w-auto inline-flex items-center justify-center gap-2 px-8 py-3.5 rounded-2xl bg-gradient-to-r from-cyan-500 via-sky-500 to-blue-600 hover:from-cyan-400 hover:to-blue-500 text-white font-black text-sm shadow-xl shadow-cyan-500/25 transition-all">
               <span>${escapeHtml(data.btnText)}</span>
               <i data-lucide="arrow-right" class="w-4 h-4"></i>
             </a>
-            <span class="text-xs text-purple-300 font-mono">Promo Code: <strong class="text-white">${escapeHtml(data.coupon)}</strong></span>
+            <span class="text-xs text-slate-300 font-mono">Promo Code: <strong class="text-white">${escapeHtml(data.coupon)}</strong></span>
           </div>
         </div>
-
       </div>
-
     </div>
-
   </main>
 
   <!-- GET IN TOUCH / CONTACT SECTION -->
-  <section class="py-16 bg-slate-50/70 dark:bg-[#06030f]/70 border-t border-purple-100/80 dark:border-purple-900/30">
+  <section class="py-16 bg-slate-50 dark:bg-[#07080e] border-t border-slate-200 dark:border-slate-800/80">
     <div class="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
       <div class="mb-8">
         <h2 class="text-2xl sm:text-3xl font-black text-slate-900 dark:text-white font-display" data-i18n="contact_heading">Get in Touch</h2>
-        <p class="text-xs sm:text-sm text-slate-500 dark:text-purple-300/70 mt-1" data-i18n="contact_subtitle">Questions, partnerships, or feedback — we'd love to hear from you.</p>
+        <p class="text-xs sm:text-sm text-slate-500 dark:text-slate-400 mt-1" data-i18n="contact_subtitle">Questions, partnerships, or feedback — we'd love to hear from you.</p>
       </div>
 
-      <div class="rounded-3xl overflow-hidden shadow-2xl border border-slate-200/80 dark:border-purple-900/50 bg-white dark:bg-[#0e0720] grid grid-cols-1 lg:grid-cols-12">
+      <div class="rounded-3xl overflow-hidden shadow-2xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-[#0e121d] grid grid-cols-1 lg:grid-cols-12">
         <div class="lg:col-span-5 bg-gradient-to-br from-emerald-600 via-emerald-700 to-teal-800 p-8 sm:p-10 text-white flex flex-col justify-between relative overflow-hidden">
           <div class="absolute -top-16 -right-16 w-56 h-56 rounded-full bg-white/10 blur-xl pointer-events-none"></div>
           <div class="absolute -bottom-16 -left-16 w-56 h-56 rounded-full bg-teal-900/30 blur-xl pointer-events-none"></div>
@@ -4307,49 +4393,49 @@ function generateFullPostHtml(data) {
           <div>
             <div class="mb-6">
               <h3 class="text-xl font-extrabold text-slate-900 dark:text-white" data-i18n="contact_form_title">Send us a message</h3>
-              <p class="text-xs text-slate-500 dark:text-purple-300/60 mt-1" data-i18n="contact_form_required">Fields marked * are required</p>
+              <p class="text-xs text-slate-500 dark:text-slate-400 mt-1" data-i18n="contact_form_required">Fields marked * are required</p>
             </div>
 
             <form id="get-in-touch-form" class="space-y-4" onsubmit="handleContactSubmit(event)">
               <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 <div>
-                  <label class="block text-xs font-bold text-slate-700 dark:text-purple-200 mb-1.5" data-i18n="contact_name_label">
+                  <label class="block text-xs font-bold text-slate-700 dark:text-slate-200 mb-1.5" data-i18n="contact_name_label">
                     Your Name <span class="text-slate-400 font-normal" data-i18n="contact_optional">(optional)</span>
                   </label>
-                  <input type="text" id="contact-name" name="name" placeholder="Jane Smith" data-i18n-placeholder="contact_name_placeholder" class="w-full px-3.5 py-2.5 rounded-xl border border-slate-200 dark:border-purple-800/60 bg-white dark:bg-purple-950/30 text-slate-900 dark:text-white text-xs focus:ring-2 focus:ring-emerald-500 outline-none transition-all" />
+                  <input type="text" id="contact-name" name="name" placeholder="Jane Smith" data-i18n-placeholder="contact_name_placeholder" class="w-full px-3.5 py-2.5 rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900/40 text-slate-900 dark:text-white text-xs focus:ring-2 focus:ring-cyan-500 outline-none transition-all" />
                 </div>
 
                 <div>
-                  <label class="block text-xs font-bold text-slate-700 dark:text-purple-200 mb-1.5" data-i18n="contact_email_label">
+                  <label class="block text-xs font-bold text-slate-700 dark:text-slate-200 mb-1.5" data-i18n="contact_email_label">
                     Email Address <span class="text-rose-500">*</span>
                   </label>
-                  <input type="email" id="contact-email" name="email" required placeholder="you@example.com" data-i18n-placeholder="contact_email_placeholder" class="w-full px-3.5 py-2.5 rounded-xl border border-slate-200 dark:border-purple-800/60 bg-white dark:bg-purple-950/30 text-slate-900 dark:text-white text-xs focus:ring-2 focus:ring-emerald-500 outline-none transition-all" />
+                  <input type="email" id="contact-email" name="email" required placeholder="you@example.com" data-i18n-placeholder="contact_email_placeholder" class="w-full px-3.5 py-2.5 rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900/40 text-slate-900 dark:text-white text-xs focus:ring-2 focus:ring-cyan-500 outline-none transition-all" />
                 </div>
               </div>
 
               <div>
-                <label class="block text-xs font-bold text-slate-700 dark:text-purple-200 mb-1.5" data-i18n="contact_subject_label">
+                <label class="block text-xs font-bold text-slate-700 dark:text-slate-200 mb-1.5" data-i18n="contact_subject_label">
                   Subject <span class="text-slate-400 font-normal" data-i18n="contact_optional">(optional)</span>
                 </label>
-                <input type="text" id="contact-subject" name="subject" placeholder="e.g. Partnership, coupon issue, feedback..." data-i18n-placeholder="contact_subject_placeholder" class="w-full px-3.5 py-2.5 rounded-xl border border-slate-200 dark:border-purple-800/60 bg-white dark:bg-purple-950/30 text-slate-900 dark:text-white text-xs focus:ring-2 focus:ring-emerald-500 outline-none transition-all" />
+                <input type="text" id="contact-subject" name="subject" placeholder="e.g. Partnership, coupon issue, feedback..." data-i18n-placeholder="contact_subject_placeholder" class="w-full px-3.5 py-2.5 rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900/40 text-slate-900 dark:text-white text-xs focus:ring-2 focus:ring-cyan-500 outline-none transition-all" />
               </div>
 
               <div>
-                <label class="block text-xs font-bold text-slate-700 dark:text-purple-200 mb-1.5" data-i18n="contact_message_label">
+                <label class="block text-xs font-bold text-slate-700 dark:text-slate-200 mb-1.5" data-i18n="contact_message_label">
                   Message <span class="text-rose-500">*</span>
                 </label>
-                <textarea id="contact-message" name="message" required rows="4" placeholder="Tell us how we can help..." data-i18n-placeholder="contact_message_placeholder" class="w-full px-3.5 py-2.5 rounded-xl border border-slate-200 dark:border-purple-800/60 bg-white dark:bg-purple-950/30 text-slate-900 dark:text-white text-xs focus:ring-2 focus:ring-emerald-500 outline-none transition-all resize-none"></textarea>
+                <textarea id="contact-message" name="message" required rows="4" placeholder="Tell us how we can help..." data-i18n-placeholder="contact_message_placeholder" class="w-full px-3.5 py-2.5 rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900/40 text-slate-900 dark:text-white text-xs focus:ring-2 focus:ring-cyan-500 outline-none transition-all resize-none"></textarea>
               </div>
 
-              <button type="submit" id="contact-submit-btn" class="w-full py-3 px-6 rounded-xl bg-emerald-600 hover:bg-emerald-500 active:scale-[0.99] text-white font-bold text-xs flex items-center justify-center gap-2 shadow-lg shadow-emerald-600/25 transition-all cursor-pointer">
+              <button type="submit" id="contact-submit-btn" class="w-full py-3 px-6 rounded-xl bg-gradient-to-r from-cyan-500 via-sky-500 to-blue-600 hover:from-cyan-400 hover:to-blue-500 active:scale-[0.99] text-white font-bold text-xs flex items-center justify-center gap-2 shadow-lg shadow-cyan-500/25 transition-all cursor-pointer">
                 <i data-lucide="send" class="w-4 h-4"></i>
                 <span data-i18n="contact_submit_btn">Send Message</span>
               </button>
             </form>
           </div>
 
-          <div class="mt-4 pt-3 text-center border-t border-slate-100 dark:border-purple-900/30">
-            <p class="text-[11px] text-slate-400 dark:text-purple-300/50" data-i18n="contact_reply_guarantee">
+          <div class="mt-4 pt-3 text-center border-t border-slate-100 dark:border-slate-800/60">
+            <p class="text-[11px] text-slate-400 dark:text-slate-300/50" data-i18n="contact_reply_guarantee">
               We typically reply within 24 hours · Your info is never shared
             </p>
           </div>
@@ -4359,29 +4445,28 @@ function generateFullPostHtml(data) {
   </section>
 
   <!-- Footer -->
-  <footer class="bg-white dark:bg-[#0a0515] border-t border-purple-200/50 dark:border-purple-900/40 mt-auto py-12">
+  <footer class="bg-white dark:bg-[#07080e] border-t border-slate-200 dark:border-slate-800 mt-auto py-12">
     <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
       <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-8 mb-10">
         
         <div class="space-y-3">
           <div class="flex items-center gap-2">
             <img src="images/logo.png" alt="CouponHiker Logo" class="w-8 h-8 rounded-xl object-cover shadow-md flex-shrink-0">
-            <span class="font-extrabold text-lg text-slate-900 dark:text-white font-display">CouponHiker<span class="text-pink-600">.</span></span>
+            <span class="font-extrabold text-lg text-slate-900 dark:text-white font-display">Coupon<span class="text-gradient-purple">Hiker</span></span>
           </div>
-          <p class="text-xs text-slate-500 dark:text-purple-300/70 leading-relaxed" data-i18n="footer_desc">
+          <p class="text-xs text-slate-500 dark:text-slate-400 leading-relaxed" data-i18n="footer_desc">
             Authoritative publication specializing in tech reviews, affiliate marketing frameworks, and conversion optimization for independent creators.
           </p>
-          <!-- Social Media Channels -->
           <div class="pt-2">
-            <span class="text-[10px] font-bold uppercase tracking-wider text-slate-400 dark:text-purple-400 block mb-2" data-i18n="footer_social_title">Follow Us</span>
+            <span class="text-[10px] font-bold uppercase tracking-wider text-slate-400 dark:text-cyan-400 block mb-2" data-i18n="footer_social_title">Follow Us</span>
             <div class="flex items-center gap-2.5">
-              <a href="https://www.facebook.com/couponhiker" target="_blank" rel="noopener noreferrer" class="w-8 h-8 rounded-lg bg-slate-100 hover:bg-[#1877F2] dark:bg-purple-950/60 dark:hover:bg-[#1877F2] border border-slate-200 dark:border-purple-800/50 flex items-center justify-center text-slate-600 dark:text-purple-300 hover:text-white dark:hover:text-white transition-all transform hover:-translate-y-0.5 shadow-sm group" title="Facebook: CouponHiker" aria-label="Facebook">
+              <a href="https://www.facebook.com/couponhiker" target="_blank" rel="noopener noreferrer" class="w-8 h-8 rounded-lg bg-slate-100 hover:bg-[#1877F2] dark:bg-[#141926] dark:hover:bg-[#1877F2] border border-slate-200 dark:border-slate-800 flex items-center justify-center text-slate-600 dark:text-slate-300 hover:text-white dark:hover:text-white transition-all transform hover:-translate-y-0.5 shadow-sm group" title="Facebook: CouponHiker" aria-label="Facebook">
                 <svg class="w-4 h-4 fill-current" viewBox="0 0 24 24"><path d="M24 12.073c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 5.99 4.388 10.954 10.125 11.854v-8.385H7.078v-3.47h3.047V9.43c0-3.007 1.792-4.669 4.533-4.669 1.312 0 2.686.235 2.686.235v2.953H15.83c-1.491 0-1.956.925-1.956 1.874v2.25h3.328l-.532 3.47h-2.796v8.385C19.612 23.027 24 18.062 24 12.073z"/></svg>
               </a>
-              <a href="https://www.instagram.com/couponhiker/" target="_blank" rel="noopener noreferrer" class="w-8 h-8 rounded-lg bg-slate-100 hover:bg-gradient-to-tr hover:from-[#f09433] hover:via-[#dc2743] hover:to-[#bc1888] dark:bg-purple-950/60 border border-slate-200 dark:border-purple-800/50 flex items-center justify-center text-slate-600 dark:text-purple-300 hover:text-white dark:hover:text-white transition-all transform hover:-translate-y-0.5 shadow-sm group" title="Instagram: @couponhiker" aria-label="Instagram">
+              <a href="https://www.instagram.com/couponhiker/" target="_blank" rel="noopener noreferrer" class="w-8 h-8 rounded-lg bg-slate-100 hover:bg-gradient-to-tr hover:from-[#f09433] hover:via-[#dc2743] hover:to-[#bc1888] dark:bg-[#141926] border border-slate-200 dark:border-slate-800 flex items-center justify-center text-slate-600 dark:text-slate-300 hover:text-white dark:hover:text-white transition-all transform hover:-translate-y-0.5 shadow-sm group" title="Instagram: @couponhiker" aria-label="Instagram">
                 <svg class="w-4 h-4 fill-current" viewBox="0 0 24 24"><path d="M12 2.163c3.204 0 3.584.012 4.85.07 3.252.148 4.771 1.691 4.919 4.919.058 1.265.069 1.645.069 4.849 0 3.205-.012 3.584-.069 4.849-.149 3.225-1.664 4.771-4.919 4.919-1.266.058-1.644.07-4.85.07-3.204 0-3.584-.012-4.849-.07-3.26-.149-4.771-1.699-4.919-4.92-.058-1.265-.07-1.644-.07-4.849 0-3.204.013-3.583.07-4.849.149-3.227 1.664-4.771 4.919-4.919 1.266-.057 1.645-.069 4.849-.069zm0-2.163c-3.259 0-3.667.014-4.947.072-4.358.2-6.78 2.618-6.98 6.98-.059 1.281-.073 1.689-.073 4.948 0 3.259.014 3.668.072 4.948.2 4.358 2.618 6.78 6.98 6.98 1.281.058 1.689.072 4.948.072 3.259 0 3.668-.014 4.948-.072 4.354-.2 6.782-2.618 6.979-6.98.059-1.28.073-1.689.073-4.948 0-3.259-.014-3.667-.072-4.947-.196-4.354-2.617-6.78-6.979-6.98-1.281-.059-1.69-.073-4.949-.073zm0 5.838c-3.403 0-6.162 2.759-6.162 6.162s2.759 6.163 6.162 6.163 6.162-2.759 6.162-6.163c0-3.403-2.759-6.162-6.162-6.162zm0 10.162c-2.209 0-4-1.79-4-4 0-2.209 1.791-4 4-4s4 1.791 4 4c0 2.21-1.791 4-4 4zm6.406-11.845c-.796 0-1.441.645-1.441 1.44s.645 1.44 1.441 1.44c.795 0 1.439-.645 1.439-1.44s-.644-1.44-1.439-1.44z"/></svg>
               </a>
-              <a href="mailto:support@couponhiker.com" class="w-8 h-8 rounded-lg bg-slate-100 hover:bg-emerald-600 dark:bg-purple-950/60 dark:hover:bg-emerald-600 border border-slate-200 dark:border-purple-800/50 flex items-center justify-center text-slate-600 dark:text-purple-300 hover:text-white dark:hover:text-white transition-all transform hover:-translate-y-0.5 shadow-sm" title="Email: support@couponhiker.com" aria-label="Email">
+              <a href="mailto:support@couponhiker.com" class="w-8 h-8 rounded-lg bg-slate-100 hover:bg-emerald-600 dark:bg-[#141926] dark:hover:bg-emerald-600 border border-slate-200 dark:border-slate-800 flex items-center justify-center text-slate-600 dark:text-slate-300 hover:text-white dark:hover:text-white transition-all transform hover:-translate-y-0.5 shadow-sm" title="Email: support@couponhiker.com" aria-label="Email">
                 <svg class="w-4 h-4 fill-none stroke-current stroke-2" viewBox="0 0 24 24" stroke-linecap="round" stroke-linejoin="round"><rect width="20" height="16" x="2" y="4" rx="2"/><path d="m22 7-8.97 5.7a1.94 1.94 0 0 1-2.06 0L2 7"/></svg>
               </a>
             </div>
@@ -4390,51 +4475,51 @@ function generateFullPostHtml(data) {
 
         <div>
           <h4 class="text-xs font-bold uppercase tracking-wider text-slate-900 dark:text-white mb-3" data-i18n="footer_categories">Navigation</h4>
-          <ul class="space-y-2 text-xs text-slate-600 dark:text-purple-300/70">
-            <li><a href="index.html" class="hover:text-purple-500" data-i18n="nav_home">Home</a></li>
-            <li><a href="post.html" class="hover:text-purple-500" data-i18n="nav_reviews">Tech Reviews</a></li>
-            <li><a href="shop.html" class="hover:text-purple-500" data-i18n="nav_shop">Curated Store</a></li>
-            <li><a href="sponsor.html" class="hover:text-purple-500" data-i18n="nav_sponsor">Sponsorships</a></li>
+          <ul class="space-y-2 text-xs text-slate-600 dark:text-slate-400">
+            <li><a href="index.html" class="hover:text-cyan-500 dark:hover:text-cyan-400" data-i18n="nav_home">Home</a></li>
+            <li><a href="post.html" class="hover:text-cyan-500 dark:hover:text-cyan-400" data-i18n="nav_reviews">Tech Reviews</a></li>
+            <li><a href="shop.html" class="hover:text-cyan-500 dark:hover:text-cyan-400" data-i18n="nav_shop">Curated Store</a></li>
+            <li><a href="sponsor.html" class="hover:text-cyan-500 dark:hover:text-cyan-400" data-i18n="nav_sponsor">Sponsorships</a></li>
           </ul>
         </div>
 
         <div>
           <h4 class="text-xs font-bold uppercase tracking-wider text-slate-900 dark:text-white mb-3" data-i18n="footer_models">Revenue Models</h4>
-          <ul class="space-y-2 text-xs text-slate-600 dark:text-purple-300/70">
-            <li data-i18n="footer_model_affiliate">• Affiliate Marketing (Direct Partnerships)</li>
+          <ul class="space-y-2 text-xs text-slate-600 dark:text-slate-400">
+            <li data-i18n="footer_model_affiliate">• Affiliate Marketing (Direct Merchant Partnerships)</li>
             <li data-i18n="footer_model_ads">• IAB-Compliant Display Ad Networks</li>
-            <li data-i18n="footer_model_sponsor">• Sponsored Reviews & Exclusive Drops</li>
-            <li data-i18n="footer_model_digital">• Curated Products & Physical Gear</li>
+            <li data-i18n="footer_model_sponsor">• Sponsored Reviews & Exclusive Partnerships</li>
+            <li data-i18n="footer_model_digital">• Curated Products & Physical Gear Store</li>
           </ul>
         </div>
 
         <div>
           <h4 class="text-xs font-bold uppercase tracking-wider text-slate-900 dark:text-white mb-3" data-i18n="footer_compliance">Compliance & Disclosure</h4>
-          <p class="text-[11px] text-slate-500 dark:text-purple-300/70 leading-relaxed" data-i18n="footer_compliance_text">
+          <p class="text-[11px] text-slate-500 dark:text-slate-400 leading-relaxed" data-i18n="footer_compliance_text">
             Fully compliant with FTC guidelines and Google Quality Rater standards for transparency, honest affiliate partnerships, and consumer protection.
           </p>
         </div>
 
-        <!-- Contact Column (Exact Match to User Reference) -->
+        <!-- Contact Column -->
         <div>
           <h4 class="text-xs font-bold uppercase tracking-wider text-slate-900 dark:text-white mb-3" data-i18n="footer_contact_title">Contact</h4>
-          <p class="text-xs font-semibold text-slate-700 dark:text-purple-200 mb-1" data-i18n="footer_mailing_addr_label">Mailing Address:</p>
-          <p class="text-xs text-slate-600 dark:text-purple-300/70 leading-relaxed mb-3">
+          <p class="text-xs font-semibold text-slate-700 dark:text-slate-200 mb-1" data-i18n="footer_mailing_addr_label">Mailing Address:</p>
+          <p class="text-xs text-slate-600 dark:text-slate-400 leading-relaxed mb-3">
             2205 Lorina Ave, Corcoran, CA 93212, USA
           </p>
-          <div class="flex items-center gap-2 text-xs text-slate-600 dark:text-purple-300/80 mb-4">
+          <div class="flex items-center gap-2 text-xs text-slate-600 dark:text-slate-300 mb-4">
             <i data-lucide="mail" class="w-3.5 h-3.5 text-emerald-600 dark:text-emerald-400 shrink-0"></i>
             <a href="mailto:support@couponhiker.com" class="text-[11.5px] sm:text-xs hover:underline hover:text-emerald-600 dark:hover:text-emerald-400 break-words font-medium">support@couponhiker.com</a>
           </div>
-          <div class="pt-3 border-t border-purple-100 dark:border-purple-900/40">
-            <span class="text-[10px] font-bold uppercase tracking-wider text-slate-400 dark:text-purple-400 block mb-1.5" data-i18n="footer_partner_label">OFFICIAL MARKETING PARTNER</span>
-            <div class="flex items-center gap-2.5 p-2 rounded-xl bg-slate-50 dark:bg-purple-950/40 border border-slate-200 dark:border-purple-800/40">
+          <div class="pt-3 border-t border-slate-200 dark:border-slate-800">
+            <span class="text-[10px] font-bold uppercase tracking-wider text-slate-400 dark:text-cyan-400 block mb-1.5" data-i18n="footer_partner_label">OFFICIAL MARKETING PARTNER</span>
+            <div class="flex items-center gap-2.5 p-2 rounded-xl bg-slate-50 dark:bg-[#141926] border border-slate-200 dark:border-slate-800">
               <div class="w-7 h-7 rounded-lg bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 flex items-center justify-center shrink-0">
                 <i data-lucide="check-circle" class="w-4 h-4"></i>
               </div>
               <div>
-                <p class="text-xs font-bold text-slate-800 dark:text-purple-100 leading-tight">CouponHiker Hub LLC</p>
-                <p class="text-[10px] text-slate-500 dark:text-purple-300/60 leading-tight" data-i18n="footer_partner_sub">CouponHiker Hub is a marketing division</p>
+                <p class="text-xs font-bold text-slate-800 dark:text-slate-100 leading-tight">CouponHiker Hub LLC</p>
+                <p class="text-[10px] text-slate-500 dark:text-slate-400 leading-tight" data-i18n="footer_partner_sub">CouponHiker Hub is a marketing division</p>
               </div>
             </div>
           </div>
@@ -4442,7 +4527,7 @@ function generateFullPostHtml(data) {
 
       </div>
 
-      <div class="pt-6 border-t border-purple-100 dark:border-purple-900/40 flex flex-col sm:flex-row items-center justify-between gap-4 text-xs text-slate-400">
+      <div class="pt-6 border-t border-slate-200 dark:border-slate-800 flex flex-col sm:flex-row items-center justify-between gap-4 text-xs text-slate-400">
         <p data-i18n="footer_copyright">© 2026 CouponHiker. All rights reserved.</p>
         <div class="flex gap-4">
           <a href="#" class="hover:underline" data-i18n="footer_privacy">Privacy Policy</a>
@@ -6538,3 +6623,4 @@ window.sendTestEmail = sendTestEmail;
 window.toggleEmailConfigModal = toggleEmailConfigModal;
 window.loadEmailConfig = loadEmailConfig;
 window.saveEmailConfig = saveEmailConfig;
+

@@ -1,4 +1,4 @@
-/**
+﻿/**
  * =========================================================================
  * Cloudflare Worker Backend for CouponHiker Hub & Admin CMS
  * Domain: couponhiker.com (thanh.workers.dev)
@@ -71,6 +71,60 @@ function normFileName(s) {
 function normProdId(s) {
   return 'prod-' + normSlug(s);
 }
+
+function sanitizePostHtml(html) {
+  if (!html || typeof html !== 'string') return html;
+
+  // 1. Replace square purple CH logo with official logo matching index.html
+  html = html.replace(
+    /<div[^>]*class="[^"]*(?:bg-gradient-to-tr|bg-gradient-to-br)[^"]*from-purple-600[^"]*via-violet-600[^"]*"[^>]*>[\s\S]*?CH[\s\S]*?<\/div>/gi,
+    '<img src="images/logo.png" alt="CouponHiker Logo" class="w-9 h-9 sm:w-12 sm:h-12 xl:w-14 xl:h-14 rounded-xl sm:rounded-2xl object-cover shadow-lg shadow-cyan-500/30 group-hover:scale-105 transition-transform flex-shrink-0">'
+  );
+
+  // 2. Cosmic purple ticker background & gradients
+  html = html.replace(/from-\[#14082c\]\s+via-\[#240e47\]\s+to-\[#120729\]/gi, 'from-slate-100 via-slate-100 to-slate-200 dark:from-[#0a0d14] dark:via-[#0c101a] dark:to-[#0a0d14]');
+  html = html.replace(/from-\[#120729\]\s+via-\[#120729\]\/80\s+to-transparent/gi, 'from-slate-100 dark:from-[#0a0d14] to-transparent');
+  html = html.replace(/to-\[#120729\]/gi, 'to-slate-100 dark:to-[#0a0d14]');
+  html = html.replace(/bg-\[#14082c\]/gi, 'bg-slate-100 dark:bg-[#0a0d14]');
+
+  // 3. Ticker badge: replace purple with cyan gradient
+  html = html.replace(/bg-gradient-to-r\s+from-purple-600\s+to-pink-600/gi, 'bg-gradient-to-r from-cyan-500 via-sky-500 to-blue-600');
+  html = html.replace(/border-purple-500\/40/gi, 'border-cyan-400/40');
+  html = html.replace(/shadow-purple-500\/25/gi, 'shadow-cyan-500/25');
+
+  // 4. Header REVIEW badge and subtitle
+  html = html.replace(/bg-purple-100\/90\s+dark:bg-purple-950\/90\s+text-purple-700\s+dark:text-purple-300/gi, 'bg-cyan-100/90 dark:bg-cyan-950/90 text-cyan-800 dark:text-cyan-300');
+  html = html.replace(/border-purple-300\/60\s+dark:border-purple-700\/60/gi, 'border-cyan-300/60 dark:border-cyan-700/60');
+  html = html.replace(/text-purple-600\s+dark:text-purple-400\s+uppercase\s+mt-1/gi, 'text-cyan-500 dark:text-cyan-400 uppercase mt-1');
+
+  // 5. Deal Card & Pricing
+  html = html.replace(/border-purple-500\/40\s+dark:border-purple-800\/60/gi, 'border-slate-200 dark:border-slate-800/80');
+  html = html.replace(/dark:from-\[#180933\]\s+dark:via-\[#110424\]\s+dark:to-\[#0a0218\]/gi, 'dark:from-[#141926] dark:via-[#10141f] dark:to-[#0b0e17]');
+  html = html.replace(/dark:from-\[#170a36\]\s+dark:to-\[#210e4a\]/gi, 'dark:from-[#0e121d] dark:to-[#141926]');
+  html = html.replace(/dark:bg-\[#12082b\]/gi, 'dark:bg-[#141926]');
+  html = html.replace(/dark:bg-\[#100726\]\/80/gi, 'dark:bg-[#141926]');
+  html = html.replace(/text-pink-600\s+dark:text-pink-400/gi, 'text-cyan-600 dark:text-cyan-400');
+  html = html.replace(/from-pink-500\s+via-purple-600\s+to-indigo-600/gi, 'from-cyan-500 via-sky-500 to-blue-600');
+  html = html.replace(/from-pink-600\s+via-purple-600\s+to-indigo-600/gi, 'from-cyan-500 via-sky-500 to-blue-600');
+
+  // 6. Editorial Disclosure Box
+  html = html.replace(/border-purple-500\s+bg-purple-50\s+dark:bg-purple-950\/40\s+text-purple-900\s+dark:text-purple-200/gi,
+    'border-cyan-500 bg-slate-100/80 dark:bg-[#141926] text-slate-800 dark:text-slate-300');
+  html = html.replace(/border-purple-500\s+bg-purple-50/gi, 'border-cyan-500 bg-slate-100/80');
+  html = html.replace(/dark:bg-purple-950\/40/gi, 'dark:bg-[#141926]');
+
+  // 7. Verified product badge
+  html = html.replace(/bg-pink-100\/90\s+dark:bg-pink-950\/90\s+text-pink-700/gi, 'bg-cyan-100/90 dark:bg-cyan-950/90 text-cyan-800');
+  html = html.replace(/border-pink-300\/60\s+dark:border-pink-700\/60/gi, 'border-cyan-300/60 dark:border-cyan-700/60');
+  html = html.replace(/bg-pink-600\s+text-white/gi, 'bg-gradient-to-r from-cyan-500 to-blue-600 text-white');
+
+  // 8. Prose headings: replace Mowrator hardcoded headings if they leak
+  html = html.replace(/1\.\s*Hands-On Experience & All-Terrain Chassis/gi, '1. Hands-On Experience & Build Quality');
+  html = html.replace(/2\.\s*AWD Brushless Powertrain & Slope Performance/gi, '2. Real-World Performance & Lab Benchmarks');
+
+  return html;
+}
+
 
 function mapCategoryToKeyAndNames(category, categorySlug) {
   let catKey = (categorySlug || '').toLowerCase();
@@ -1303,6 +1357,7 @@ export default {
         if (data.image && data.image.startsWith('data:image') && postImageUrl.startsWith('images/posts/')) {
           postHtmlContent = postHtmlContent.split(data.image).join(postImageUrl);
         }
+        postHtmlContent = sanitizePostHtml(postHtmlContent);
 
         // Save to Cloudflare KV if bound
         if (env.POSTS_KV) {
@@ -3053,7 +3108,7 @@ export default {
                           await env.POSTS_KV.get('post_html:post-' + cleanPath) ||
                           (!cleanPath.endsWith('.html') ? await env.POSTS_KV.get('post_html:' + cleanPath + '.html') : null);
         if (savedHtml) {
-          return new Response(savedHtml, {
+          return new Response(sanitizePostHtml(savedHtml), {
             headers: {
               'Content-Type': 'text/html; charset=utf-8',
               'Cache-Control': 'no-cache, no-store, must-revalidate',
@@ -3064,7 +3119,7 @@ export default {
           });
         }
       } else if (inMemoryHtml.has(cleanPath)) {
-        return new Response(inMemoryHtml.get(cleanPath), {
+        return new Response(sanitizePostHtml(inMemoryHtml.get(cleanPath)), {
           headers: {
             'Content-Type': 'text/html; charset=utf-8',
             'Cache-Control': 'no-cache, no-store, must-revalidate',

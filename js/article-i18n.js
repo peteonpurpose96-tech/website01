@@ -23,8 +23,8 @@
       prosHeading: 'Key Advantages (Pros)',
       consHeading: 'Points to Consider (Cons)',
       orderNow: 'ORDER NOW',
-      section1Title: '1. Hands-On Experience & All-Terrain Chassis',
-      section2Title: '2. AWD Brushless Powertrain & Slope Performance',
+      section1Title: '1. Hands-On Experience & Build Quality',
+      section2Title: '2. Real-World Performance & Lab Benchmarks',
       section3Title: '3. Price Comparison & Where to Buy',
       section4Title: '4. Final Verdict: Is It Worth It?',
       tableChannel: 'Store / Channel',
@@ -62,8 +62,8 @@
       prosHeading: 'Ưu Điểm Nổi Bật (Pros)',
       consHeading: 'Điểm Cần Lưu Ý (Cons)',
       orderNow: 'ĐẶT HÀNG NGAY',
-      section1Title: '1. Trải Nghiệm Thực Tế & Khung Gầm Mọi Địa Hình',
-      section2Title: '2. Hệ Dẫn Động 4WD Không Chổi Than & Hiệu Năng Vượt Dốc',
+      section1Title: '1. Trải Nghiệm Thực Tế & Thiết Kế Hoàn Thiện',
+      section2Title: '2. Hiệu Năng Vận Hành & Đo Đạc Thực Tế',
       section3Title: '3. So Sánh Bảng Giá Đa Sàn & Nơi Mua Tốt Nhất',
       section4Title: '4. Đánh Giá Chung: Có Thực Sự Đáng Mua Không?',
       tableChannel: 'KÊNH / SÀN PHÂN PHỐI',
@@ -101,8 +101,8 @@
       prosHeading: '核心竞争优势 (Pros)',
       consHeading: '选购注意事项 (Cons)',
       orderNow: '立即前往订购',
-      section1Title: '1. 实机上手体验与全地形底盘架构',
-      section2Title: '2. 全时四驱无刷动力总成与极限爬坡表现',
+      section1Title: '1. 真实上手体验与工业设计品质',
+      section2Title: '2. 核心性能实测与深度基准评估',
       section3Title: '3. 全网渠道价格比价与购买渠道推荐',
       section4Title: '4. 终极选购建议：到底值不值得买？',
       tableChannel: '购买渠道 / 平台',
@@ -329,7 +329,7 @@
         const prosList = document.querySelector('.pros-list, main h4.text-emerald-600 + ul');
         if (prosList) {
           prosList.innerHTML = prosArr.map(p => `
-            <li class="flex items-start gap-2 text-xs text-slate-700 dark:text-purple-200">
+            <li class="flex items-start gap-2 text-xs text-slate-700 dark:text-slate-300">
               <i data-lucide="check" class="w-4 h-4 text-emerald-500 flex-shrink-0 mt-0.5"></i>
               <span>${p.replace(/^[•\-\*]\s*/, '')}</span>
             </li>`).join('');
@@ -341,7 +341,7 @@
         const consList = document.querySelector('.cons-list, main h4.text-rose-600 + ul');
         if (consList) {
           consList.innerHTML = consArr.map(c => `
-            <li class="flex items-start gap-2 text-xs text-slate-700 dark:text-purple-200">
+            <li class="flex items-start gap-2 text-xs text-slate-700 dark:text-slate-300">
               <i data-lucide="x" class="w-4 h-4 text-rose-500 flex-shrink-0 mt-0.5"></i>
               <span>${c.replace(/^[•\-\*]\s*/, '')}</span>
             </li>`).join('');
@@ -404,7 +404,7 @@
       const r1 = tableRows[0];
       const r1Name = r1.querySelector('td:nth-child(1)');
       if (r1Name) {
-        const subHtml = `<span class="block text-[10px] text-pink-500 font-normal">${dict.tableOfficialSub}</span>`;
+        const subHtml = `<span class="block text-[10px] text-cyan-600 dark:text-cyan-400 font-normal">${dict.tableOfficialSub}</span>`;
         r1Name.innerHTML = `${dict.tableOfficial} ${subHtml}`;
       }
       const r1Warranty = r1.querySelector('td:nth-child(3)');
@@ -440,13 +440,13 @@
     }
 
     // Bottom Final CTA Banner
-    const brandName = (postData && postData.brand) ? postData.brand : 'Mowrator Official';
+    const brandName = (postData && postData.brand) ? postData.brand : 'Official Store';
     const couponCode = (postData && postData.coupon) ? postData.coupon : '';
-    const bottomCtaTitle = document.querySelector('main .bg-gradient-to-r.from-purple-900 h3');
+    const bottomCtaTitle = document.querySelector('main .bg-gradient-to-r.from-purple-900 h3, main .border-cyan-500\\/40 h3, main .bg-gradient-to-br h3');
     if (bottomCtaTitle) bottomCtaTitle.textContent = dict.ctaBannerTitle(brandName);
-    const bottomCtaDesc = document.querySelector('main .bg-gradient-to-r.from-purple-900 p');
+    const bottomCtaDesc = document.querySelector('main .bg-gradient-to-r.from-purple-900 p, main .border-cyan-500\\/40 p, main .bg-gradient-to-br p');
     if (bottomCtaDesc) bottomCtaDesc.innerHTML = dict.ctaBannerDesc(couponCode ? `<strong class="text-amber-300 font-mono">${couponCode}</strong>` : '');
-    const bottomCtaBtn = document.querySelector('main .bg-gradient-to-r.from-purple-900 a span');
+    const bottomCtaBtn = document.querySelector('main .bg-gradient-to-r.from-purple-900 a span, main .border-cyan-500\\/40 a span, main .bg-gradient-to-br a span');
     if (bottomCtaBtn) bottomCtaBtn.textContent = dict.orderNow;
 
     if (window.lucide && typeof window.lucide.createIcons === 'function') {

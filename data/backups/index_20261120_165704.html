@@ -1,0 +1,1884 @@
+<!DOCTYPE html>
+<html lang="en" class="scroll-smooth">
+<head>
+  <meta charset="UTF-8">
+  <script>
+    (function() {
+      try {
+        var t = localStorage.getItem('blog_theme');
+        if (t === 'light') {
+          document.documentElement.classList.remove('dark');
+          document.documentElement.style.backgroundColor = '#f8fafc';
+        } else {
+          document.documentElement.classList.add('dark');
+          document.documentElement.style.backgroundColor = '#07080e';
+        }
+      } catch (e) {}
+    })();
+  </script>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>CouponHiker - Tech Reviews, Smart Gadgets & Buying Guides</title>
+  <meta name="description" content="CouponHiker - Independent tech & smart gadgets reviews, lab benchmarks, multi-store price comparisons, and smart shopping guides.">
+  <meta name="linkapprove-verification" content="683046de-a85e-4f32-bd02-8d326f983109">
+  
+  <!-- Tailwind CSS CDN -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      darkMode: 'class',
+      theme: {
+        extend: {
+          fontFamily: {
+            sans: ['"Plus Jakarta Sans"', '"Be Vietnam Pro"', 'system-ui', '-apple-system', 'sans-serif'],
+            display: ['"Plus Jakarta Sans"', '"Be Vietnam Pro"', 'sans-serif'],
+            mono: ['"JetBrains Mono"', 'Fira Code', 'monospace']
+          },
+          colors: {
+            brand: {
+              50: '#f0fdfa',
+              100: '#e0f2fe',
+              200: '#bae6fd',
+              300: '#7dd3fc',
+              400: '#38bdf8',
+              500: '#06b6d4',
+              600: '#0284c7',
+              700: '#0369a1',
+              800: '#075985',
+              900: '#0c4a6e',
+              950: '#082f49',
+            },
+            // Legacy purple alias mapped to futuristic cyan/sky/slate
+            purple: {
+              50: '#f0f9ff',
+              100: '#e0f2fe',
+              200: '#bae6fd',
+              300: '#7dd3fc',
+              400: '#38bdf8',
+              500: '#06b6d4',
+              600: '#0284c7',
+              700: '#0369a1',
+              800: '#1e293b',
+              900: '#0f172a',
+              950: '#020617',
+            },
+            // Legacy pink alias mapped to electric neon cyan / arctic sky
+            pink: {
+              50: '#ecfeff',
+              100: '#cffafe',
+              200: '#a5f3fc',
+              300: '#67e8f9',
+              400: '#22d3ee',
+              500: '#06b6d4',
+              600: '#0891b2',
+              700: '#0e7490',
+              800: '#155e75',
+              900: '#164e63',
+              950: '#083344',
+            },
+            slate: {
+              800: '#131722',
+              850: '#0f131c',
+              900: '#090b10',
+              950: '#050609'
+            }
+          }
+        }
+      }
+    }
+  </script>
+
+  <!-- Lucide Icons -->
+  <script src="https://unpkg.com/lucide@latest"></script>
+  
+  <!-- Custom Styles (Purple Glow & Agency Aesthetic) -->
+    <!-- Google Fonts Preconnect & Stylesheet -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Be+Vietnam+Pro:ital,wght@0,300;0,400;0,500;0,600;0,700;0,800;0,900;1,400;1,600&family=Outfit:wght@400;500;600;700;800;900&family=Plus+Jakarta+Sans:ital,wght@0,400;0,500;0,600;0,700;0,800;1,400;1,600&family=Space+Grotesk:wght@500;600;700;800&family=JetBrains+Mono:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="css/custom.css?v=20261116_noflash_v3">
+  <!-- Favicon & Brand Icons -->
+  <link rel="icon" type="image/png" href="images/favicon.png?v=20261116_noflash_v3">
+  <link rel="apple-touch-icon" href="images/logo.png?v=20261116_noflash_v3">
+
+  <!-- Multilingual i18n Script -->
+  <script src="js/i18n.js?v=20261116_noflash_v3"></script>
+  <script src="js/article-i18n.js?v=20261116_noflash_v3"></script>
+</head>
+<body class="bg-[#f4f6fc] text-slate-900 dark:bg-[#070913] dark:text-purple-100  min-h-screen flex flex-col selection:bg-purple-500 selection:text-white">
+
+  <!-- Top Projects Ticker Bar: Cosmic Indigo / Lavender Gradient -->
+  <div class="bg-slate-100 dark:bg-[#0a0d14] text-slate-700 dark:text-slate-300 text-xs py-1.5 px-3 sm:px-6 border-b border-slate-200 dark:border-slate-800/80 relative z-30 transition-colors">
+    <div class="max-w-[1560px] mx-auto flex items-center justify-between gap-2 sm:gap-4">
+      
+      <!-- 1. Left Fixed Badge -->
+      <div class="flex-shrink-0 flex items-center pr-2.5 sm:pr-3 border-r border-slate-200 dark:border-slate-800/80 z-20">
+        <div class="inline-flex items-center gap-1.5 px-2.5 py-0.5 sm:py-1 rounded-full text-[10px] font-black bg-gradient-to-r from-cyan-500 via-sky-500 to-blue-600 text-white text-[10px] font-black uppercase tracking-wider shadow-sm shadow-cyan-500/25 border border-cyan-400/40 select-none">
+          <i data-lucide="sparkles" class="w-3 h-3 text-amber-300"></i>
+          <span class="whitespace-nowrap hidden sm:inline" data-i18n="top_bar_featured_badge">FEATURED PROJECTS</span>
+          <span class="whitespace-nowrap sm:hidden" data-i18n="top_bar_featured_badge_short">FEATURED</span>
+        </div>
+      </div>
+
+      <!-- 2. Self-Contained Marquee Window -->
+      <div class="flex-1 relative overflow-hidden min-w-0 cursor-pointer group py-0.5">
+        <div class="absolute left-0 top-0 bottom-0 w-8 sm:w-12 bg-gradient-to-r from-slate-100 dark:from-[#0a0d14] to-transparent z-10 pointer-events-none"></div>
+        <div class="absolute right-0 top-0 bottom-0 w-8 sm:w-12 bg-gradient-to-l from-slate-100 dark:from-[#0a0d14] to-transparent z-10 pointer-events-none"></div>
+
+        <!-- Continuous Smooth Scrolling Track -->
+        <div class="top-bar-ticker-track animate-top-ticker items-center">
+          <!-- Populated dynamically with projects by app.js & i18n -->
+        </div>
+      </div>
+
+      <!-- 3. Right Controls -->
+      <div class="hidden md:flex items-center gap-2 text-xs font-semibold flex-shrink-0 pl-2.5 sm:pl-3 border-l border-slate-200 dark:border-slate-800/80 z-20">
+        <a href="sponsor.html" class="flex items-center gap-1.5 px-2.5 py-1 rounded-xl bg-white dark:bg-[#141926] hover:bg-cyan-950/60 text-slate-700 dark:text-cyan-300 border border-slate-200 dark:border-slate-800 hover:border-cyan-500/40 transition-all font-bold text-[11px] whitespace-nowrap shadow-xs">
+          <i data-lucide="award" class="w-3.5 h-3.5 text-pink-400 group-hover:text-white"></i>
+          <span data-i18n="sponsor_booking_link">Sponsorship Inquiries</span>
+        </a>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- Header Navigation: Perfectly Proportioned CouponHiker Header -->
+  <header class="sticky top-0 z-40 bg-white/95 dark:bg-[#07080e]/95 backdrop-blur-xl border-b border-slate-200 dark:border-slate-800/80 transition-colors">
+    <div class="max-w-[1560px] mx-auto px-3 sm:px-4 lg:px-6 xl:px-8 h-16 sm:h-20 py-2 flex items-center justify-between gap-1.5 sm:gap-3 xl:gap-5">
+      
+      <!-- Brand Logo: CouponHiker -->
+      <a href="index.html" class="flex-shrink-0 flex items-center gap-2 sm:gap-3.5 group min-w-0">
+        <img src="images/logo.png?v=20261116_noflash_v3" alt="CouponHiker Logo" class="w-9 h-9 sm:w-12 sm:h-12 xl:w-14 xl:h-14 rounded-xl sm:rounded-2xl object-cover shadow-lg shadow-cyan-500/30 group-hover:scale-105 transition-transform flex-shrink-0">
+        <div class="flex flex-col justify-center min-w-0">
+          <div class="flex items-center gap-1 sm:gap-2 leading-none">
+            <span class="font-black text-xl sm:text-2xl lg:text-[2rem] xl:text-[2.2rem] tracking-tight text-slate-900 dark:text-white font-display">Coupon<span class="text-gradient-purple">Hiker</span></span>
+            <span class="font-black text-[9px] sm:text-xs px-1.5 sm:px-2 py-0.5 rounded-md sm:rounded-xl bg-cyan-100/90 dark:bg-cyan-950/90 text-cyan-800 dark:text-cyan-300 uppercase tracking-wider border border-cyan-300/60 dark:border-cyan-700/60 shadow-xs">Review</span>
+          </div>
+          <span class="hidden 2xl:block text-[11px] font-extrabold tracking-[0.18em] text-cyan-500 dark:text-cyan-400 uppercase mt-1" data-i18n="header_subtitle">Curated Reviews & Buying Guides</span>
+        </div>
+      </a>
+
+      <!-- Desktop Nav Links: Clean pill spacing, strictly whitespace-nowrap -->
+      <nav class="hidden lg:flex items-center gap-1 xl:gap-2 text-xs xl:text-sm font-semibold flex-shrink-0">
+        <a href="index.html" class="whitespace-nowrap flex-shrink-0 px-3 py-1.5 rounded-xl text-cyan-600 dark:text-cyan-400 font-bold bg-cyan-50 dark:bg-cyan-950/40 border border-cyan-200 dark:border-cyan-500/30 transition-all" data-i18n="nav_home">Home</a>
+        <a href="post.html" class="whitespace-nowrap flex-shrink-0 px-2.5 xl:px-3 py-1.5 rounded-xl text-slate-600 dark:text-slate-300 hover:text-cyan-500 dark:hover:text-cyan-400 hover:bg-slate-100 dark:hover:bg-[#141926] transition-all flex items-center gap-1">
+          <span data-i18n="nav_reviews">Reviews & Guides</span>
+          <span class="bg-gradient-to-r from-cyan-500 to-blue-600 text-white text-[9px] px-1.5 py-0.5 rounded-full font-black shadow-xs">LAB</span>
+        </a>
+        
+
+        <a href="shop.html" class="whitespace-nowrap flex-shrink-0 px-2.5 xl:px-3 py-1.5 rounded-xl text-slate-600 dark:text-slate-300 hover:text-cyan-500 dark:hover:text-cyan-400 hover:bg-slate-100 dark:hover:bg-[#141926] transition-all flex items-center gap-1">
+          <i data-lucide="shopping-bag" class="w-3.5 h-3.5 text-purple-500"></i>
+          <span data-i18n="nav_shop">Curated Store</span>
+        </a>
+        <a href="sponsor.html" class="whitespace-nowrap flex-shrink-0 px-2.5 xl:px-3 py-1.5 rounded-xl text-slate-600 dark:text-slate-300 hover:text-cyan-500 dark:hover:text-cyan-400 hover:bg-slate-100 dark:hover:bg-[#141926] transition-all" data-i18n="nav_sponsor">Sponsorships</a>
+      </nav>
+
+      <!-- Search Trigger in Header: Zoom Spotlight Modal on Click -->
+      <button 
+        type="button" 
+        class="search-trigger-btn flex-shrink-0 flex items-center justify-center sm:justify-start gap-2 p-2 sm:px-3 sm:py-2 xl:px-3.5 rounded-xl sm:rounded-2xl bg-slate-100 dark:bg-[#0e121d] hover:bg-slate-200/70 dark:hover:bg-[#141926] border border-slate-200 dark:border-slate-800 hover:border-cyan-500/50 text-xs font-semibold text-slate-600 dark:text-slate-300 transition-all shadow-xs hover:scale-[1.02] cursor-pointer group w-9 h-9 sm:w-36 md:w-40 lg:w-36 xl:w-48 2xl:w-60 text-left"
+        title="Search reviews & gear (⌘K)"
+      >
+        <i data-lucide="search" class="w-4 h-4 sm:w-3.5 sm:h-3.5 text-purple-500 group-hover:scale-110 transition-transform flex-shrink-0"></i>
+        <span class="hidden sm:inline truncate text-slate-600 dark:text-slate-300 font-medium text-xs" data-i18n="search_placeholder_short">Search reviews...</span>
+        <kbd class="hidden xl:inline-flex items-center px-1.5 py-0.5 text-[9px] font-extrabold text-cyan-400 bg-white dark:bg-purple-950 border border-purple-200 dark:border-purple-800 rounded-md shadow-2xs ml-auto flex-shrink-0">⌘K</kbd>
+      </button>
+
+      <!-- Header Controls: Language Selector, Theme Toggle, CTA Button -->
+      <div class="flex-shrink-0 flex items-center gap-1.5 sm:gap-2">
+        
+        <!-- Currency Selector (USD $ / VND ₫) -->
+        <div class="hidden sm:block relative">
+          <button id="currency-dropdown-btn" class="flex items-center gap-1 px-2 sm:px-2.5 py-1.5 rounded-xl border border-slate-200 dark:border-slate-800 bg-slate-100 dark:bg-[#0e121d] hover:border-cyan-500/50 text-xs font-bold text-slate-700 dark:text-slate-200 transition-all shadow-xs" title="Select currency">
+            <span id="current-currency-flag">🇺🇸</span>
+            <span id="current-currency-code">USD</span>
+            <span id="current-currency-symbol" class="text-cyan-400 font-extrabold">($)</span>
+            <i data-lucide="chevron-down" class="w-3 h-3 opacity-70"></i>
+          </button>
+
+          <!-- Currency Menu -->
+          <div id="currency-dropdown-menu" class="hidden absolute right-0 mt-2 w-36 bg-white dark:bg-[#0e121d] rounded-2xl shadow-2xl border border-slate-200 dark:border-slate-800 py-2 z-50 animate-in fade-in zoom-in-95 duration-150">
+            <div class="px-3 py-1 text-[10px] font-bold text-slate-400 uppercase tracking-wider">Currency</div>
+            <button class="currency-option w-full text-left px-3.5 py-2 text-xs flex items-center justify-between hover:bg-purple-50 dark:hover:bg-purple-900/40 transition-colors" data-currency="USD">
+              <span class="flex items-center gap-2"><span>🇺🇸</span> <span class="font-bold">USD</span></span>
+              <span class="text-cyan-400 font-bold">$</span>
+            </button>
+            <button class="currency-option w-full text-left px-3.5 py-2 text-xs flex items-center justify-between hover:bg-purple-50 dark:hover:bg-purple-900/40 transition-colors" data-currency="VND">
+              <span class="flex items-center gap-2"><span>🇻🇳</span> <span class="font-bold">VND</span></span>
+              <span class="text-cyan-400 font-bold">₫</span>
+            </button>
+          </div>
+        </div>
+
+        <!-- Multilingual Dropdown Selector (EN (US) - VI - ZH) -->
+        <div class="hidden sm:block relative">
+          <button id="lang-dropdown-btn" class="flex items-center gap-1 px-2 sm:px-2.5 py-1.5 rounded-xl border border-slate-200 dark:border-slate-800 bg-slate-100 dark:bg-[#0e121d] hover:border-cyan-500/50 text-xs font-bold text-slate-700 dark:text-slate-200 transition-all shadow-xs" title="Select language">
+            <span id="current-lang-flag">🇺🇸</span>
+            <span id="current-lang-text">ENG</span>
+            <i data-lucide="chevron-down" class="w-3 h-3 opacity-70"></i>
+          </button>
+
+          <!-- Dropdown Menu -->
+          <div id="lang-dropdown-menu" class="hidden absolute right-0 mt-2 w-44 bg-white dark:bg-[#0e121d] rounded-2xl shadow-2xl border border-slate-200 dark:border-slate-800 py-2 z-50 animate-in fade-in zoom-in-95 duration-150">
+            <div class="px-3 py-1 text-[10px] font-bold text-slate-400 uppercase tracking-wider">Language</div>
+            <button class="lang-option w-full text-left px-3.5 py-2 text-xs flex items-center gap-2.5 hover:bg-purple-50 dark:hover:bg-purple-900/40 transition-colors" data-lang="en">
+              <span class="text-base">🇺🇸</span>
+              <div>
+                <div class="font-semibold text-slate-800 dark:text-purple-100">English (US)</div>
+                <div class="text-[10px] text-slate-400">United States</div>
+              </div>
+            </button>
+            <button class="lang-option w-full text-left px-3.5 py-2 text-xs flex items-center gap-2.5 hover:bg-purple-50 dark:hover:bg-purple-900/40 transition-colors" data-lang="vi">
+              <span class="text-base">🇻🇳</span>
+              <div>
+                <div class="font-semibold text-slate-800 dark:text-purple-100">Tiếng Việt</div>
+                <div class="text-[10px] text-slate-400">Vietnamese</div>
+              </div>
+            </button>
+            <button class="lang-option w-full text-left px-3.5 py-2 text-xs flex items-center gap-2.5 hover:bg-purple-50 dark:hover:bg-purple-900/40 transition-colors" data-lang="zh">
+              <span class="text-base">🇨🇳</span>
+              <div>
+                <div class="font-semibold text-slate-800 dark:text-purple-100">简体中文</div>
+                <div class="text-[10px] text-slate-400">Chinese</div>
+              </div>
+            </button>
+          </div>
+        </div>
+
+        <!-- Dark Mode Toggle -->
+        <button class="theme-toggle p-2 rounded-xl text-slate-600 dark:text-slate-300 hover:bg-purple-100 dark:hover:bg-purple-950/60 transition-colors flex-shrink-0" aria-label="Toggle theme">
+          <i data-lucide="sun" class="w-4 h-4 hidden dark:block text-amber-300"></i>
+          <i data-lucide="moon" class="w-4 h-4 block dark:hidden text-purple-700"></i>
+        </button>
+
+        <!-- Mobile Menu Trigger -->
+        <button id="mobile-menu-btn" class="lg:hidden p-2 rounded-xl text-slate-700 dark:text-slate-300 hover:bg-purple-100 dark:hover:bg-purple-900/40 flex-shrink-0" aria-label="Open mobile menu">
+          <i data-lucide="menu" class="w-5 h-5"></i>
+        </button>
+      </div>
+
+    </div>
+
+    <!-- Mobile Dropdown Menu -->
+    <div id="mobile-menu" class="hidden lg:hidden border-t border-purple-200 dark:border-purple-900/60 bg-white/95 dark:bg-[#0e0722]/95 backdrop-blur-xl px-4 py-4 space-y-3 shadow-2xl">
+      <!-- Mobile Search Trigger: Opens Zoomed Spotlight Search Modal -->
+      <div>
+        <button 
+          type="button" 
+          class="search-trigger-btn w-full flex items-center gap-2.5 px-4 py-2.5 rounded-2xl bg-purple-50/90 dark:bg-[#150d2e] border border-purple-200/90 dark:border-purple-800 text-xs font-semibold text-slate-700 dark:text-purple-200 text-left cursor-pointer hover:border-purple-400 transition-all shadow-xs"
+        >
+          <i data-lucide="search" class="w-4 h-4 text-purple-500 flex-shrink-0"></i>
+          <span class="truncate" data-i18n="search_placeholder_short">Search articles, products...</span>
+          <kbd class="ml-auto px-2 py-0.5 text-[10px] font-extrabold bg-white dark:bg-purple-950 text-cyan-400 rounded-lg border border-purple-200 dark:border-purple-800 shadow-2xs">⌘K</kbd>
+        </button>
+      </div>
+
+      <!-- Mobile Quick Currency & Language Selector -->
+      <div class="p-3 rounded-2xl bg-purple-50/80 dark:bg-purple-950/40 border border-purple-200/80 dark:border-purple-900/50 space-y-2.5">
+        <div class="flex items-center justify-between">
+          <span class="text-[11px] font-extrabold text-cyan-700 dark:text-cyan-300 uppercase tracking-wider">Currency</span>
+          <div class="flex items-center gap-1.5">
+            <button class="currency-option px-2.5 py-1 rounded-lg text-xs font-bold transition-all border border-purple-200 dark:border-purple-800/80" data-currency="USD">
+              🇺🇸 USD ($)
+            </button>
+            <button class="currency-option px-2.5 py-1 rounded-lg text-xs font-bold transition-all border border-purple-200 dark:border-purple-800/80" data-currency="VND">
+              🇻🇳 VND (₫)
+            </button>
+          </div>
+        </div>
+        <div class="flex items-center justify-between pt-2 border-t border-purple-200/60 dark:border-purple-900/40">
+          <span class="text-[11px] font-extrabold text-cyan-700 dark:text-cyan-300 uppercase tracking-wider">Language</span>
+          <div class="flex items-center gap-1.5">
+            <button class="lang-option px-2 py-1 rounded-lg text-xs font-bold transition-all border border-purple-200 dark:border-purple-800/80" data-lang="en">
+              🇺🇸 ENG
+            </button>
+            <button class="lang-option px-2 py-1 rounded-lg text-xs font-bold transition-all border border-purple-200 dark:border-purple-800/80" data-lang="vi">
+              🇻🇳 VIE
+            </button>
+            <button class="lang-option px-2 py-1 rounded-lg text-xs font-bold transition-all border border-purple-200 dark:border-purple-800/80" data-lang="zh">
+              🇨🇳 CHN
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <a href="index.html" class="block py-2 text-sm font-bold text-cyan-400" data-i18n="nav_home">Home</a>
+      <a href="post.html" class="block py-2 text-sm font-semibold text-slate-700 dark:text-purple-200" data-i18n="nav_reviews">Reviews & Guides</a>
+      <a href="shop.html" class="block py-2 text-sm font-semibold text-slate-700 dark:text-purple-200" data-i18n="nav_shop">Curated Store</a>
+      <a href="sponsor.html" class="block py-2 text-sm font-semibold text-slate-700 dark:text-purple-200" data-i18n="nav_sponsor">Sponsorships</a>
+    </div>
+  </header>
+
+
+  <!-- HERO SECTION: Pinned Featured Project & Mockup Showcase -->
+  <section class="hero-glow-backdrop pt-8 pb-14 sm:pt-12 sm:pb-20 relative">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center relative z-10">
+      
+      <!-- Hero Headline & Identity -->
+      <div class="max-w-4xl mx-auto mb-8 sm:mb-12 pt-2 sm:pt-4">
+        <div class="inline-flex items-center gap-2 px-4 py-1.5 rounded-full text-[11px] sm:text-xs font-black bg-[#0e121d] border border-cyan-500/40 text-cyan-300 shadow-lg shadow-cyan-500/20 uppercase tracking-widest backdrop-blur-md mb-4">
+          <span class="w-2 h-2 rounded-full bg-cyan-400 animate-pulse"></span>
+          <span>Hardware Intelligence Lab · 2026 Edition</span>
+          <i data-lucide="zap" class="w-3.5 h-3.5 text-amber-400"></i>
+        </div>
+        <h1 class="text-3xl sm:text-5xl lg:text-6xl font-black text-slate-900 dark:text-white tracking-tight font-display leading-[1.12]">
+          Precision Hardware Tested.<br>
+          <span class="text-gradient-cyan">Zero Sponsored Bias.</span>
+        </h1>
+        <p class="mt-4 text-sm sm:text-base lg:text-lg text-slate-600 dark:text-slate-300 max-w-2xl mx-auto leading-relaxed font-medium">
+          Lab-tested benchmarks, teardowns, battery endurance ratings, and verified multi-store price comparisons on next-gen consumer hardware in 2026.
+        </p>
+        <!-- Tech Spec Radar Bar -->
+        <div class="mt-6 flex flex-wrap items-center justify-center gap-2.5 sm:gap-4 text-[11px] sm:text-xs font-bold">
+          <span class="flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-white dark:bg-[#0e121d] border border-slate-200 dark:border-cyan-500/30 text-slate-800 dark:text-cyan-300 shadow-sm">
+            <i data-lucide="shield-check" class="w-3.5 h-3.5 text-cyan-500"></i> 100% UNBIASED LAB
+          </span>
+          <span class="flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-white dark:bg-[#0e121d] border border-slate-200 dark:border-emerald-500/30 text-slate-800 dark:text-emerald-300 shadow-sm">
+            <i data-lucide="activity" class="w-3.5 h-3.5 text-emerald-500"></i> REAL-TIME PRICE RADAR
+          </span>
+          <span class="flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-white dark:bg-[#0e121d] border border-slate-200 dark:border-sky-500/30 text-slate-800 dark:text-sky-300 shadow-sm">
+            <i data-lucide="cpu" class="w-3.5 h-3.5 text-sky-500"></i> 45+ HARDWARE BENCHMARKS
+          </span>
+          <span class="flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-white dark:bg-[#0e121d] border border-slate-200 dark:border-amber-500/30 text-slate-800 dark:text-amber-300 shadow-sm">
+            <i data-lucide="tag" class="w-3.5 h-3.5 text-amber-500"></i> VERIFIED DEALS
+          </span>
+        </div>
+      </div>
+
+      <!-- 3D Perspective Floating Mockup Section (Pinned Featured Project) -->
+      <div class="mockup-perspective pt-4 pb-6 max-w-6xl xl:max-w-7xl mx-auto relative px-2 sm:px-4">
+        
+        <!-- Left Floating Card: Pros & Highlights -->
+        <div id="hero-floating-pros-card" class="hidden xl:block absolute -left-8 2xl:-left-16 top-24 w-56 2xl:w-64 bg-white/95 dark:bg-[#0e121d]/95 backdrop-blur-xl p-3.5 2xl:p-4 rounded-2xl border border-slate-200 dark:border-emerald-500/30 text-left shadow-xl floating-card-left z-20 transition-all hover:scale-105 pointer-events-none xl:pointer-events-auto">
+          <div class="flex items-center gap-2 mb-2 text-xs font-black text-emerald-600 dark:text-emerald-400 uppercase tracking-wide">
+            <i data-lucide="thumbs-up" class="w-4 h-4 text-emerald-500 shrink-0"></i>
+            <span id="hero-pros-badge-text" data-i18n="hero_card_left_badge">VERIFIED PROS</span>
+          </div>
+          <div id="hero-pros-list" class="space-y-1.5 text-[11px] font-medium text-slate-700 dark:text-emerald-100/90 leading-relaxed transition-opacity duration-300">
+            <p id="hero-pros-item-1">• Flawless flat, wide-range frequency response delivers legendary broadcast warmth and intimate proximity effect</p>
+            <p id="hero-pros-item-2">• Internal air suspension shock isolation virtually eliminates mechanical desk vibrations and handling noise</p>
+            <p id="hero-pros-item-3">• Advanced electromagnetic humbucking shielding blocks electrical interference from PC monitors and studio gear</p>
+          </div>
+          <div class="mt-3 pt-2 border-t border-emerald-100 dark:border-emerald-900/50 flex items-center justify-between text-[10px] font-bold text-emerald-600 dark:text-emerald-400">
+            <span id="hero-pros-footer-text">TOP RATED: 9.8/10 ⭐</span>
+            <span class="w-2 h-2 rounded-full bg-emerald-400 animate-ping"></span>
+          </div>
+        </div>
+
+        <!-- Right Floating Card: Cons & Limitations -->
+        <div id="hero-floating-cons-card" class="hidden xl:block absolute -right-8 2xl:-right-16 top-20 w-56 2xl:w-64 bg-white/95 dark:bg-[#0e121d]/95 backdrop-blur-xl p-3.5 2xl:p-4 rounded-2xl border border-slate-200 dark:border-amber-500/30 text-left shadow-xl floating-card-right z-20 transition-all hover:scale-105 pointer-events-none xl:pointer-events-auto">
+          <div class="flex items-center gap-2 mb-2 text-xs font-black text-amber-600 dark:text-amber-400 uppercase tracking-wide">
+            <i data-lucide="alert-circle" class="w-4 h-4 text-amber-500 shrink-0"></i>
+            <span id="hero-cons-badge-text" data-i18n="hero_card_right_badge">CONS & LIMITATIONS</span>
+          </div>
+          <div id="hero-cons-list" class="space-y-1.5 text-[11px] font-medium text-slate-700 dark:text-amber-100/90 leading-relaxed transition-opacity duration-300">
+            <p id="hero-cons-item-1">• Extremely low output sensitivity (-59dB) requires an inline preamp (Cloudlifter/FetHead) or high-gain audio interface</p>
+            <p id="hero-cons-item-2">• Substantial 1.7-lb weight demands a sturdy, counterweighted studio boom arm</p>
+            <p id="hero-cons-item-3">• Cardioid pickup pattern requires disciplined on-axis speaking technique within 2-4 inches</p>
+          </div>
+          <div class="mt-3 pt-2 border-t border-amber-100 dark:border-amber-900/50 flex items-center justify-between text-[10px] font-bold text-amber-600 dark:text-amber-400">
+            <span id="hero-cons-footer-text">100% UNBIASED 🛡️</span>
+            <i data-lucide="shield-check" class="w-3.5 h-3.5 text-amber-500"></i>
+          </div>
+        </div>
+
+        <!-- Central Mockup Screen (Spacious Laptop Display) -->
+        <div id="hero-pinned-card" class="mockup-laptop-base rounded-3xl p-5 sm:p-7 border border-slate-200 dark:border-cyan-500/30 relative z-10 max-w-4xl mx-auto text-left shadow-2xl transition-colors">
+          
+          <!-- Mockup Browser Header Bar -->
+          <div class="flex items-center justify-between pb-4 border-b border-slate-200 dark:border-slate-800/80 flex-wrap gap-2">
+            <div class="flex items-center gap-2 flex-wrap">
+              <div class="flex items-center gap-1.5 mr-1">
+                <div class="w-3 h-3 rounded-full bg-rose-500"></div>
+                <div class="w-3 h-3 rounded-full bg-amber-500"></div>
+                <div class="w-3 h-3 rounded-full bg-emerald-500"></div>
+              </div>
+              <span id="hero-pinned-url-display" class="inline-flex items-center gap-1.5 text-xs font-black text-slate-900 dark:text-white tracking-wider uppercase">
+                <i data-lucide="shield-check" class="w-3.5 h-3.5 text-pink-500 flex-shrink-0"></i>
+                <span id="hero-pinned-brand-text">Shure Official</span>
+              </span>
+              <span id="hero-pinned-badge" class="text-[9.5px] font-bold bg-cyan-50 dark:bg-cyan-950/80 text-cyan-700 dark:text-cyan-300 px-2.5 py-0.5 rounded-full uppercase border border-cyan-200 dark:border-cyan-500/40">Editor's Choice</span>
+            </div>
+
+            <!-- Top 3 Switcher Tab Pills & Controls -->
+            <div class="flex items-center gap-1.5">
+              <div id="hero-spotlight-pills" class="flex items-center gap-1 bg-slate-100 dark:bg-[#141926] p-1 rounded-xl border border-purple-200 dark:border-slate-200 dark:border-slate-800/80 shadow-inner">
+                <button type="button" class="hero-pin-pill px-2.5 py-1 rounded-lg text-[11px] font-black transition-all flex items-center gap-1 bg-gradient-to-r from-cyan-400 to-blue-600 text-white shadow-xs cursor-pointer" data-slot="0">
+                  <span>👑 Top 1</span>
+                </button>
+                <button type="button" class="hero-pin-pill px-2.5 py-1 rounded-lg text-[11px] font-bold transition-all flex items-center gap-1 text-slate-600 dark:text-slate-300 hover:text-pink-500 dark:hover:text-white cursor-pointer" data-slot="1">
+                  <span>Top 2</span>
+                </button>
+                <button type="button" class="hero-pin-pill px-2.5 py-1 rounded-lg text-[11px] font-bold transition-all flex items-center gap-1 text-slate-600 dark:text-slate-300 hover:text-pink-500 dark:hover:text-white cursor-pointer" data-slot="2">
+                  <span>Top 3</span>
+                </button>
+              </div>
+
+              <!-- Prev / Next Arrow Buttons -->
+              <div class="flex items-center gap-0.5">
+                <button type="button" id="hero-pin-prev-btn" class="w-7 h-7 rounded-lg bg-slate-100 dark:bg-[#141926] hover:bg-purple-100 dark:hover:bg-purple-800/60 border border-purple-200 dark:border-slate-200 dark:border-slate-800/80 text-slate-600 dark:text-slate-300 flex items-center justify-center text-xs font-black transition-colors cursor-pointer" title="Previous hardware">
+                  ‹
+                </button>
+                <button type="button" id="hero-pin-next-btn" class="w-7 h-7 rounded-lg bg-slate-100 dark:bg-[#141926] hover:bg-purple-100 dark:hover:bg-purple-800/60 border border-purple-200 dark:border-slate-200 dark:border-slate-800/80 text-slate-600 dark:text-slate-300 flex items-center justify-center text-xs font-black transition-colors cursor-pointer" title="Next hardware">
+                  ›
+                </button>
+              </div>
+            </div>
+          </div>
+
+          <!-- Product Details Grid -->
+          <div class="grid grid-cols-1 sm:grid-cols-12 gap-6 my-6 items-center">
+            <div class="sm:col-span-5 relative group/hero-img rounded-2xl overflow-hidden shadow-lg border border-purple-200/60 dark:border-slate-200 dark:border-slate-800/80 bg-slate-50 dark:bg-[#141926] border border-slate-200 dark:border-slate-800/90 h-56 sm:h-64 flex items-center justify-center p-3 sm:p-4">
+              <img id="hero-pinned-img" src="https://images.unsplash.com/photo-1590602847861-f357a9332bbc?auto=format&fit=crop&w=800&q=80" alt="Shure SM7B Vocal Microphone Review: Broadcast Studio Sound & Isolation Tested (2026)" class="w-full h-full object-contain transition-transform duration-500 group-hover/hero-img:scale-105">
+              <span id="hero-pinned-rank-badge" class="absolute top-2.5 left-2.5 z-10 px-2.5 py-1 rounded-lg text-[10px] font-black uppercase tracking-wider bg-black/75 backdrop-blur-md text-amber-400 border border-amber-400/40 shadow-md flex items-center gap-1">
+                <span>👑 TOP 1 SPOTLIGHT</span>
+              </span>
+            </div>
+            
+            <div id="hero-pinned-details" class="sm:col-span-7 space-y-3">
+              <div class="flex items-center justify-between gap-2">
+                <span id="hero-pinned-tag" class="text-xs font-bold text-cyan-600 dark:text-cyan-400 uppercase tracking-wide">👑 TOP 1 SPOTLIGHT</span>
+                <span class="text-[10px] font-bold text-cyan-700 dark:text-cyan-300 bg-cyan-50 dark:bg-cyan-950/80 border border-cyan-200 dark:border-cyan-500/30 px-2 py-0.5 rounded-full flex items-center gap-1">
+                  <i data-lucide="award" class="w-3 h-3 text-amber-400"></i>
+                  <span>Verified 2026</span>
+                </span>
+              </div>
+
+              <h3 id="hero-pinned-title" class="text-base sm:text-xl font-extrabold text-slate-900 dark:text-white leading-snug line-clamp-2">
+                <a id="hero-pinned-link" href="post-shure-sm7b.html" class="hover:text-pink-500 transition-colors">Shure SM7B Vocal Microphone Review: Broadcast Studio Sound & Isolation Tested (2026)</a>
+              </h3>
+
+              <div class="flex items-baseline gap-3 flex-wrap">
+                <span id="hero-pinned-price" class="price-val text-2xl sm:text-3xl font-black text-cyan-600 dark:text-cyan-400 font-display" data-vnd="9.975.000₫" data-usd="$399.00">$399.00</span>
+                <span id="hero-pinned-price-orig" class="strike-val text-xs sm:text-sm text-slate-400 line-through" data-vnd="12.475.000₫" data-usd="$499.00">$499.00</span>
+                <span id="hero-pinned-discount" class="text-[11px] font-bold bg-emerald-50 dark:bg-emerald-950/80 text-emerald-700 dark:text-emerald-400 px-2.5 py-0.5 rounded-full border border-emerald-200 dark:border-emerald-800/80">15% OFF Studio Pro Microphones</span>
+              </div>
+
+              <!-- Action Row: Direct Order CTA + In-depth Review Link -->
+              <div class="pt-1 flex flex-col sm:flex-row items-stretch sm:items-center gap-2.5">
+                <a id="hero-pinned-aff-btn" href="https://www.shure.com/en-US/products/microphones/sm7b" target="_blank" rel="noopener noreferrer" class="flex-1 py-3 px-5 bg-gradient-to-r from-cyan-500 via-sky-500 to-blue-600 hover:from-cyan-400 hover:to-blue-500 text-white font-black rounded-xl text-xs sm:text-sm flex items-center justify-center gap-2 shadow-md shadow-cyan-500/25 hover:shadow-cyan-500/40 hover:scale-[1.01] transition-all group">
+                  <i data-lucide="shopping-bag" class="w-4 h-4"></i>
+                  <span class="tracking-wider uppercase">ORDER NOW (DIRECT DEAL)</span>
+                  <i data-lucide="external-link" class="w-3.5 h-3.5 group-hover:translate-x-0.5 group-hover:-translate-y-0.5 transition-transform"></i>
+                </a>
+                <a id="hero-pinned-review-btn" href="post-shure-sm7b.html" class="px-4 py-3 rounded-xl border border-slate-300 dark:border-slate-800 hover:border-cyan-500/50 text-slate-700 dark:text-cyan-300 hover:text-cyan-500 text-xs font-bold transition-all flex items-center justify-center gap-1.5 bg-slate-100 dark:bg-[#141926] whitespace-nowrap">
+                  <span>Read Review</span>
+                  <i data-lucide="arrow-right" class="w-3.5 h-3.5"></i>
+                </a>
+              </div>
+            </div>
+          </div>
+
+          <!-- Bottom Auto-Rotate Progress Bar -->
+          <div class="w-full bg-slate-100 dark:bg-purple-950/70 h-1.5 rounded-full overflow-hidden mt-2 relative">
+            <div id="hero-pinned-progress-bar" class="h-full bg-gradient-to-r from-cyan-500 via-sky-500 to-blue-600 w-0 rounded-full transition-all duration-300"></div>
+          </div>
+
+        </div>
+
+      </div>
+
+      <!-- Trust Metrics -->
+      <div class="grid grid-cols-3 gap-4 pt-8 max-w-3xl mx-auto border-t border-purple-200/50 dark:border-purple-900/40">
+        <div>
+          <span class="text-2xl sm:text-3xl font-black text-slate-900 dark:text-white font-display">120K+</span>
+          <p class="text-xs text-cyan-400" data-i18n="metric_readers">Monthly Readers</p>
+        </div>
+        <div>
+          <span class="text-2xl sm:text-3xl font-black text-emerald-500 font-display">98%</span>
+          <p class="text-xs text-cyan-400" data-i18n="metric_deals">Verified Deals</p>
+        </div>
+        <div>
+          <span class="text-2xl sm:text-3xl font-black text-pink-500 font-display">4.9 / 5</span>
+          <p class="text-xs text-cyan-400" data-i18n="metric_rating">User Satisfaction</p>
+        </div>
+      </div>
+
+    </div>
+  </section>
+
+  <!-- FEATURED BLOG ARTICLES GRID -->
+  <section id="featured-articles-section" class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10 scroll-mt-20">
+    <div class="flex items-center justify-between mb-8">
+      <div>
+        <h2 class="text-2xl sm:text-3xl font-extrabold text-slate-900 dark:text-white tracking-tight font-display" data-i18n="featured_posts_title">Featured Reviews & CRO Showcases</h2>
+        <p class="text-xs sm:text-sm text-purple-600 dark:text-slate-300/70 mt-1" data-i18n="featured_posts_sub">High-converting in-depth reviews with affiliate links, price comparisons, and sponsored spotlights</p>
+      </div>
+      <a href="post.html" class="text-xs sm:text-sm font-bold text-cyan-400 hover:underline flex items-center gap-1">
+        <span data-i18n="view_all_posts">View All Articles</span> <i data-lucide="chevron-right" class="w-4 h-4"></i>
+      </a>
+    </div>
+
+    <div id="home-articles-grid" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-5">
+      <!-- Article: Feeding Pillow in Pinstripe Review: Hands-On Test &amp; Buying Guide (2026) -->
+      <article class="bg-white dark:bg-[#0e121d] rounded-2xl border border-slate-200 dark:border-slate-800/90 hover:border-cyan-500/60 overflow-hidden shadow-sm dark:shadow-[0_4px_20px_rgba(0,0,0,0.4)] card-hover flex flex-col justify-between group">
+        <div>
+          <div class="relative h-40 sm:h-44 w-full bg-purple-950/20 overflow-hidden">
+            <img 
+              src="https://cdn.shopify.com/s/files/1/0112/1809/2096/files/33.png?v=1787370999" 
+              alt="Feeding Pillow in Pinstripe Review: Hands-On Test &amp; Buying Guide (2026)" 
+              class="w-full h-full object-cover transition-transform duration-300 group-hover:scale-105" 
+              loading="lazy"
+              onerror="this.src='https://images.unsplash.com/photo-1587829741301-dc798b83add3?auto=format&fit=crop&w=700&q=80'"
+            >
+            <span class="absolute top-2.5 left-2.5 bg-cyan-950/90 backdrop-blur-md text-cyan-300 border border-cyan-500/40 text-[9px] sm:text-[10px] font-extrabold px-2.5 py-0.5 rounded-full shadow-xs font-mono uppercase tracking-wider">
+              Audio &amp; Sound
+            </span>
+            <span class="absolute top-2.5 right-2.5 bg-black/70 backdrop-blur-md text-amber-300 text-[11px] font-bold px-2 py-0.5 rounded-lg flex items-center gap-1 shadow-xs">
+              <i data-lucide="star" class="w-3 h-3 fill-amber-400"></i> 9.7
+            </span>
+            
+              <div class="absolute bottom-2.5 left-2.5 bg-gradient-to-r from-cyan-500 to-blue-600 text-white text-[9px] sm:text-[10px] font-mono font-bold px-2 py-0.5 rounded-lg shadow-sm flex items-center gap-1">
+                <i data-lucide="tag" class="w-2.5 h-2.5"></i> Code: ftqogdja
+              </div>
+          </div>
+          <div class="p-4 sm:p-5 flex-1 flex flex-col justify-between">
+            <div>
+              <div class="flex items-center gap-2 text-[11px] text-slate-400 mb-1.5">
+                <span>11/20/2026</span>
+                <span>•</span>
+                <span>8 min read</span>
+                <span>•</span> <span class="font-bold text-cyan-400 truncate max-w-[110px]">Bubnest Australia Official</span>
+              </div>
+              <h3 class="font-bold text-slate-900 dark:text-white text-sm sm:text-[15px] leading-snug line-clamp-2 hover:text-cyan-400 transition-colors">
+                <a href="post-feeding-pillow-in-pinstripe-review.html">Feeding Pillow in Pinstripe Review: Hands-On Test &amp; Buying Guide (2026)</a>
+              </h3>
+              <p class="text-xs text-slate-600 dark:text-purple-300/70 mt-1.5 line-clamp-2 leading-relaxed">
+                We conducted comprehensive 30-day benchmarking on Feeding Pillow in Pinstripe by Bubnest Australia Official. Here is our complete breakdown of build quality, daily ergonomic performance, and exclusive discount codes.
+              </p>
+            </div>
+          </div>
+        </div>
+        <div class="p-4 sm:p-5 pt-0 mt-auto">
+          <div class="mt-3 pt-3 border-t border-slate-100 dark:border-slate-800/80">
+            <div class="flex items-baseline justify-between mb-2.5 text-xs">
+              <div>
+                <span class="text-slate-400 text-[11px]">From:</span>
+                <span class="font-bold text-cyan-400 text-sm sm:text-base ml-1 price-val font-display font-mono" data-vnd="2.375.000₫" data-usd="$95.00">$95.00</span>
+              </div>
+              <span class="text-[11px] text-slate-400 line-through strike-val" data-usd="$119.00" data-vnd="2.375.000₫">$119.00</span>
+            </div>
+            <div class="grid grid-cols-2 gap-2">
+              <a href="post-feeding-pillow-in-pinstripe-review.html" class="py-2 px-1.5 sm:px-2 rounded-xl bg-slate-100 dark:bg-[#141926] hover:bg-cyan-950/60 text-slate-700 dark:text-cyan-300 font-bold text-xs flex items-center justify-center gap-1 transition-all border border-slate-300 dark:border-slate-800 hover:border-cyan-500/40 shadow-2xs text-center">
+                <span>Read Review</span> <i data-lucide="arrow-right" class="w-3 h-3 flex-shrink-0"></i>
+              </a>
+              <a href="https://bubnest.com.au/?ref=ftqogdja" target="_blank" rel="noopener noreferrer" class="py-2 px-1.5 sm:px-2 rounded-xl bg-gradient-to-r from-cyan-500 via-sky-500 to-blue-600 hover:from-cyan-400 hover:to-blue-500 text-white font-extrabold text-xs flex items-center justify-center gap-1 shadow-md shadow-cyan-500/25 active:scale-95 whitespace-nowrap transition-all text-center">
+                <span>ORDER NOW</span> <i data-lucide="external-link" class="w-3 h-3 flex-shrink-0"></i>
+              </a>
+            </div>
+          </div>
+        </div>
+      </article>
+      <!-- Article: Portable Golf Chipping Game Review: Hands-On Test &amp; Buying Guide (2026) -->
+      <article class="bg-white dark:bg-[#0e121d] rounded-2xl border border-slate-200 dark:border-slate-800/90 hover:border-cyan-500/60 overflow-hidden shadow-sm dark:shadow-[0_4px_20px_rgba(0,0,0,0.4)] card-hover flex flex-col justify-between group">
+        <div>
+          <div class="relative h-40 sm:h-44 w-full bg-purple-950/20 overflow-hidden">
+            <img 
+              src="https://cdn.shopify.com/s/files/1/0058/1697/5448/files/golf-chipping-game-1.webp?v=1769214515" 
+              alt="Portable Golf Chipping Game Review: Hands-On Test &amp; Buying Guide (2026)" 
+              class="w-full h-full object-cover transition-transform duration-300 group-hover:scale-105" 
+              loading="lazy"
+              onerror="this.src='https://images.unsplash.com/photo-1587829741301-dc798b83add3?auto=format&fit=crop&w=700&q=80'"
+            >
+            <span class="absolute top-2.5 left-2.5 bg-cyan-950/90 backdrop-blur-md text-cyan-300 border border-cyan-500/40 text-[9px] sm:text-[10px] font-extrabold px-2.5 py-0.5 rounded-full shadow-xs font-mono uppercase tracking-wider">
+              Audio &amp; Sound
+            </span>
+            <span class="absolute top-2.5 right-2.5 bg-black/70 backdrop-blur-md text-amber-300 text-[11px] font-bold px-2 py-0.5 rounded-lg flex items-center gap-1 shadow-xs">
+              <i data-lucide="star" class="w-3 h-3 fill-amber-400"></i> 9.7
+            </span>
+            
+              <div class="absolute bottom-2.5 left-2.5 bg-gradient-to-r from-cyan-500 to-blue-600 text-white text-[9px] sm:text-[10px] font-mono font-bold px-2 py-0.5 rounded-lg shadow-sm flex items-center gap-1">
+                <i data-lucide="tag" class="w-2.5 h-2.5"></i> Code: eliquzlv
+              </div>
+          </div>
+          <div class="p-4 sm:p-5 flex-1 flex flex-col justify-between">
+            <div>
+              <div class="flex items-center gap-2 text-[11px] text-slate-400 mb-1.5">
+                <span>11/20/2026</span>
+                <span>•</span>
+                <span>8 min read</span>
+                <span>•</span> <span class="font-bold text-cyan-400 truncate max-w-[110px]">Ayamaya Outdoors Official</span>
+              </div>
+              <h3 class="font-bold text-slate-900 dark:text-white text-sm sm:text-[15px] leading-snug line-clamp-2 hover:text-cyan-400 transition-colors">
+                <a href="post-portable-golf-chipping-game-review.html">Portable Golf Chipping Game Review: Hands-On Test &amp; Buying Guide (2026)</a>
+              </h3>
+              <p class="text-xs text-slate-600 dark:text-purple-300/70 mt-1.5 line-clamp-2 leading-relaxed">
+                We conducted comprehensive 30-day benchmarking on Portable Golf Chipping Game by Ayamaya Outdoors Official. Here is our complete breakdown of build quality, daily ergonomic performance, and exclusive discount codes.
+              </p>
+            </div>
+          </div>
+        </div>
+        <div class="p-4 sm:p-5 pt-0 mt-auto">
+          <div class="mt-3 pt-3 border-t border-slate-100 dark:border-slate-800/80">
+            <div class="flex items-baseline justify-between mb-2.5 text-xs">
+              <div>
+                <span class="text-slate-400 text-[11px]">From:</span>
+                <span class="font-bold text-cyan-400 text-sm sm:text-base ml-1 price-val font-display font-mono" data-vnd="1.000.000₫" data-usd="$39.99">$39.99</span>
+              </div>
+              <span class="text-[11px] text-slate-400 line-through strike-val" data-usd="$49.99" data-vnd="1.000.000₫">$49.99</span>
+            </div>
+            <div class="grid grid-cols-2 gap-2">
+              <a href="post-portable-golf-chipping-game-review.html" class="py-2 px-1.5 sm:px-2 rounded-xl bg-slate-100 dark:bg-[#141926] hover:bg-cyan-950/60 text-slate-700 dark:text-cyan-300 font-bold text-xs flex items-center justify-center gap-1 transition-all border border-slate-300 dark:border-slate-800 hover:border-cyan-500/40 shadow-2xs text-center">
+                <span>Read Review</span> <i data-lucide="arrow-right" class="w-3 h-3 flex-shrink-0"></i>
+              </a>
+              <a href="https://ayamaya.com/?ref=eliquzlv" target="_blank" rel="noopener noreferrer" class="py-2 px-1.5 sm:px-2 rounded-xl bg-gradient-to-r from-cyan-500 via-sky-500 to-blue-600 hover:from-cyan-400 hover:to-blue-500 text-white font-extrabold text-xs flex items-center justify-center gap-1 shadow-md shadow-cyan-500/25 active:scale-95 whitespace-nowrap transition-all text-center">
+                <span>ORDER NOW</span> <i data-lucide="external-link" class="w-3 h-3 flex-shrink-0"></i>
+              </a>
+            </div>
+          </div>
+        </div>
+      </article>
+      <!-- Article: Jirai Kei Black Cat Polka Dot Off Review: Hands-On Test &amp; Buying Guide (2026) -->
+      <article class="bg-white dark:bg-[#0e121d] rounded-2xl border border-slate-200 dark:border-slate-800/90 hover:border-cyan-500/60 overflow-hidden shadow-sm dark:shadow-[0_4px_20px_rgba(0,0,0,0.4)] card-hover flex flex-col justify-between group">
+        <div>
+          <div class="relative h-40 sm:h-44 w-full bg-purple-950/20 overflow-hidden">
+            <img 
+              src="https://cdn.shopify.com/s/files/1/0079/9404/8578/files/9349892800771.jpg?v=1793968303" 
+              alt="Jirai Kei Black Cat Polka Dot Off Review: Hands-On Test &amp; Buying Guide (2026)" 
+              class="w-full h-full object-cover transition-transform duration-300 group-hover:scale-105" 
+              loading="lazy"
+              onerror="this.src='https://images.unsplash.com/photo-1587829741301-dc798b83add3?auto=format&fit=crop&w=700&q=80'"
+            >
+            <span class="absolute top-2.5 left-2.5 bg-cyan-950/90 backdrop-blur-md text-cyan-300 border border-cyan-500/40 text-[9px] sm:text-[10px] font-extrabold px-2.5 py-0.5 rounded-full shadow-xs font-mono uppercase tracking-wider">
+              Audio &amp; Sound
+            </span>
+            <span class="absolute top-2.5 right-2.5 bg-black/70 backdrop-blur-md text-amber-300 text-[11px] font-bold px-2 py-0.5 rounded-lg flex items-center gap-1 shadow-xs">
+              <i data-lucide="star" class="w-3 h-3 fill-amber-400"></i> 9.7
+            </span>
+            
+              <div class="absolute bottom-2.5 left-2.5 bg-gradient-to-r from-cyan-500 to-blue-600 text-white text-[9px] sm:text-[10px] font-mono font-bold px-2 py-0.5 rounded-lg shadow-sm flex items-center gap-1">
+                <i data-lucide="tag" class="w-2.5 h-2.5"></i> Code: uutyextg
+              </div>
+          </div>
+          <div class="p-4 sm:p-5 flex-1 flex flex-col justify-between">
+            <div>
+              <div class="flex items-center gap-2 text-[11px] text-slate-400 mb-1.5">
+                <span>11/20/2026</span>
+                <span>•</span>
+                <span>8 min read</span>
+                <span>•</span> <span class="font-bold text-cyan-400 truncate max-w-[110px]">Shoptery Official</span>
+              </div>
+              <h3 class="font-bold text-slate-900 dark:text-white text-sm sm:text-[15px] leading-snug line-clamp-2 hover:text-cyan-400 transition-colors">
+                <a href="post-jirai-kei-black-cat-polka-dot-off-review.html">Jirai Kei Black Cat Polka Dot Off Review: Hands-On Test &amp; Buying Guide (2026)</a>
+              </h3>
+              <p class="text-xs text-slate-600 dark:text-purple-300/70 mt-1.5 line-clamp-2 leading-relaxed">
+                We conducted comprehensive 30-day benchmarking on Jirai Kei Black Cat Polka Dot Off by Shoptery Official. Here is our complete breakdown of build quality, daily ergonomic performance, and exclusive discount codes.
+              </p>
+            </div>
+          </div>
+        </div>
+        <div class="p-4 sm:p-5 pt-0 mt-auto">
+          <div class="mt-3 pt-3 border-t border-slate-100 dark:border-slate-800/80">
+            <div class="flex items-baseline justify-between mb-2.5 text-xs">
+              <div>
+                <span class="text-slate-400 text-[11px]">From:</span>
+                <span class="font-bold text-cyan-400 text-sm sm:text-base ml-1 price-val font-display font-mono" data-vnd="924.000₫" data-usd="$36.95">$36.95</span>
+              </div>
+              <span class="text-[11px] text-slate-400 line-through strike-val" data-usd="$47.95" data-vnd="924.000₫">$47.95</span>
+            </div>
+            <div class="grid grid-cols-2 gap-2">
+              <a href="post-jirai-kei-black-cat-polka-dot-off-review.html" class="py-2 px-1.5 sm:px-2 rounded-xl bg-slate-100 dark:bg-[#141926] hover:bg-cyan-950/60 text-slate-700 dark:text-cyan-300 font-bold text-xs flex items-center justify-center gap-1 transition-all border border-slate-300 dark:border-slate-800 hover:border-cyan-500/40 shadow-2xs text-center">
+                <span>Read Review</span> <i data-lucide="arrow-right" class="w-3 h-3 flex-shrink-0"></i>
+              </a>
+              <a href="https://shoptery.com/?ref=uutyextg" target="_blank" rel="noopener noreferrer" class="py-2 px-1.5 sm:px-2 rounded-xl bg-gradient-to-r from-cyan-500 via-sky-500 to-blue-600 hover:from-cyan-400 hover:to-blue-500 text-white font-extrabold text-xs flex items-center justify-center gap-1 shadow-md shadow-cyan-500/25 active:scale-95 whitespace-nowrap transition-all text-center">
+                <span>ORDER NOW</span> <i data-lucide="external-link" class="w-3 h-3 flex-shrink-0"></i>
+              </a>
+            </div>
+          </div>
+        </div>
+      </article>
+      <!-- Article: Sony WH-1000XM5 In-Depth Review: The Undisputed King of Noise-Canceling in 2026 -->
+      <article class="bg-white dark:bg-[#0e121d] rounded-2xl border border-slate-200 dark:border-slate-800/90 hover:border-cyan-500/60 overflow-hidden shadow-sm dark:shadow-[0_4px_20px_rgba(0,0,0,0.4)] card-hover flex flex-col justify-between group">
+        <div>
+          <div class="relative h-40 sm:h-44 w-full bg-purple-950/20 overflow-hidden">
+            <img 
+              src="images/posts/sony-wh-1000xm5-wireless-noise-canceling-headphones-review.png" 
+              alt="Sony WH-1000XM5 In-Depth Review: The Undisputed King of Noise-Canceling in 2026" 
+              class="w-full h-full object-cover transition-transform duration-300 group-hover:scale-105" 
+              loading="lazy"
+              onerror="this.src='https://images.unsplash.com/photo-1587829741301-dc798b83add3?auto=format&fit=crop&w=700&q=80'"
+            >
+            <span class="absolute top-2.5 left-2.5 bg-cyan-950/90 backdrop-blur-md text-cyan-300 border border-cyan-500/40 text-[9px] sm:text-[10px] font-extrabold px-2.5 py-0.5 rounded-full shadow-xs font-mono uppercase tracking-wider">
+              Audio &amp; Sound
+            </span>
+            <span class="absolute top-2.5 right-2.5 bg-black/70 backdrop-blur-md text-amber-300 text-[11px] font-bold px-2 py-0.5 rounded-lg flex items-center gap-1 shadow-xs">
+              <i data-lucide="star" class="w-3 h-3 fill-amber-400"></i> 9.7
+            </span>
+            
+              <div class="absolute bottom-2.5 left-2.5 bg-gradient-to-r from-cyan-500 to-blue-600 text-white text-[9px] sm:text-[10px] font-mono font-bold px-2 py-0.5 rounded-lg shadow-sm flex items-center gap-1">
+                <i data-lucide="tag" class="w-2.5 h-2.5"></i> Code: SONYWH15
+              </div>
+            
+          </div>
+          <div class="p-4 sm:p-5 flex-1 flex flex-col justify-between">
+            <div>
+              <div class="flex items-center gap-2 text-[11px] text-slate-400 mb-1.5">
+                <span>1/10/2026</span>
+                <span>•</span>
+                <span>8 min read</span>
+                <span>•</span> <span class="font-bold text-cyan-400 truncate max-w-[110px]">Sony Official Store</span>
+              </div>
+              <h3 class="font-bold text-slate-900 dark:text-white text-sm sm:text-[15px] leading-snug line-clamp-2 hover:text-cyan-400 transition-colors">
+                <a href="post-sony-wh-1000xm5-wireless-noise-canceling-headphones-review.html">Sony WH-1000XM5 In-Depth Review: The Undisputed King of Noise-Canceling in 2026</a>
+              </h3>
+              <p class="text-xs text-slate-600 dark:text-purple-300/70 mt-1.5 line-clamp-2 leading-relaxed">
+                Featuring 8 precision microphones, dual V1/QN1 dedicated noise-canceling processors, and newly engineered 30mm carbon-fiber composite drivers, this flagship creates an impenetrable auditory sanctuary for daily commuters and audiophiles alike.
+              </p>
+            </div>
+          </div>
+        </div>
+        <div class="p-4 sm:p-5 pt-0 mt-auto">
+          <div class="mt-3 pt-3 border-t border-slate-100 dark:border-slate-800/80">
+            <div class="flex items-baseline justify-between mb-2.5 text-xs">
+              <div>
+                <span class="text-slate-400 text-[11px]">From:</span>
+                <span class="font-bold text-cyan-400 text-sm sm:text-base ml-1 price-val font-display font-mono" data-vnd="4.975.000₫" data-usd="$199.00">$199.00</span>
+              </div>
+              
+                <span class="text-[11px] text-slate-400 line-through strike-val" data-usd="$248.75" data-vnd="6.219.000₫">$248.75</span>
+              
+            </div>
+            <div class="grid grid-cols-2 gap-2">
+              <a href="post-sony-wh-1000xm5-wireless-noise-canceling-headphones-review.html" class="py-2 px-1.5 sm:px-2 rounded-xl bg-slate-100 dark:bg-[#141926] hover:bg-cyan-950/60 text-slate-700 dark:text-cyan-300 font-bold text-xs flex items-center justify-center gap-1 transition-all border border-slate-300 dark:border-slate-800 hover:border-cyan-500/40 shadow-2xs text-center">
+                <span>Read Review</span> <i data-lucide="arrow-right" class="w-3 h-3 flex-shrink-0"></i>
+              </a>
+              <a href="https://www.hizoo.co/discount/Marvin01" target="_blank" rel="noopener noreferrer" class="py-2 px-1.5 sm:px-2 rounded-xl bg-gradient-to-r from-cyan-500 via-sky-500 to-blue-600 hover:from-cyan-400 hover:to-blue-500 text-white font-extrabold text-xs flex items-center justify-center gap-1 shadow-md shadow-cyan-500/25 active:scale-95 whitespace-nowrap transition-all text-center">
+                <span>ORDER NOW</span> <i data-lucide="external-link" class="w-3 h-3 flex-shrink-0"></i>
+              </a>
+            </div>
+          </div>
+        </div>
+      </article>
+      <!-- Article: Magcubic HY350MAX Review: 4K Smart Cinema &amp; Auto-Keystone Tested -->
+      <article class="bg-white dark:bg-[#0e121d] rounded-2xl border border-slate-200 dark:border-slate-800/90 hover:border-cyan-500/60 overflow-hidden shadow-sm dark:shadow-[0_4px_20px_rgba(0,0,0,0.4)] card-hover flex flex-col justify-between group">
+        <div>
+          <div class="relative h-40 sm:h-44 w-full bg-purple-950/20 overflow-hidden">
+            <img 
+              src="images/posts/post-magcubic-projector.jpg" 
+              alt="Magcubic HY350MAX Review: 4K Smart Cinema &amp; Auto-Keystone Tested" 
+              class="w-full h-full object-cover transition-transform duration-300 group-hover:scale-105" 
+              loading="lazy"
+              onerror="this.src='https://images.unsplash.com/photo-1587829741301-dc798b83add3?auto=format&fit=crop&w=700&q=80'"
+            >
+            <span class="absolute top-2.5 left-2.5 bg-cyan-950/90 backdrop-blur-md text-cyan-300 border border-cyan-500/40 text-[9px] sm:text-[10px] font-extrabold px-2.5 py-0.5 rounded-full shadow-xs font-mono uppercase tracking-wider">
+              Smart Home &amp; IoT
+            </span>
+            <span class="absolute top-2.5 right-2.5 bg-black/70 backdrop-blur-md text-amber-300 text-[11px] font-bold px-2 py-0.5 rounded-lg flex items-center gap-1 shadow-xs">
+              <i data-lucide="star" class="w-3 h-3 fill-amber-400"></i> 9.7
+            </span>
+            
+              <div class="absolute bottom-2.5 left-2.5 bg-gradient-to-r from-cyan-500 to-blue-600 text-white text-[9px] sm:text-[10px] font-mono font-bold px-2 py-0.5 rounded-lg shadow-sm flex items-center gap-1">
+                <i data-lucide="tag" class="w-2.5 h-2.5"></i> Code: SMARTPMM15
+              </div>
+            
+          </div>
+          <div class="p-4 sm:p-5 flex-1 flex flex-col justify-between">
+            <div>
+              <div class="flex items-center gap-2 text-[11px] text-slate-400 mb-1.5">
+                <span>14/9/2026</span>
+                <span>•</span>
+                <span>8 min read</span>
+                <span>•</span> <span class="font-bold text-cyan-400 truncate max-w-[110px]">Magcubic</span>
+              </div>
+              <h3 class="font-bold text-slate-900 dark:text-white text-sm sm:text-[15px] leading-snug line-clamp-2 hover:text-cyan-400 transition-colors">
+                <a href="post-magcubic-hy350max-review.html">Magcubic HY350MAX Review: 4K Smart Cinema &amp; Auto-Keystone Tested</a>
+              </h3>
+              <p class="text-xs text-slate-600 dark:text-purple-300/70 mt-1.5 line-clamp-2 leading-relaxed">
+                Revolutionary 60GHz mmWave radar tracks up to 5 people simultaneously across 30 custom zones with Apple HomeKit, Matter, and Home Assistant local automations.
+              </p>
+            </div>
+          </div>
+        </div>
+        <div class="p-4 sm:p-5 pt-0 mt-auto">
+          <div class="mt-3 pt-3 border-t border-slate-100 dark:border-slate-800/80">
+            <div class="flex items-baseline justify-between mb-2.5 text-xs">
+              <div>
+                <span class="text-slate-400 text-[11px]">From:</span>
+                <span class="font-bold text-cyan-400 text-sm sm:text-base ml-1 price-val font-display font-mono" data-vnd="2.350.000₫" data-usd="$94.00">$94.00</span>
+              </div>
+              
+                <span class="text-[11px] text-slate-400 line-through strike-val" data-usd="$118.00" data-vnd="2.950.000₫">$118.00</span>
+              
+            </div>
+            <div class="grid grid-cols-2 gap-2">
+              <a href="post-magcubic-hy350max-review.html" class="py-2 px-1.5 sm:px-2 rounded-xl bg-slate-100 dark:bg-[#141926] hover:bg-cyan-950/60 text-slate-700 dark:text-cyan-300 font-bold text-xs flex items-center justify-center gap-1 transition-all border border-slate-300 dark:border-slate-800 hover:border-cyan-500/40 shadow-2xs text-center">
+                <span>Read Review</span> <i data-lucide="arrow-right" class="w-3 h-3 flex-shrink-0"></i>
+              </a>
+              <a href="https://magcubic.com?sca_ref=11463124.6rLNJt7O1r" target="_blank" rel="noopener noreferrer" class="py-2 px-1.5 sm:px-2 rounded-xl bg-gradient-to-r from-cyan-500 via-sky-500 to-blue-600 hover:from-cyan-400 hover:to-blue-500 text-white font-extrabold text-xs flex items-center justify-center gap-1 shadow-md shadow-cyan-500/25 active:scale-95 whitespace-nowrap transition-all text-center">
+                <span>ORDER NOW</span> <i data-lucide="external-link" class="w-3 h-3 flex-shrink-0"></i>
+              </a>
+            </div>
+          </div>
+        </div>
+      </article>
+      <!-- Article: Mowrator S1 4WD Smart Remote Control Mower &amp; Patrol Vehicle In-Depth Review: All-Terrain Performance Tested (2026) -->
+      <article class="bg-white dark:bg-[#0e121d] rounded-2xl border border-slate-200 dark:border-slate-800/90 hover:border-cyan-500/60 overflow-hidden shadow-sm dark:shadow-[0_4px_20px_rgba(0,0,0,0.4)] card-hover flex flex-col justify-between group">
+        <div>
+          <div class="relative h-40 sm:h-44 w-full bg-gradient-to-b from-slate-100 via-white to-slate-200 dark:from-[#190a36] dark:via-[#110424] dark:to-[#0a0318] flex items-center justify-center p-2.5 sm:p-3 overflow-hidden">
+            <img 
+              src="images/mowrator-s1-4wd-pro.jpg" 
+              alt="Mowrator S1 4WD Smart Remote Control Mower &amp; Patrol Vehicle In-Depth Review: All-Terrain Performance Tested (2026)" 
+              class="max-h-36 sm:max-h-40 w-auto max-w-full h-auto object-contain drop-shadow-md rounded-xl transition-transform duration-300 group-hover:scale-105" 
+              loading="lazy"
+              onerror="this.src='https://images.unsplash.com/photo-1587829741301-dc798b83add3?auto=format&fit=crop&w=700&q=80'"
+            >
+            <span class="absolute top-2.5 left-2.5 bg-cyan-950/90 backdrop-blur-md text-cyan-300 border border-cyan-500/40 text-[9px] sm:text-[10px] font-extrabold px-2.5 py-0.5 rounded-full shadow-xs font-mono uppercase tracking-wider">
+              Robotics &amp; Drones
+            </span>
+            <span class="absolute top-2.5 right-2.5 bg-black/70 backdrop-blur-md text-amber-300 text-[11px] font-bold px-2 py-0.5 rounded-lg flex items-center gap-1 shadow-xs">
+              <i data-lucide="star" class="w-3 h-3 fill-amber-400"></i> 9.8
+            </span>
+            
+              <div class="absolute bottom-2.5 left-2.5 bg-gradient-to-r from-cyan-500 to-blue-600 text-white text-[9px] sm:text-[10px] font-mono font-bold px-2 py-0.5 rounded-lg shadow-sm flex items-center gap-1">
+                <i data-lucide="tag" class="w-2.5 h-2.5"></i> Code: MOWRATOR100
+              </div>
+            
+          </div>
+          <div class="p-4 sm:p-5 flex-1 flex flex-col justify-between">
+            <div>
+              <div class="flex items-center gap-2 text-[11px] text-slate-400 mb-1.5">
+                <span>12/09/2026</span>
+                <span>•</span>
+                <span>8 min read</span>
+                <span>•</span> <span class="font-bold text-cyan-400 truncate max-w-[110px]">Mowrator Official</span>
+              </div>
+              <h3 class="font-bold text-slate-900 dark:text-white text-sm sm:text-[15px] leading-snug line-clamp-2 hover:text-cyan-400 transition-colors">
+                <a href="post-mowrator-s1-4wd-pentest-review.html">Mowrator S1 4WD Smart Remote Control Mower &amp; Patrol Vehicle In-Depth Review: All-Terrain Performance Tested (2026)</a>
+              </h3>
+              <p class="text-xs text-slate-600 dark:text-purple-300/70 mt-1.5 line-clamp-2 leading-relaxed">
+                High-torque 4WD brushless all-wheel drive, long-range 2.4GHz remote controller, and heavy-duty slope climbing tackle steep 45-degree grades with precision.
+              </p>
+            </div>
+          </div>
+        </div>
+        <div class="p-4 sm:p-5 pt-0 mt-auto">
+          <div class="mt-3 pt-3 border-t border-slate-100 dark:border-slate-800/80">
+            <div class="flex items-baseline justify-between mb-2.5 text-xs">
+              <div>
+                <span class="text-slate-400 text-[11px]">From:</span>
+                <span class="font-bold text-cyan-400 text-sm sm:text-base ml-1 price-val font-display font-mono" data-vnd="37.475.000₫" data-usd="$1,499.00">$1,499.00</span>
+              </div>
+              
+                <span class="text-[11px] text-slate-400 line-through strike-val" data-usd="$1799.00" data-vnd="44.975.000₫">$1799.00</span>
+              
+            </div>
+            <div class="grid grid-cols-2 gap-2">
+              <a href="post-mowrator-s1-4wd-pentest-review.html" class="py-2 px-1.5 sm:px-2 rounded-xl bg-slate-100 dark:bg-[#141926] hover:bg-cyan-950/60 text-slate-700 dark:text-cyan-300 font-bold text-xs flex items-center justify-center gap-1 transition-all border border-slate-300 dark:border-slate-800 hover:border-cyan-500/40 shadow-2xs text-center">
+                <span>Read Review</span> <i data-lucide="arrow-right" class="w-3 h-3 flex-shrink-0"></i>
+              </a>
+              <a href="https://eu.mowrator.com/?ref=LONGXUANTRAN" target="_blank" rel="noopener noreferrer" class="py-2 px-1.5 sm:px-2 rounded-xl bg-gradient-to-r from-cyan-500 via-sky-500 to-blue-600 hover:from-cyan-400 hover:to-blue-500 text-white font-extrabold text-xs flex items-center justify-center gap-1 shadow-md shadow-cyan-500/25 active:scale-95 whitespace-nowrap transition-all text-center">
+                <span>ORDER NOW</span> <i data-lucide="external-link" class="w-3 h-3 flex-shrink-0"></i>
+              </a>
+            </div>
+          </div>
+        </div>
+      </article>
+      <!-- Article: Keychron Q1 Pro Wireless Review: Premium CNC Aluminum Custom Keyboard -->
+      <article class="bg-white dark:bg-[#0e121d] rounded-2xl border border-slate-200 dark:border-slate-800/90 hover:border-cyan-500/60 overflow-hidden shadow-sm dark:shadow-[0_4px_20px_rgba(0,0,0,0.4)] card-hover flex flex-col justify-between group">
+        <div>
+          <div class="relative h-40 sm:h-44 w-full bg-purple-950/20 overflow-hidden">
+            <img 
+              src="images/posts/keychron-q1-pro-review.jpg" 
+              alt="Keychron Q1 Pro Wireless Review: Premium CNC Aluminum Custom Keyboard" 
+              class="w-full h-full object-cover transition-transform duration-300 group-hover:scale-105" 
+              loading="lazy"
+              onerror="this.src='https://images.unsplash.com/photo-1587829741301-dc798b83add3?auto=format&fit=crop&w=700&q=80'"
+            >
+            <span class="absolute top-2.5 left-2.5 bg-cyan-950/90 backdrop-blur-md text-cyan-300 border border-cyan-500/40 text-[9px] sm:text-[10px] font-extrabold px-2.5 py-0.5 rounded-full shadow-xs font-mono uppercase tracking-wider">
+              Desk Setup &amp; EDC
+            </span>
+            <span class="absolute top-2.5 right-2.5 bg-black/70 backdrop-blur-md text-amber-300 text-[11px] font-bold px-2 py-0.5 rounded-lg flex items-center gap-1 shadow-xs">
+              <i data-lucide="star" class="w-3 h-3 fill-amber-400"></i> 9.5
+            </span>
+            
+              <div class="absolute bottom-2.5 left-2.5 bg-gradient-to-r from-cyan-500 to-blue-600 text-white text-[9px] sm:text-[10px] font-mono font-bold px-2 py-0.5 rounded-lg shadow-sm flex items-center gap-1">
+                <i data-lucide="tag" class="w-2.5 h-2.5"></i> Code: KEYPRO10
+              </div>
+            
+          </div>
+          <div class="p-4 sm:p-5 flex-1 flex flex-col justify-between">
+            <div>
+              <div class="flex items-center gap-2 text-[11px] text-slate-400 mb-1.5">
+                <span>07/09/2026</span>
+                <span>•</span>
+                <span>9 min read</span>
+                <span>•</span> <span class="font-bold text-cyan-400 truncate max-w-[110px]">Keychron Official</span>
+              </div>
+              <h3 class="font-bold text-slate-900 dark:text-white text-sm sm:text-[15px] leading-snug line-clamp-2 hover:text-cyan-400 transition-colors">
+                <a href="post-keychron-q1.html">Keychron Q1 Pro Wireless Review: Premium CNC Aluminum Custom Keyboard</a>
+              </h3>
+              <p class="text-xs text-slate-600 dark:text-purple-300/70 mt-1.5 line-clamp-2 leading-relaxed">
+                Full 6063 CNC aluminum body, double-gasket acoustic mount, Bluetooth 5.1, and QMK/VIA key remapping.
+              </p>
+            </div>
+          </div>
+        </div>
+        <div class="p-4 sm:p-5 pt-0 mt-auto">
+          <div class="mt-3 pt-3 border-t border-slate-100 dark:border-slate-800/80">
+            <div class="flex items-baseline justify-between mb-2.5 text-xs">
+              <div>
+                <span class="text-slate-400 text-[11px]">From:</span>
+                <span class="font-bold text-cyan-400 text-sm sm:text-base ml-1 price-val font-display font-mono" data-vnd="4.975.000₫" data-usd="$199.00">$199.00</span>
+              </div>
+              
+                <span class="text-[11px] text-slate-400 line-through strike-val" data-usd="$229.00" data-vnd="5.725.000₫">$229.00</span>
+              
+            </div>
+            <div class="grid grid-cols-2 gap-2">
+              <a href="post-keychron-q1.html" class="py-2 px-1.5 sm:px-2 rounded-xl bg-slate-100 dark:bg-[#141926] hover:bg-cyan-950/60 text-slate-700 dark:text-cyan-300 font-bold text-xs flex items-center justify-center gap-1 transition-all border border-slate-300 dark:border-slate-800 hover:border-cyan-500/40 shadow-2xs text-center">
+                <span>Read Review</span> <i data-lucide="arrow-right" class="w-3 h-3 flex-shrink-0"></i>
+              </a>
+              <a href="https://keychron.com" target="_blank" rel="noopener noreferrer" class="py-2 px-1.5 sm:px-2 rounded-xl bg-gradient-to-r from-cyan-500 via-sky-500 to-blue-600 hover:from-cyan-400 hover:to-blue-500 text-white font-extrabold text-xs flex items-center justify-center gap-1 shadow-md shadow-cyan-500/25 active:scale-95 whitespace-nowrap transition-all text-center">
+                <span>ORDER NOW</span> <i data-lucide="external-link" class="w-3 h-3 flex-shrink-0"></i>
+              </a>
+            </div>
+          </div>
+        </div>
+      </article>
+      <!-- Article: Logitech MX Master 3S Review: The Undisputed King of Productivity Mice -->
+      <article class="bg-white dark:bg-[#0e121d] rounded-2xl border border-slate-200 dark:border-slate-800/90 hover:border-cyan-500/60 overflow-hidden shadow-sm dark:shadow-[0_4px_20px_rgba(0,0,0,0.4)] card-hover flex flex-col justify-between group">
+        <div>
+          <div class="relative h-40 sm:h-44 w-full bg-purple-950/20 overflow-hidden">
+            <img 
+              src="images/posts/logitech-mx-master-3s-review.jpg" 
+              alt="Logitech MX Master 3S Review: The Undisputed King of Productivity Mice" 
+              class="w-full h-full object-cover transition-transform duration-300 group-hover:scale-105" 
+              loading="lazy"
+              onerror="this.src='https://images.unsplash.com/photo-1587829741301-dc798b83add3?auto=format&fit=crop&w=700&q=80'"
+            >
+            <span class="absolute top-2.5 left-2.5 bg-cyan-950/90 backdrop-blur-md text-cyan-300 border border-cyan-500/40 text-[9px] sm:text-[10px] font-extrabold px-2.5 py-0.5 rounded-full shadow-xs font-mono uppercase tracking-wider">
+              Desk Setup &amp; EDC
+            </span>
+            <span class="absolute top-2.5 right-2.5 bg-black/70 backdrop-blur-md text-amber-300 text-[11px] font-bold px-2 py-0.5 rounded-lg flex items-center gap-1 shadow-xs">
+              <i data-lucide="star" class="w-3 h-3 fill-amber-400"></i> 9.7
+            </span>
+            
+              <div class="absolute bottom-2.5 left-2.5 bg-gradient-to-r from-cyan-500 to-blue-600 text-white text-[9px] sm:text-[10px] font-mono font-bold px-2 py-0.5 rounded-lg shadow-sm flex items-center gap-1">
+                <i data-lucide="tag" class="w-2.5 h-2.5"></i> Code: LOGITECH20
+              </div>
+            
+          </div>
+          <div class="p-4 sm:p-5 flex-1 flex flex-col justify-between">
+            <div>
+              <div class="flex items-center gap-2 text-[11px] text-slate-400 mb-1.5">
+                <span>02/09/2026</span>
+                <span>•</span>
+                <span>7 min read</span>
+                <span>•</span> <span class="font-bold text-cyan-400 truncate max-w-[110px]">Logitech Master Series</span>
+              </div>
+              <h3 class="font-bold text-slate-900 dark:text-white text-sm sm:text-[15px] leading-snug line-clamp-2 hover:text-cyan-400 transition-colors">
+                <a href="post-mx-master-3s.html">Logitech MX Master 3S Review: The Undisputed King of Productivity Mice</a>
+              </h3>
+              <p class="text-xs text-slate-600 dark:text-purple-300/70 mt-1.5 line-clamp-2 leading-relaxed">
+                8000 DPI Darkfield sensor on glass, electromagnetic MagSpeed 1,000 lines/sec scroll, and 90% quieter clicks.
+              </p>
+            </div>
+          </div>
+        </div>
+        <div class="p-4 sm:p-5 pt-0 mt-auto">
+          <div class="mt-3 pt-3 border-t border-slate-100 dark:border-slate-800/80">
+            <div class="flex items-baseline justify-between mb-2.5 text-xs">
+              <div>
+                <span class="text-slate-400 text-[11px]">From:</span>
+                <span class="font-bold text-cyan-400 text-sm sm:text-base ml-1 price-val font-display font-mono" data-vnd="2.475.000₫" data-usd="$99.00">$99.00</span>
+              </div>
+              
+                <span class="text-[11px] text-slate-400 line-through strike-val" data-usd="$119.00" data-vnd="2.975.000₫">$119.00</span>
+              
+            </div>
+            <div class="grid grid-cols-2 gap-2">
+              <a href="post-mx-master-3s.html" class="py-2 px-1.5 sm:px-2 rounded-xl bg-slate-100 dark:bg-[#141926] hover:bg-cyan-950/60 text-slate-700 dark:text-cyan-300 font-bold text-xs flex items-center justify-center gap-1 transition-all border border-slate-300 dark:border-slate-800 hover:border-cyan-500/40 shadow-2xs text-center">
+                <span>Read Review</span> <i data-lucide="arrow-right" class="w-3 h-3 flex-shrink-0"></i>
+              </a>
+              <a href="https://amazon.com" target="_blank" rel="noopener noreferrer" class="py-2 px-1.5 sm:px-2 rounded-xl bg-gradient-to-r from-cyan-500 via-sky-500 to-blue-600 hover:from-cyan-400 hover:to-blue-500 text-white font-extrabold text-xs flex items-center justify-center gap-1 shadow-md shadow-cyan-500/25 active:scale-95 whitespace-nowrap transition-all text-center">
+                <span>ORDER NOW</span> <i data-lucide="external-link" class="w-3 h-3 flex-shrink-0"></i>
+              </a>
+            </div>
+          </div>
+        </div>
+      </article>
+      <!-- Article: Sony Alpha A7 IV Review: The Best All-Round Full-Frame Hybrid Camera -->
+      <article class="bg-white dark:bg-[#0e121d] rounded-2xl border border-slate-200 dark:border-slate-800/90 hover:border-cyan-500/60 overflow-hidden shadow-sm dark:shadow-[0_4px_20px_rgba(0,0,0,0.4)] card-hover flex flex-col justify-between group">
+        <div>
+          <div class="relative h-40 sm:h-44 w-full bg-purple-950/20 overflow-hidden">
+            <img 
+              src="images/posts/sony-alpha-a7iv-review.jpg" 
+              alt="Sony Alpha A7 IV Review: The Best All-Round Full-Frame Hybrid Camera" 
+              class="w-full h-full object-cover transition-transform duration-300 group-hover:scale-105" 
+              loading="lazy"
+              onerror="this.src='https://images.unsplash.com/photo-1587829741301-dc798b83add3?auto=format&fit=crop&w=700&q=80'"
+            >
+            <span class="absolute top-2.5 left-2.5 bg-cyan-950/90 backdrop-blur-md text-cyan-300 border border-cyan-500/40 text-[9px] sm:text-[10px] font-extrabold px-2.5 py-0.5 rounded-full shadow-xs font-mono uppercase tracking-wider">
+              Cameras &amp; Creator Gear
+            </span>
+            <span class="absolute top-2.5 right-2.5 bg-black/70 backdrop-blur-md text-amber-300 text-[11px] font-bold px-2 py-0.5 rounded-lg flex items-center gap-1 shadow-xs">
+              <i data-lucide="star" class="w-3 h-3 fill-amber-400"></i> 9.8
+            </span>
+            
+              <div class="absolute bottom-2.5 left-2.5 bg-gradient-to-r from-cyan-500 to-blue-600 text-white text-[9px] sm:text-[10px] font-mono font-bold px-2 py-0.5 rounded-lg shadow-sm flex items-center gap-1">
+                <i data-lucide="tag" class="w-2.5 h-2.5"></i> Code: ALPHA150
+              </div>
+            
+          </div>
+          <div class="p-4 sm:p-5 flex-1 flex flex-col justify-between">
+            <div>
+              <div class="flex items-center gap-2 text-[11px] text-slate-400 mb-1.5">
+                <span>06/09/2026</span>
+                <span>•</span>
+                <span>12 min read</span>
+                <span>•</span> <span class="font-bold text-cyan-400 truncate max-w-[110px]">Sony Alpha</span>
+              </div>
+              <h3 class="font-bold text-slate-900 dark:text-white text-sm sm:text-[15px] leading-snug line-clamp-2 hover:text-cyan-400 transition-colors">
+                <a href="post-sony-a7iv.html">Sony Alpha A7 IV Review: The Best All-Round Full-Frame Hybrid Camera</a>
+              </h3>
+              <p class="text-xs text-slate-600 dark:text-purple-300/70 mt-1.5 line-clamp-2 leading-relaxed">
+                33MP BSI CMOS sensor, 4K 60p 10-bit 4:2:2 recording, Real-time AI Eye AF for humans, birds, and animals.
+              </p>
+            </div>
+          </div>
+        </div>
+        <div class="p-4 sm:p-5 pt-0 mt-auto">
+          <div class="mt-3 pt-3 border-t border-slate-100 dark:border-slate-800/80">
+            <div class="flex items-baseline justify-between mb-2.5 text-xs">
+              <div>
+                <span class="text-slate-400 text-[11px]">From:</span>
+                <span class="font-bold text-cyan-400 text-sm sm:text-base ml-1 price-val font-display font-mono" data-vnd="57.450.000₫" data-usd="$2,298.00">$2,298.00</span>
+              </div>
+              
+                <span class="text-[11px] text-slate-400 line-through strike-val" data-usd="$2498.00" data-vnd="62.450.000₫">$2498.00</span>
+              
+            </div>
+            <div class="grid grid-cols-2 gap-2">
+              <a href="post-sony-a7iv.html" class="py-2 px-1.5 sm:px-2 rounded-xl bg-slate-100 dark:bg-[#141926] hover:bg-cyan-950/60 text-slate-700 dark:text-cyan-300 font-bold text-xs flex items-center justify-center gap-1 transition-all border border-slate-300 dark:border-slate-800 hover:border-cyan-500/40 shadow-2xs text-center">
+                <span>Read Review</span> <i data-lucide="arrow-right" class="w-3 h-3 flex-shrink-0"></i>
+              </a>
+              <a href="https://amazon.com" target="_blank" rel="noopener noreferrer" class="py-2 px-1.5 sm:px-2 rounded-xl bg-gradient-to-r from-cyan-500 via-sky-500 to-blue-600 hover:from-cyan-400 hover:to-blue-500 text-white font-extrabold text-xs flex items-center justify-center gap-1 shadow-md shadow-cyan-500/25 active:scale-95 whitespace-nowrap transition-all text-center">
+                <span>ORDER NOW</span> <i data-lucide="external-link" class="w-3 h-3 flex-shrink-0"></i>
+              </a>
+            </div>
+          </div>
+        </div>
+      </article>
+      <!-- Article: Aqara Hub M3 Review: The Ultimate Matter &amp; Thread Smart Home Central -->
+      <article class="bg-white dark:bg-[#0e121d] rounded-2xl border border-slate-200 dark:border-slate-800/90 hover:border-cyan-500/60 overflow-hidden shadow-sm dark:shadow-[0_4px_20px_rgba(0,0,0,0.4)] card-hover flex flex-col justify-between group">
+        <div>
+          <div class="relative h-40 sm:h-44 w-full bg-purple-950/20 overflow-hidden">
+            <img 
+              src="https://images.unsplash.com/photo-1558002038-1055907df827?auto=format&fit=crop&w=800&q=80" 
+              alt="Aqara Hub M3 Review: The Ultimate Matter &amp; Thread Smart Home Central" 
+              class="w-full h-full object-cover transition-transform duration-300 group-hover:scale-105" 
+              loading="lazy"
+              onerror="this.src='https://images.unsplash.com/photo-1587829741301-dc798b83add3?auto=format&fit=crop&w=700&q=80'"
+            >
+            <span class="absolute top-2.5 left-2.5 bg-cyan-950/90 backdrop-blur-md text-cyan-300 border border-cyan-500/40 text-[9px] sm:text-[10px] font-extrabold px-2.5 py-0.5 rounded-full shadow-xs font-mono uppercase tracking-wider">
+              Smart Home &amp; IoT
+            </span>
+            <span class="absolute top-2.5 right-2.5 bg-black/70 backdrop-blur-md text-amber-300 text-[11px] font-bold px-2 py-0.5 rounded-lg flex items-center gap-1 shadow-xs">
+              <i data-lucide="star" class="w-3 h-3 fill-amber-400"></i> 9.6
+            </span>
+            
+              <div class="absolute bottom-2.5 left-2.5 bg-gradient-to-r from-cyan-500 to-blue-600 text-white text-[9px] sm:text-[10px] font-mono font-bold px-2 py-0.5 rounded-lg shadow-sm flex items-center gap-1">
+                <i data-lucide="tag" class="w-2.5 h-2.5"></i> Code: AQARAMATTER
+              </div>
+            
+          </div>
+          <div class="p-4 sm:p-5 flex-1 flex flex-col justify-between">
+            <div>
+              <div class="flex items-center gap-2 text-[11px] text-slate-400 mb-1.5">
+                <span>12/09/2026</span>
+                <span>•</span>
+                <span>8 min read</span>
+                <span>•</span> <span class="font-bold text-cyan-400 truncate max-w-[110px]">Aqara Smart Home</span>
+              </div>
+              <h3 class="font-bold text-slate-900 dark:text-white text-sm sm:text-[15px] leading-snug line-clamp-2 hover:text-cyan-400 transition-colors">
+                <a href="post-aqara-smart-hub.html">Aqara Hub M3 Review: The Ultimate Matter &amp; Thread Smart Home Central</a>
+              </h3>
+              <p class="text-xs text-slate-600 dark:text-purple-300/70 mt-1.5 line-clamp-2 leading-relaxed">
+                Bridging Apple HomeKit, Google Home, Alexa, and Home Assistant with local edge computing and 360-degree infrared learning.
+              </p>
+            </div>
+          </div>
+        </div>
+        <div class="p-4 sm:p-5 pt-0 mt-auto">
+          <div class="mt-3 pt-3 border-t border-slate-100 dark:border-slate-800/80">
+            <div class="flex items-baseline justify-between mb-2.5 text-xs">
+              <div>
+                <span class="text-slate-400 text-[11px]">From:</span>
+                <span class="font-bold text-cyan-400 text-sm sm:text-base ml-1 price-val font-display font-mono" data-vnd="3.225.000₫" data-usd="$129.00">$129.00</span>
+              </div>
+              
+                <span class="text-[11px] text-slate-400 line-through strike-val" data-usd="$149.00" data-vnd="3.725.000₫">$149.00</span>
+              
+            </div>
+            <div class="grid grid-cols-2 gap-2">
+              <a href="post-aqara-smart-hub.html" class="py-2 px-1.5 sm:px-2 rounded-xl bg-slate-100 dark:bg-[#141926] hover:bg-cyan-950/60 text-slate-700 dark:text-cyan-300 font-bold text-xs flex items-center justify-center gap-1 transition-all border border-slate-300 dark:border-slate-800 hover:border-cyan-500/40 shadow-2xs text-center">
+                <span>Read Review</span> <i data-lucide="arrow-right" class="w-3 h-3 flex-shrink-0"></i>
+              </a>
+              <a href="https://aqara.com/?ref=COUPONHIKER" target="_blank" rel="noopener noreferrer" class="py-2 px-1.5 sm:px-2 rounded-xl bg-gradient-to-r from-cyan-500 via-sky-500 to-blue-600 hover:from-cyan-400 hover:to-blue-500 text-white font-extrabold text-xs flex items-center justify-center gap-1 shadow-md shadow-cyan-500/25 active:scale-95 whitespace-nowrap transition-all text-center">
+                <span>ORDER NOW</span> <i data-lucide="external-link" class="w-3 h-3 flex-shrink-0"></i>
+              </a>
+            </div>
+          </div>
+        </div>
+      </article>
+      <!-- Article: Razer Blade 16 Review: The Ultimate Dual-Mode Mini-LED Gaming Machine -->
+      <article class="bg-white dark:bg-[#0e121d] rounded-2xl border border-slate-200 dark:border-slate-800/90 hover:border-cyan-500/60 overflow-hidden shadow-sm dark:shadow-[0_4px_20px_rgba(0,0,0,0.4)] card-hover flex flex-col justify-between group">
+        <div>
+          <div class="relative h-40 sm:h-44 w-full bg-purple-950/20 overflow-hidden">
+            <img 
+              src="https://images.unsplash.com/photo-1542751371-adc38448a05e?auto=format&fit=crop&w=800&q=80" 
+              alt="Razer Blade 16 Review: The Ultimate Dual-Mode Mini-LED Gaming Machine" 
+              class="w-full h-full object-cover transition-transform duration-300 group-hover:scale-105" 
+              loading="lazy"
+              onerror="this.src='https://images.unsplash.com/photo-1587829741301-dc798b83add3?auto=format&fit=crop&w=700&q=80'"
+            >
+            <span class="absolute top-2.5 left-2.5 bg-cyan-950/90 backdrop-blur-md text-cyan-300 border border-cyan-500/40 text-[9px] sm:text-[10px] font-extrabold px-2.5 py-0.5 rounded-full shadow-xs font-mono uppercase tracking-wider">
+              Computing &amp; Gaming
+            </span>
+            <span class="absolute top-2.5 right-2.5 bg-black/70 backdrop-blur-md text-amber-300 text-[11px] font-bold px-2 py-0.5 rounded-lg flex items-center gap-1 shadow-xs">
+              <i data-lucide="star" class="w-3 h-3 fill-amber-400"></i> 9.8
+            </span>
+            
+              <div class="absolute bottom-2.5 left-2.5 bg-gradient-to-r from-cyan-500 to-blue-600 text-white text-[9px] sm:text-[10px] font-mono font-bold px-2 py-0.5 rounded-lg shadow-sm flex items-center gap-1">
+                <i data-lucide="tag" class="w-2.5 h-2.5"></i> Code: BLADE10
+              </div>
+            
+          </div>
+          <div class="p-4 sm:p-5 flex-1 flex flex-col justify-between">
+            <div>
+              <div class="flex items-center gap-2 text-[11px] text-slate-400 mb-1.5">
+                <span>12/09/2026</span>
+                <span>•</span>
+                <span>11 min read</span>
+                <span>•</span> <span class="font-bold text-cyan-400 truncate max-w-[110px]">Razer Official Store</span>
+              </div>
+              <h3 class="font-bold text-slate-900 dark:text-white text-sm sm:text-[15px] leading-snug line-clamp-2 hover:text-cyan-400 transition-colors">
+                <a href="post-razer-blade-16.html">Razer Blade 16 Review: The Ultimate Dual-Mode Mini-LED Gaming Machine</a>
+              </h3>
+              <p class="text-xs text-slate-600 dark:text-purple-300/70 mt-1.5 line-clamp-2 leading-relaxed">
+                Featuring Intel Core i9-14900HX, RTX 4090, and a mind-blowing dual-mode Mini-LED display switching between 4K 120Hz and FHD+ 240Hz.
+              </p>
+            </div>
+          </div>
+        </div>
+        <div class="p-4 sm:p-5 pt-0 mt-auto">
+          <div class="mt-3 pt-3 border-t border-slate-100 dark:border-slate-800/80">
+            <div class="flex items-baseline justify-between mb-2.5 text-xs">
+              <div>
+                <span class="text-slate-400 text-[11px]">From:</span>
+                <span class="font-bold text-cyan-400 text-sm sm:text-base ml-1 price-val font-display font-mono" data-vnd="79.975.000₫" data-usd="$3,199.00">$3,199.00</span>
+              </div>
+              
+                <span class="text-[11px] text-slate-400 line-through strike-val" data-usd="$3599.00" data-vnd="89.975.000₫">$3599.00</span>
+              
+            </div>
+            <div class="grid grid-cols-2 gap-2">
+              <a href="post-razer-blade-16.html" class="py-2 px-1.5 sm:px-2 rounded-xl bg-slate-100 dark:bg-[#141926] hover:bg-cyan-950/60 text-slate-700 dark:text-cyan-300 font-bold text-xs flex items-center justify-center gap-1 transition-all border border-slate-300 dark:border-slate-800 hover:border-cyan-500/40 shadow-2xs text-center">
+                <span>Read Review</span> <i data-lucide="arrow-right" class="w-3 h-3 flex-shrink-0"></i>
+              </a>
+              <a href="https://razer.com/?ref=COUPONHIKER" target="_blank" rel="noopener noreferrer" class="py-2 px-1.5 sm:px-2 rounded-xl bg-gradient-to-r from-cyan-500 via-sky-500 to-blue-600 hover:from-cyan-400 hover:to-blue-500 text-white font-extrabold text-xs flex items-center justify-center gap-1 shadow-md shadow-cyan-500/25 active:scale-95 whitespace-nowrap transition-all text-center">
+                <span>ORDER NOW</span> <i data-lucide="external-link" class="w-3 h-3 flex-shrink-0"></i>
+              </a>
+            </div>
+          </div>
+        </div>
+      </article>
+    </div>
+
+    <!-- Home Articles Pagination Controls -->
+    <div id="home-articles-pagination" class="pt-8 mt-10 border-t border-slate-200 dark:border-slate-800/80 flex flex-col sm:flex-row items-center justify-between gap-4">
+      <div class="text-xs font-medium text-slate-500 dark:text-slate-300" id="home-pagination-info">
+        Page 1 of 6 (36 articles)
+      </div>
+      <div class="flex items-center gap-1.5 sm:gap-2" id="home-pagination-buttons">
+        <button type="button" onclick="window.goToHomeArticlesPage(1)" class="w-9 h-9 sm:w-10 sm:h-10 rounded-xl text-xs font-extrabold bg-gradient-to-r from-cyan-500 via-sky-500 to-blue-600 text-white shadow-md shadow-cyan-500/25 scale-105 flex items-center justify-center">1</button>
+        <button type="button" onclick="window.goToHomeArticlesPage(2)" class="w-9 h-9 sm:w-10 sm:h-10 rounded-xl text-xs font-extrabold bg-white dark:bg-[#0e121d] text-slate-700 dark:text-slate-300 border border-slate-200 dark:border-slate-800 hover:border-cyan-500/50 hover:text-cyan-400 flex items-center justify-center">2</button>
+        <button type="button" onclick="window.goToHomeArticlesPage(3)" class="w-9 h-9 sm:w-10 sm:h-10 rounded-xl text-xs font-extrabold bg-white dark:bg-[#0e121d] text-slate-700 dark:text-slate-300 border border-slate-200 dark:border-slate-800 hover:border-cyan-500/50 hover:text-cyan-400 flex items-center justify-center">3</button>
+        <button type="button" onclick="window.goToHomeArticlesPage(2)" class="px-3 sm:px-4 py-2 rounded-xl text-xs font-bold bg-white dark:bg-[#0e121d] text-cyan-300 border border-purple-200 dark:border-purple-800 hover:border-purple-400 flex items-center gap-1 min-h-[40px]">
+          <span class="hidden sm:inline">Trang Sau</span>
+          <i data-lucide="chevron-right" class="w-4 h-4"></i>
+        </button>
+      </div>
+    </div>
+  </section>
+
+  <!-- DIGITAL PRODUCTS & PARTNER STORES MINI-STORE -->
+  <section id="section-curated-shop" class="bg-gradient-to-b from-purple-50/50 to-transparent dark:from-[#07080e] dark:to-transparent py-16 border-y border-purple-200/50 dark:border-purple-900/40">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      
+      <div class="flex flex-col md:flex-row items-start md:items-end justify-between mb-6 sm:mb-8 gap-3 sm:gap-4">
+        <div class="w-full md:w-auto">
+          <div class="flex items-center justify-between md:justify-start gap-3 mb-2.5">
+            <div class="glow-pill-badge">
+              <i data-lucide="shopping-bag" class="w-3.5 h-3.5"></i>
+              <span data-i18n="digital_badge">Curated Shop</span>
+            </div>
+            <!-- Mobile compact View Store link aligned with badge -->
+            <a href="shop.html" class="inline-flex md:hidden items-center gap-1 text-xs font-bold text-cyan-400 hover:text-pink-500 transition-colors">
+              <span data-i18n="view_full_shop_mobile">View Full Store (36)</span> &rarr;
+            </a>
+          </div>
+          <h2 class="text-xl sm:text-3xl lg:text-4xl font-black text-slate-900 dark:text-white font-display tracking-tight" data-i18n="digital_shop_title">Curated Products & Essential Gear</h2>
+          <p class="text-xs sm:text-sm text-slate-600 dark:text-slate-400 mt-1" data-i18n="digital_shop_sub">Handpicked physical gear, tech accessories, and essentials tested for quality.</p>
+        </div>
+        <!-- Desktop View Store Button -->
+        <a href="shop.html" class="hidden md:inline-flex px-5 py-2.5 bg-white dark:bg-[#0e121d] text-cyan-400 hover:text-cyan-300 text-xs font-bold rounded-xl border border-cyan-500/40 hover:border-cyan-400 hover:bg-cyan-950/30 shadow-sm transition-all items-center gap-1.5 whitespace-nowrap">
+          <span id="home-full-store-count" data-i18n="view_full_shop">View Full Store (33 Items)</span> &rarr;
+        </a>
+      </div>
+
+      <!-- Quick Category Filter Pills: Mobile Optimized with Smooth Touch Momentum & Gradient Fade Mask -->
+      <div class="relative w-full max-w-full mb-8">
+                <div id="home-category-pills" class="w-full max-w-full min-w-0 flex items-center gap-2 overflow-x-auto no-scrollbar py-1 px-1 -mx-1 scroll-smooth snap-x touch-pan-x sm:flex-wrap" style="-webkit-overflow-scrolling: touch;">
+          <a href="shop.html?cat=all" class="flex-shrink-0 snap-start px-3.5 py-2 rounded-xl text-xs font-bold bg-gradient-to-r from-cyan-500 via-sky-500 to-blue-600 text-white shadow-md shadow-cyan-500/25 transition-all whitespace-nowrap"><span data-i18n="shop_tab_all">🛍️ All Items</span> (<span id="home-count-all">36</span>)</a>
+          <a href="shop.html?cat=physical" class="flex-shrink-0 snap-start px-3.5 py-2 rounded-xl text-xs font-bold bg-white dark:bg-[#0e121d] text-cyan-700 dark:text-cyan-300 border border-cyan-500/40 hover:border-cyan-500 transition-all whitespace-nowrap"><span data-i18n="shop_tab_physical">Physical Gear</span> (<span id="home-count-physical">31</span>)</a>
+          <a href="shop.html?cat=digital" class="flex-shrink-0 snap-start px-3.5 py-2 rounded-xl text-xs font-bold bg-white dark:bg-[#0e121d] text-emerald-700 dark:text-emerald-300 border border-emerald-500/40 hover:border-emerald-500 transition-all whitespace-nowrap"><span data-i18n="shop_tab_digital">Digital Downloads</span> (<span id="home-count-digital">5</span>)</a>
+          <a href="shop.html?cat=audio" class="flex-shrink-0 snap-start px-3.5 py-2 rounded-xl text-xs font-semibold bg-white dark:bg-[#0e121d] text-slate-700 dark:text-slate-300 border border-slate-200 dark:border-slate-800 hover:border-cyan-500/60 hover:text-cyan-400 transition-all whitespace-nowrap"><span data-i18n="shop_tab_audio">Audio & Sound</span> (<span id="home-count-audio">8</span>)</a>
+          <a href="shop.html?cat=smarthome" class="flex-shrink-0 snap-start px-3.5 py-2 rounded-xl text-xs font-semibold bg-white dark:bg-[#0e121d] text-slate-700 dark:text-slate-300 border border-slate-200 dark:border-slate-800 hover:border-cyan-500/60 hover:text-cyan-400 transition-all whitespace-nowrap"><span data-i18n="shop_tab_smarthome">Smart Home</span> (<span id="home-count-smarthome">5</span>)</a>
+          <a href="shop.html?cat=edc" class="flex-shrink-0 snap-start px-3.5 py-2 rounded-xl text-xs font-semibold bg-white dark:bg-[#0e121d] text-slate-700 dark:text-slate-300 border border-slate-200 dark:border-slate-800 hover:border-cyan-500/60 hover:text-cyan-400 transition-all whitespace-nowrap"><span data-i18n="shop_tab_desk">Desk Setup & EDC</span> (<span id="home-count-edc">5</span>)</a>
+          <a href="shop.html?cat=wearables" class="flex-shrink-0 snap-start px-3.5 py-2 rounded-xl text-xs font-semibold bg-white dark:bg-[#0e121d] text-slate-700 dark:text-slate-300 border border-slate-200 dark:border-slate-800 hover:border-cyan-500/60 hover:text-cyan-400 transition-all whitespace-nowrap"><span data-i18n="shop_tab_wearables">Wearables</span> (<span id="home-count-wearables">3</span>)</a>
+          <a href="shop.html?cat=robotics" class="flex-shrink-0 snap-start px-3.5 py-2 rounded-xl text-xs font-semibold bg-white dark:bg-[#0e121d] text-slate-700 dark:text-slate-300 border border-slate-200 dark:border-slate-800 hover:border-cyan-500/60 hover:text-cyan-400 transition-all whitespace-nowrap"><span data-i18n="shop_tab_robotics">Robotics & Drones</span> (<span id="home-count-robotics">3</span>)</a>
+          <a href="shop.html?cat=cameras" class="flex-shrink-0 snap-start px-3.5 py-2 rounded-xl text-xs font-semibold bg-white dark:bg-[#0e121d] text-slate-700 dark:text-slate-300 border border-slate-200 dark:border-slate-800 hover:border-cyan-500/60 hover:text-cyan-400 transition-all whitespace-nowrap"><span data-i18n="shop_tab_cameras">Cameras & Video</span> (<span id="home-count-cameras">3</span>)</a>
+          <a href="shop.html?cat=computing" class="flex-shrink-0 snap-start px-3.5 py-2 rounded-xl text-xs font-semibold bg-white dark:bg-[#0e121d] text-slate-700 dark:text-slate-300 border border-slate-200 dark:border-slate-800 hover:border-cyan-500/60 hover:text-cyan-400 transition-all whitespace-nowrap"><span data-i18n="shop_tab_gaming">Gaming & Laptops</span> (<span id="home-count-computing">2</span>)</a>
+          <a href="shop.html?cat=power" class="flex-shrink-0 snap-start px-3.5 py-2 rounded-xl text-xs font-semibold bg-white dark:bg-[#0e121d] text-slate-700 dark:text-slate-300 border border-slate-200 dark:border-slate-800 hover:border-cyan-500/60 hover:text-cyan-400 transition-all whitespace-nowrap"><span data-i18n="shop_tab_power">Power & GaN</span> (<span id="home-count-power">2</span>)</a>
+          <a href="shop.html?cat=saas" class="flex-shrink-0 snap-start px-3.5 py-2 rounded-xl text-xs font-semibold bg-white dark:bg-[#0e121d] text-slate-700 dark:text-slate-300 border border-slate-200 dark:border-slate-800 hover:border-cyan-500/60 hover:text-cyan-400 transition-all whitespace-nowrap"><span data-i18n="shop_tab_saas">SaaS & AI</span> (<span id="home-count-saas">1</span>)</a>
+          <a href="shop.html?cat=ebooks" class="flex-shrink-0 snap-start px-3.5 py-2 rounded-xl text-xs font-semibold bg-white dark:bg-[#0e121d] text-slate-700 dark:text-slate-300 border border-slate-200 dark:border-slate-800 hover:border-cyan-500/60 hover:text-cyan-400 transition-all whitespace-nowrap"><span data-i18n="shop_tab_ebooks">Ebooks</span> (<span id="home-count-ebooks">1</span>)</a>
+          <a href="shop.html?cat=presets" class="flex-shrink-0 snap-start px-3.5 py-2 rounded-xl text-xs font-semibold bg-white dark:bg-[#0e121d] text-slate-700 dark:text-slate-300 border border-slate-200 dark:border-slate-800 hover:border-cyan-500/60 hover:text-cyan-400 transition-all whitespace-nowrap"><span data-i18n="shop_tab_presets">Presets</span> (<span id="home-count-presets">1</span>)</a>
+          <a href="shop.html?cat=templates" class="flex-shrink-0 snap-start px-3.5 py-2 rounded-xl text-xs font-semibold bg-white dark:bg-[#0e121d] text-slate-700 dark:text-slate-300 border border-slate-200 dark:border-slate-800 hover:border-cyan-500/60 hover:text-cyan-400 transition-all whitespace-nowrap"><span data-i18n="shop_tab_templates">Notion OS</span> (<span id="home-count-templates">1</span>)</a>
+          <a href="shop.html?cat=courses" class="flex-shrink-0 snap-start px-3.5 py-2 rounded-xl text-xs font-semibold bg-white dark:bg-[#0e121d] text-slate-700 dark:text-slate-300 border border-slate-200 dark:border-slate-800 hover:border-cyan-500/60 hover:text-cyan-400 transition-all whitespace-nowrap"><span data-i18n="shop_tab_courses">Courses</span> (<span id="home-count-courses">1</span>)</a>
+        </div>
+        <!-- Right edge smooth fade mask on mobile to indicate horizontal swiping -->
+        <div class="pointer-events-none absolute right-0 top-0 bottom-0 w-10 bg-gradient-to-l from-slate-50 dark:from-[#07080e] to-transparent sm:hidden"></div>
+      </div>
+
+            <!-- 8 Featured Products Grid across 8 Premier Tech Brands -->
+      <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5 sm:gap-6">
+        
+        <!-- Product 1: Apple Watch Ultra 2 -->
+        <div class="bg-white dark:bg-[#0e121d] rounded-3xl p-5 border border-slate-200 dark:border-slate-800/80 hover:border-cyan-500/60 shadow-sm flex flex-col justify-between card-hover">
+          <div>
+            <div class="flex justify-between items-center mb-3">
+              <span class="text-xs font-bold text-cyan-500 uppercase">Smart Wearables</span>
+              <span class="bg-cyan-100 dark:bg-cyan-950 text-cyan-600 dark:text-cyan-300 text-[10px] font-bold px-2 py-0.5 rounded-full">-11%</span>
+            </div>
+            <div class="overflow-hidden rounded-2xl mb-3.5 bg-purple-50 dark:bg-purple-950/40 aspect-[16/11]">
+              <img src="https://images.unsplash.com/photo-1579586337278-3befd40fd17a?auto=format&fit=crop&w=800&q=80" alt="Apple Watch Ultra 2" class="w-full h-full object-cover hover:scale-105 transition-transform duration-300">
+            </div>
+            <div class="flex items-center justify-between gap-1.5 mb-2">
+              <a href="shop.html?shop=Apple+Official" class="inline-flex items-center gap-1 text-[10px] font-extrabold text-cyan-300 bg-purple-100/90 dark:bg-purple-950/90 hover:bg-purple-200 px-2 py-0.5 rounded-lg border border-purple-200 dark:border-purple-800 truncate" title="Apple Official">
+                <i data-lucide="store" class="w-3 h-3 text-pink-500"></i> Apple Official
+              </a>
+              <span class="text-[10px] font-black text-amber-400 flex items-center gap-0.5"><i data-lucide="star" class="w-3 h-3 fill-amber-400"></i> 9.9</span>
+            </div>
+            <h4 class="font-bold text-slate-900 dark:text-white text-sm line-clamp-2">Apple Watch Ultra 2 Titanium GPS Smartwatch</h4>
+            <p class="text-xs text-slate-600 dark:text-slate-400 mt-1.5 line-clamp-2">3000-nit sapphire crystal display, aerospace titanium case, and 72-hour low power mode.</p>
+          </div>
+          <div class="mt-4 pt-3 border-t border-purple-100 dark:border-purple-900/60">
+            <div class="flex items-baseline justify-between mb-3">
+              <span class="text-lg font-black text-cyan-400 price-val font-display" data-vnd="19.990.000₫" data-usd="$799.00">$799.00</span>
+              <span class="text-xs text-slate-400 line-through strike-val" data-vnd="22.475.000₫" data-usd="$899.00">$899.00</span>
+            </div>
+            <div class="grid grid-cols-2 gap-2">
+              <a href="post-secretdesires-review.html" class="py-2.5 px-2 rounded-xl bg-slate-100 dark:bg-[#141926] hover:bg-cyan-950/60 text-slate-700 dark:text-cyan-300 font-bold text-xs flex items-center justify-center gap-1.5 transition-all border border-slate-300 dark:border-slate-800 hover:border-cyan-500/40 shadow-2xs text-center">
+                <span data-i18n="btn_read_review">Read Review</span> <i data-lucide="arrow-right" class="w-3.5 h-3.5 flex-shrink-0"></i>
+              </a>
+              <a href="https://apple.com" target="_blank" rel="noopener noreferrer" class="py-2.5 px-2 rounded-xl bg-gradient-to-r from-cyan-500 via-sky-500 to-blue-600 hover:from-cyan-400 hover:to-blue-500 text-white font-extrabold text-xs flex items-center justify-center gap-1.5 shadow-md shadow-cyan-500/25 active:scale-95 whitespace-nowrap transition-all text-center">
+                <span data-i18n="order_now">ORDER NOW</span> <i data-lucide="external-link" class="w-3.5 h-3.5 flex-shrink-0"></i>
+              </a>
+            </div>
+          </div>
+        </div>
+
+        <!-- Product 2: Roborock S8 Pro Ultra -->
+        <div class="bg-white dark:bg-[#0e121d] rounded-3xl p-5 border border-slate-200 dark:border-slate-800/80 hover:border-cyan-500/60 shadow-sm flex flex-col justify-between card-hover">
+          <div>
+            <div class="flex justify-between items-center mb-3">
+              <span class="text-xs font-bold text-emerald-500 uppercase">Smart Home & IoT</span>
+              <span class="bg-emerald-100 dark:bg-emerald-950 text-emerald-600 dark:text-emerald-300 text-[10px] font-bold px-2 py-0.5 rounded-full">-25%</span>
+            </div>
+            <div class="overflow-hidden rounded-2xl mb-3.5 bg-purple-50 dark:bg-purple-950/40 aspect-[16/11]">
+              <img src="https://images.unsplash.com/photo-1518770660439-4636190af475?auto=format&fit=crop&w=800&q=80" alt="Roborock S8 Pro Ultra" class="w-full h-full object-cover hover:scale-105 transition-transform duration-300">
+            </div>
+            <div class="flex items-center justify-between gap-1.5 mb-2">
+              <a href="shop.html?shop=Roborock+Official" class="inline-flex items-center gap-1 text-[10px] font-extrabold text-cyan-300 bg-purple-100/90 dark:bg-purple-950/90 hover:bg-purple-200 px-2 py-0.5 rounded-lg border border-purple-200 dark:border-purple-800 truncate" title="Roborock Official">
+                <i data-lucide="store" class="w-3 h-3 text-pink-500"></i> Roborock Official
+              </a>
+              <span class="text-[10px] font-black text-amber-400 flex items-center gap-0.5"><i data-lucide="star" class="w-3 h-3 fill-amber-400"></i> 9.8</span>
+            </div>
+            <h4 class="font-bold text-slate-900 dark:text-white text-sm line-clamp-2">Roborock S8 Pro Ultra Robot Vacuum & Mop</h4>
+            <p class="text-xs text-slate-600 dark:text-slate-400 mt-1.5 line-clamp-2">6000Pa suction power, DuoRoller anti-tangle brushes, and warm air auto-drying dock.</p>
+          </div>
+          <div class="mt-4 pt-3 border-t border-purple-100 dark:border-purple-900/60">
+            <div class="flex items-baseline justify-between mb-3">
+              <span class="text-lg font-black text-cyan-400 price-val font-display" data-vnd="29.990.000₫" data-usd="$1,199.00">$1,199.00</span>
+              <span class="text-xs text-slate-400 line-through strike-val" data-vnd="39.975.000₫" data-usd="$1,599.00">$1,599.00</span>
+            </div>
+            <div class="grid grid-cols-2 gap-2">
+              <a href="post-injen-n55-e-series-cold-air-intake-review.html" class="py-2.5 px-2 rounded-xl bg-slate-100 dark:bg-[#141926] hover:bg-cyan-950/60 text-slate-700 dark:text-cyan-300 font-bold text-xs flex items-center justify-center gap-1.5 transition-all border border-slate-300 dark:border-slate-800 hover:border-cyan-500/40 shadow-2xs text-center">
+                <span data-i18n="btn_read_review">Read Review</span> <i data-lucide="arrow-right" class="w-3.5 h-3.5 flex-shrink-0"></i>
+              </a>
+              <a href="https://roborock.com" target="_blank" rel="noopener noreferrer" class="py-2.5 px-2 rounded-xl bg-gradient-to-r from-cyan-500 via-sky-500 to-blue-600 hover:from-cyan-400 hover:to-blue-500 text-white font-extrabold text-xs flex items-center justify-center gap-1.5 shadow-md shadow-cyan-500/25 active:scale-95 whitespace-nowrap transition-all text-center">
+                <span data-i18n="order_now">ORDER NOW</span> <i data-lucide="external-link" class="w-3.5 h-3.5 flex-shrink-0"></i>
+              </a>
+            </div>
+          </div>
+        </div>
+
+        <!-- Product 3: DJI Mini 4 Pro Drone -->
+        <div class="bg-white dark:bg-[#0e121d] rounded-3xl p-5 border border-slate-200 dark:border-slate-800/80 hover:border-cyan-500/60 shadow-sm flex flex-col justify-between card-hover">
+          <div>
+            <div class="flex justify-between items-center mb-3">
+              <span class="text-xs font-bold text-pink-500 uppercase">Robotics & Drones</span>
+              <span class="bg-pink-100 dark:bg-pink-950 text-cyan-600 dark:text-cyan-400 dark:text-pink-300 text-[10px] font-bold px-2 py-0.5 rounded-full">-16%</span>
+            </div>
+            <div class="overflow-hidden rounded-2xl mb-3.5 bg-purple-50 dark:bg-purple-950/40 aspect-[16/11]">
+              <img src="https://images.unsplash.com/photo-1508614589041-895b88991e3e?auto=format&fit=crop&w=800&q=80" alt="DJI Mini 4 Pro" class="w-full h-full object-cover hover:scale-105 transition-transform duration-300">
+            </div>
+            <div class="flex items-center justify-between gap-1.5 mb-2">
+              <a href="shop.html?shop=DJI+Official" class="inline-flex items-center gap-1 text-[10px] font-extrabold text-cyan-300 bg-purple-100/90 dark:bg-purple-950/90 hover:bg-purple-200 px-2 py-0.5 rounded-lg border border-purple-200 dark:border-purple-800 truncate" title="DJI Official">
+                <i data-lucide="store" class="w-3 h-3 text-pink-500"></i> DJI Official
+              </a>
+              <span class="text-[10px] font-black text-amber-400 flex items-center gap-0.5"><i data-lucide="star" class="w-3 h-3 fill-amber-400"></i> 9.9</span>
+            </div>
+            <h4 class="font-bold text-slate-900 dark:text-white text-sm line-clamp-2">DJI Mini 4 Pro 4K HDR Camera Drone</h4>
+            <p class="text-xs text-slate-600 dark:text-slate-400 mt-1.5 line-clamp-2">Sub-249g ultralight body, omnidirectional obstacle avoidance, and O4 20km video transmission.</p>
+          </div>
+          <div class="mt-4 pt-3 border-t border-purple-100 dark:border-purple-900/60">
+            <div class="flex items-baseline justify-between mb-3">
+              <span class="text-lg font-black text-cyan-400 price-val font-display" data-vnd="18.990.000₫" data-usd="$759.00">$759.00</span>
+              <span class="text-xs text-slate-400 line-through strike-val" data-vnd="22.475.000₫" data-usd="$899.00">$899.00</span>
+            </div>
+            <div class="grid grid-cols-2 gap-2">
+              <a href="post-supreme-review.html" class="py-2.5 px-2 rounded-xl bg-slate-100 dark:bg-[#141926] hover:bg-cyan-950/60 text-slate-700 dark:text-cyan-300 font-bold text-xs flex items-center justify-center gap-1.5 transition-all border border-slate-300 dark:border-slate-800 hover:border-cyan-500/40 shadow-2xs text-center">
+                <span data-i18n="btn_read_review">Read Review</span> <i data-lucide="arrow-right" class="w-3.5 h-3.5 flex-shrink-0"></i>
+              </a>
+              <a href="https://dji.com" target="_blank" rel="noopener noreferrer" class="py-2.5 px-2 rounded-xl bg-gradient-to-r from-cyan-500 via-sky-500 to-blue-600 hover:from-cyan-400 hover:to-blue-500 text-white font-extrabold text-xs flex items-center justify-center gap-1.5 shadow-md shadow-cyan-500/25 active:scale-95 whitespace-nowrap transition-all text-center">
+                <span data-i18n="order_now">ORDER NOW</span> <i data-lucide="external-link" class="w-3.5 h-3.5 flex-shrink-0"></i>
+              </a>
+            </div>
+          </div>
+        </div>
+
+        <!-- Product 4: Sony WH-1000XM5 -->
+        <div class="bg-white dark:bg-[#0e121d] rounded-3xl p-5 border border-slate-200 dark:border-slate-800/80 hover:border-cyan-500/60 shadow-sm flex flex-col justify-between card-hover">
+          <div>
+            <div class="flex justify-between items-center mb-3">
+              <span class="text-xs font-bold text-cyan-400 uppercase">Audio & Sound</span>
+              <span class="bg-cyan-950/80 text-purple-600 dark:text-slate-300 text-[10px] font-bold px-2 py-0.5 rounded-full">-50%</span>
+            </div>
+            <div class="overflow-hidden rounded-2xl mb-3.5 bg-purple-50 dark:bg-purple-950/40 aspect-[16/11]">
+              <img src="images/posts/sony-wh-1000xm5-wireless-noise-canceling-headphones-review.png" alt="Sony WH-1000XM5" class="w-full h-full object-cover hover:scale-105 transition-transform duration-300">
+            </div>
+            <div class="flex items-center justify-between gap-1.5 mb-2">
+              <a href="shop.html?shop=Sony+Official+Store" class="inline-flex items-center gap-1 text-[10px] font-extrabold text-cyan-300 bg-purple-100/90 dark:bg-purple-950/90 hover:bg-purple-200 px-2 py-0.5 rounded-lg border border-purple-200 dark:border-purple-800 truncate" title="Sony Official Store">
+                <i data-lucide="store" class="w-3 h-3 text-pink-500"></i> Sony Official Store
+              </a>
+              <span class="text-[10px] font-black text-amber-400 flex items-center gap-0.5"><i data-lucide="star" class="w-3 h-3 fill-amber-400"></i> 9.9</span>
+            </div>
+            <h4 class="font-bold text-slate-900 dark:text-white text-sm line-clamp-2">Sony WH-1000XM5 Noise Canceling Headphones</h4>
+            <p class="text-xs text-slate-600 dark:text-slate-400 mt-1.5 line-clamp-2">Dual V1/QN1 audio processors, 8 microphones, and 30-hour battery life with LDAC clarity.</p>
+          </div>
+          <div class="mt-4 pt-3 border-t border-purple-100 dark:border-purple-900/60">
+            <div class="flex items-baseline justify-between mb-3">
+              <span class="text-lg font-black text-cyan-400 price-val font-display" data-vnd="4.975.000₫" data-usd="$199.00">$199.00</span>
+              <span class="text-xs text-slate-400 line-through strike-val" data-vnd="9.950.000₫" data-usd="$399.00">$399.00</span>
+            </div>
+            <div class="grid grid-cols-2 gap-2">
+              <a href="post-sony-wh-1000xm5-wireless-noise-canceling-headphones-review.html" class="py-2.5 px-2 rounded-xl bg-slate-100 dark:bg-[#141926] hover:bg-cyan-950/60 text-slate-700 dark:text-cyan-300 font-bold text-xs flex items-center justify-center gap-1.5 transition-all border border-slate-300 dark:border-slate-800 hover:border-cyan-500/40 shadow-2xs text-center">
+                <span data-i18n="btn_read_review">Read Review</span> <i data-lucide="arrow-right" class="w-3.5 h-3.5 flex-shrink-0"></i>
+              </a>
+              <a href="https://www.sony.com" target="_blank" rel="noopener noreferrer" class="py-2.5 px-2 rounded-xl bg-gradient-to-r from-cyan-500 via-sky-500 to-blue-600 hover:from-cyan-400 hover:to-blue-500 text-white font-extrabold text-xs flex items-center justify-center gap-1.5 shadow-md shadow-cyan-500/25 active:scale-95 whitespace-nowrap transition-all text-center">
+                <span data-i18n="order_now">ORDER NOW</span> <i data-lucide="external-link" class="w-3.5 h-3.5 flex-shrink-0"></i>
+              </a>
+            </div>
+          </div>
+        </div>
+
+        <!-- Product 5: Keychron Q1 Pro Custom Keyboard -->
+        <div class="bg-white dark:bg-[#0e121d] rounded-3xl p-5 border border-slate-200 dark:border-slate-800/80 hover:border-cyan-500/60 shadow-sm flex flex-col justify-between card-hover">
+          <div>
+            <div class="flex justify-between items-center mb-3">
+              <span class="text-xs font-bold text-indigo-500 uppercase">Desk Setup & EDC</span>
+              <span class="bg-indigo-100 dark:bg-indigo-950 text-indigo-600 dark:text-indigo-300 text-[10px] font-bold px-2 py-0.5 rounded-full">-17%</span>
+            </div>
+            <div class="overflow-hidden rounded-2xl mb-3.5 bg-purple-50 dark:bg-purple-950/40 aspect-[16/11]">
+              <img src="images/posts/keychron-q1-pro-review.jpg" alt="Keychron Q1 Pro" class="w-full h-full object-cover hover:scale-105 transition-transform duration-300">
+            </div>
+            <div class="flex items-center justify-between gap-1.5 mb-2">
+              <a href="shop.html?shop=Keychron+Official" class="inline-flex items-center gap-1 text-[10px] font-extrabold text-cyan-300 bg-purple-100/90 dark:bg-purple-950/90 hover:bg-purple-200 px-2 py-0.5 rounded-lg border border-purple-200 dark:border-purple-800 truncate" title="Keychron Official">
+                <i data-lucide="store" class="w-3 h-3 text-pink-500"></i> Keychron Official
+              </a>
+              <span class="text-[10px] font-black text-amber-400 flex items-center gap-0.5"><i data-lucide="star" class="w-3 h-3 fill-amber-400"></i> 9.8</span>
+            </div>
+            <h4 class="font-bold text-slate-900 dark:text-white text-sm line-clamp-2">Keychron Q1 Pro Wireless Custom Mechanical Keyboard</h4>
+            <p class="text-xs text-slate-600 dark:text-slate-400 mt-1.5 line-clamp-2">CNC 6063 aluminum body, acoustic double-gasket design, and wireless Bluetooth QMK/VIA.</p>
+          </div>
+          <div class="mt-4 pt-3 border-t border-purple-100 dark:border-purple-900/60">
+            <div class="flex items-baseline justify-between mb-3">
+              <span class="text-lg font-black text-cyan-400 price-val font-display" data-vnd="4.890.000₫" data-usd="$199.00">$199.00</span>
+              <span class="text-xs text-slate-400 line-through strike-val" data-vnd="5.800.000₫" data-usd="$239.00">$239.00</span>
+            </div>
+            <div class="grid grid-cols-2 gap-2">
+              <a href="post-keychron-q1.html" class="py-2.5 px-2 rounded-xl bg-slate-100 dark:bg-[#141926] hover:bg-cyan-950/60 text-slate-700 dark:text-cyan-300 font-bold text-xs flex items-center justify-center gap-1.5 transition-all border border-slate-300 dark:border-slate-800 hover:border-cyan-500/40 shadow-2xs text-center">
+                <span data-i18n="btn_read_review">Read Review</span> <i data-lucide="arrow-right" class="w-3.5 h-3.5 flex-shrink-0"></i>
+              </a>
+              <a href="https://keychron.com" target="_blank" rel="noopener noreferrer" class="py-2.5 px-2 rounded-xl bg-gradient-to-r from-cyan-500 via-sky-500 to-blue-600 hover:from-cyan-400 hover:to-blue-500 text-white font-extrabold text-xs flex items-center justify-center gap-1.5 shadow-md shadow-cyan-500/25 active:scale-95 whitespace-nowrap transition-all text-center">
+                <span data-i18n="order_now">ORDER NOW</span> <i data-lucide="external-link" class="w-3.5 h-3.5 flex-shrink-0"></i>
+              </a>
+            </div>
+          </div>
+        </div>
+
+        <!-- Product 6: Ugreen Nexode 300W GaN Desktop Charger -->
+        <div class="bg-white dark:bg-[#0e121d] rounded-3xl p-5 border border-slate-200 dark:border-slate-800/80 hover:border-cyan-500/60 shadow-sm flex flex-col justify-between card-hover">
+          <div>
+            <div class="flex justify-between items-center mb-3">
+              <span class="text-xs font-bold text-rose-500 uppercase">Power & GaN Charging</span>
+              <span class="bg-rose-100 dark:bg-rose-950 text-rose-600 dark:text-rose-300 text-[10px] font-bold px-2 py-0.5 rounded-full">-26%</span>
+            </div>
+            <div class="overflow-hidden rounded-2xl mb-3.5 bg-purple-50 dark:bg-purple-950/40 aspect-[16/11]">
+              <img src="https://images.unsplash.com/photo-1583863788434-e58a36330cf0?auto=format&fit=crop&w=800&q=80" alt="Ugreen Nexode 300W" class="w-full h-full object-cover hover:scale-105 transition-transform duration-300">
+            </div>
+            <div class="flex items-center justify-between gap-1.5 mb-2">
+              <a href="shop.html?shop=Ugreen+Official" class="inline-flex items-center gap-1 text-[10px] font-extrabold text-cyan-300 bg-purple-100/90 dark:bg-purple-950/90 hover:bg-purple-200 px-2 py-0.5 rounded-lg border border-purple-200 dark:border-purple-800 truncate" title="Ugreen Official">
+                <i data-lucide="store" class="w-3 h-3 text-pink-500"></i> Ugreen Official
+              </a>
+              <span class="text-[10px] font-black text-amber-400 flex items-center gap-0.5"><i data-lucide="star" class="w-3 h-3 fill-amber-400"></i> 9.8</span>
+            </div>
+            <h4 class="font-bold text-slate-900 dark:text-white text-sm line-clamp-2">Ugreen Nexode 300W GaN 5-Port Desktop Charger</h4>
+            <p class="text-xs text-slate-600 dark:text-slate-400 mt-1.5 line-clamp-2">PD 3.1 140W single-port output, simultaneous dual-MacBook full speed charging.</p>
+          </div>
+          <div class="mt-4 pt-3 border-t border-purple-100 dark:border-purple-900/60">
+            <div class="flex items-baseline justify-between mb-3">
+              <span class="text-lg font-black text-cyan-400 price-val font-display" data-vnd="4.990.000₫" data-usd="$199.99">$199.99</span>
+              <span class="text-xs text-slate-400 line-through strike-val" data-vnd="6.750.000₫" data-usd="$269.99">$269.99</span>
+            </div>
+            <div class="grid grid-cols-2 gap-2">
+              <a href="just-move-blueberry-muffin-protein.html" class="py-2.5 px-2 rounded-xl bg-slate-100 dark:bg-[#141926] hover:bg-cyan-950/60 text-slate-700 dark:text-cyan-300 font-bold text-xs flex items-center justify-center gap-1.5 transition-all border border-slate-300 dark:border-slate-800 hover:border-cyan-500/40 shadow-2xs text-center">
+                <span data-i18n="btn_read_review">Read Review</span> <i data-lucide="arrow-right" class="w-3.5 h-3.5 flex-shrink-0"></i>
+              </a>
+              <a href="https://ugreen.com" target="_blank" rel="noopener noreferrer" class="py-2.5 px-2 rounded-xl bg-gradient-to-r from-cyan-500 via-sky-500 to-blue-600 hover:from-cyan-400 hover:to-blue-500 text-white font-extrabold text-xs flex items-center justify-center gap-1.5 shadow-md shadow-cyan-500/25 active:scale-95 whitespace-nowrap transition-all text-center">
+                <span data-i18n="order_now">ORDER NOW</span> <i data-lucide="external-link" class="w-3.5 h-3.5 flex-shrink-0"></i>
+              </a>
+            </div>
+          </div>
+        </div>
+
+        <!-- Product 7: ASUS ROG Ally X -->
+        <div class="bg-white dark:bg-[#0e121d] rounded-3xl p-5 border border-slate-200 dark:border-slate-800/80 hover:border-cyan-500/60 shadow-sm flex flex-col justify-between card-hover">
+          <div>
+            <div class="flex justify-between items-center mb-3">
+              <span class="text-xs font-bold text-cyan-400 uppercase">Computing & Gaming</span>
+              <span class="bg-cyan-950/80 text-purple-600 dark:text-slate-300 text-[10px] font-bold px-2 py-0.5 rounded-full">-11%</span>
+            </div>
+            <div class="overflow-hidden rounded-2xl mb-3.5 bg-purple-50 dark:bg-purple-950/40 aspect-[16/11]">
+              <img src="https://images.unsplash.com/photo-1612287233207-6f8101e403d1?auto=format&fit=crop&w=800&q=80" alt="ASUS ROG Ally X" class="w-full h-full object-cover hover:scale-105 transition-transform duration-300">
+            </div>
+            <div class="flex items-center justify-between gap-1.5 mb-2">
+              <a href="shop.html?shop=ASUS+ROG+Official" class="inline-flex items-center gap-1 text-[10px] font-extrabold text-cyan-300 bg-purple-100/90 dark:bg-purple-950/90 hover:bg-purple-200 px-2 py-0.5 rounded-lg border border-purple-200 dark:border-purple-800 truncate" title="ASUS ROG Official">
+                <i data-lucide="store" class="w-3 h-3 text-pink-500"></i> ASUS ROG Official
+              </a>
+              <span class="text-[10px] font-black text-amber-400 flex items-center gap-0.5"><i data-lucide="star" class="w-3 h-3 fill-amber-400"></i> 9.8</span>
+            </div>
+            <h4 class="font-bold text-slate-900 dark:text-white text-sm line-clamp-2">ASUS ROG Ally X Handheld Gaming PC</h4>
+            <p class="text-xs text-slate-600 dark:text-slate-400 mt-1.5 line-clamp-2">80Wh massive battery, AMD Ryzen Z1 Extreme, 24GB LPDDR5X RAM, and 120Hz VRR display.</p>
+          </div>
+          <div class="mt-4 pt-3 border-t border-purple-100 dark:border-purple-900/60">
+            <div class="flex items-baseline justify-between mb-3">
+              <span class="text-lg font-black text-cyan-400 price-val font-display" data-vnd="19.990.000₫" data-usd="$799.99">$799.99</span>
+              <span class="text-xs text-slate-400 line-through strike-val" data-vnd="22.499.000₫" data-usd="$899.99">$899.99</span>
+            </div>
+            <div class="grid grid-cols-2 gap-2">
+              <a href="post-tissot-prx.html" class="py-2.5 px-2 rounded-xl bg-slate-100 dark:bg-[#141926] hover:bg-cyan-950/60 text-slate-700 dark:text-cyan-300 font-bold text-xs flex items-center justify-center gap-1.5 transition-all border border-slate-300 dark:border-slate-800 hover:border-cyan-500/40 shadow-2xs text-center">
+                <span data-i18n="btn_read_review">Read Review</span> <i data-lucide="arrow-right" class="w-3.5 h-3.5 flex-shrink-0"></i>
+              </a>
+              <a href="https://rog.asus.com" target="_blank" rel="noopener noreferrer" class="py-2.5 px-2 rounded-xl bg-gradient-to-r from-cyan-500 via-sky-500 to-blue-600 hover:from-cyan-400 hover:to-blue-500 text-white font-extrabold text-xs flex items-center justify-center gap-1.5 shadow-md shadow-cyan-500/25 active:scale-95 whitespace-nowrap transition-all text-center">
+                <span data-i18n="order_now">ORDER NOW</span> <i data-lucide="external-link" class="w-3.5 h-3.5 flex-shrink-0"></i>
+              </a>
+            </div>
+          </div>
+        </div>
+
+        <!-- Product 8: DJI Osmo Pocket 3 -->
+        <div class="bg-white dark:bg-[#0e121d] rounded-3xl p-5 border border-slate-200 dark:border-slate-800/80 hover:border-cyan-500/60 shadow-sm flex flex-col justify-between card-hover">
+          <div>
+            <div class="flex justify-between items-center mb-3">
+              <span class="text-xs font-bold text-violet-500 uppercase">Cameras & Creator Gear</span>
+              <span class="bg-emerald-100 dark:bg-emerald-950 text-emerald-600 dark:text-emerald-300 text-[10px] font-bold px-2 py-0.5 rounded-full">-11%</span>
+            </div>
+            <div class="overflow-hidden rounded-2xl mb-3.5 bg-purple-50 dark:bg-purple-950/40 aspect-[16/11]">
+              <img src="https://images.unsplash.com/photo-1516035069371-29a1b244cc32?auto=format&fit=crop&w=800&q=80" alt="DJI Osmo Pocket 3" class="w-full h-full object-cover hover:scale-105 transition-transform duration-300">
+            </div>
+            <div class="flex items-center justify-between gap-1.5 mb-2">
+              <a href="shop.html?shop=DJI+Official" class="inline-flex items-center gap-1 text-[10px] font-extrabold text-cyan-300 bg-purple-100/90 dark:bg-purple-950/90 hover:bg-purple-200 px-2 py-0.5 rounded-lg border border-purple-200 dark:border-purple-800 truncate" title="DJI Official">
+                <i data-lucide="store" class="w-3 h-3 text-pink-500"></i> DJI Official
+              </a>
+              <span class="text-[10px] font-black text-amber-400 flex items-center gap-0.5"><i data-lucide="star" class="w-3 h-3 fill-amber-400"></i> 9.9</span>
+            </div>
+            <h4 class="font-bold text-slate-900 dark:text-white text-sm line-clamp-2">DJI Osmo Pocket 3 Creator Combo Vlog Gimbal</h4>
+            <p class="text-xs text-slate-600 dark:text-slate-400 mt-1.5 line-clamp-2">1-inch CMOS sensor, rotating 2-inch OLED screen, 4K/120fps recording, and 3-axis mechanical stabilization.</p>
+          </div>
+          <div class="mt-4 pt-3 border-t border-purple-100 dark:border-purple-900/60">
+            <div class="flex items-baseline justify-between mb-3">
+              <span class="text-lg font-black text-cyan-400 price-val font-display" data-vnd="16.725.000₫" data-usd="$669.00">$669.00</span>
+              <span class="text-xs text-slate-400 line-through strike-val" data-vnd="18.725.000₫" data-usd="$749.00">$749.00</span>
+            </div>
+            <div class="grid grid-cols-2 gap-2">
+              <a href="post-brembo-gt.html" class="py-2.5 px-2 rounded-xl bg-slate-100 dark:bg-[#141926] hover:bg-cyan-950/60 text-slate-700 dark:text-cyan-300 font-bold text-xs flex items-center justify-center gap-1.5 transition-all border border-slate-300 dark:border-slate-800 hover:border-cyan-500/40 shadow-2xs text-center">
+                <span data-i18n="btn_read_review">Read Review</span> <i data-lucide="arrow-right" class="w-3.5 h-3.5 flex-shrink-0"></i>
+              </a>
+              <a href="https://dji.com" target="_blank" rel="noopener noreferrer" class="py-2.5 px-2 rounded-xl bg-gradient-to-r from-cyan-500 via-sky-500 to-blue-600 hover:from-cyan-400 hover:to-blue-500 text-white font-extrabold text-xs flex items-center justify-center gap-1.5 shadow-md shadow-cyan-500/25 active:scale-95 whitespace-nowrap transition-all text-center">
+                <span data-i18n="order_now">ORDER NOW</span> <i data-lucide="external-link" class="w-3.5 h-3.5 flex-shrink-0"></i>
+              </a>
+            </div>
+          </div>
+        </div>
+
+      </div>
+
+      <!-- Quick Category Strip leading to shop.html -->
+      <div class="mt-10 p-5 sm:p-6 rounded-3xl bg-white/70 dark:bg-[#0e121d]/70 backdrop-blur-md border border-purple-200/70 dark:border-slate-800 shadow-sm flex flex-col md:flex-row items-center justify-between gap-4">
+        <div class="flex items-center gap-3.5">
+          <div class="w-12 h-12 rounded-2xl bg-gradient-to-tr from-cyan-500 via-sky-500 to-blue-600 text-white flex items-center justify-center flex-shrink-0 shadow-md">
+            <i data-lucide="layers" class="w-6 h-6"></i>
+          </div>
+          <div>
+            <div class="text-base font-extrabold text-slate-900 dark:text-white" data-i18n="shop_banner_title">10 Curated Tech Categories & 36+ Verified Gadgets</div>
+            <div class="text-xs text-slate-500 dark:text-slate-400 mt-0.5" data-i18n="shop_banner_sub">Audio, Smart Home, Desk EDC, Robotics, Cameras, Wearables, Gaming, GaN Power & AI Tools</div>
+          </div>
+        </div>
+        <a href="shop.html" class="px-6 py-3 bg-gradient-to-r from-cyan-500 via-sky-500 to-blue-600 hover:from-purple-700 hover:to-pink-700 text-white text-xs font-extrabold rounded-xl shadow-md flex items-center gap-2 whitespace-nowrap transition-all flex-shrink-0 btn-shimmer">
+          <span data-i18n="shop_banner_btn">Explore Full Store (20 Curated Items)</span>
+          <i data-lucide="arrow-right" class="w-4 h-4"></i>
+        </a>
+      </div>
+
+    </div>
+  </section>
+
+  <!-- 4 PILLARS OF MONETIZATION (Purple Glow Cards - Moved to Bottom of Page) -->
+  <section class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10 pb-16">
+    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5">
+      
+      <!-- 1. Affiliate Marketing Engine -->
+      <div class="p-6 bg-white dark:bg-[#0e121d] rounded-3xl border border-slate-200 dark:border-slate-800/80 hover:border-cyan-500/60 shadow-sm card-hover flex flex-col justify-between">
+        <div>
+          <div class="w-12 h-12 rounded-2xl bg-cyan-950/80/80 text-cyan-400 flex items-center justify-center mb-4 shadow-sm">
+            <i data-lucide="link" class="w-6 h-6"></i>
+          </div>
+          <h4 class="font-bold text-slate-900 dark:text-white text-base" data-i18n="pillar_affiliate_title">Affiliate Marketing</h4>
+          <p class="text-xs text-slate-600 dark:text-slate-400 mt-2 leading-relaxed" data-i18n="pillar_affiliate_desc">Instant Check Price CTA, real-time multi-store price comparisons across Amazon & Shopee, and exclusive vouchers.</p>
+        </div>
+        <a href="post.html" class="inline-flex items-center gap-1.5 text-xs font-bold text-cyan-400 mt-4 hover:underline">
+          <span data-i18n="pillar_affiliate_action">Explore Modules</span> <i data-lucide="arrow-right" class="w-3 h-3"></i>
+        </a>
+      </div>
+
+      <!-- 2. Display Ads Optimization -->
+      <div class="p-6 bg-white dark:bg-[#0e121d] rounded-3xl border border-slate-200 dark:border-slate-800/80 hover:border-cyan-500/60 shadow-sm card-hover flex flex-col justify-between">
+        <div>
+          <div class="w-12 h-12 rounded-2xl bg-indigo-100 dark:bg-indigo-950/80 text-indigo-600 dark:text-indigo-400 flex items-center justify-center mb-4 shadow-sm">
+            <i data-lucide="layout" class="w-6 h-6"></i>
+          </div>
+          <h4 class="font-bold text-slate-900 dark:text-white text-base" data-i18n="pillar_ads_title">Display Advertising</h4>
+          <p class="text-xs text-slate-600 dark:text-slate-400 mt-2 leading-relaxed" data-i18n="pillar_ads_desc">Header leaderboard, in-article display units, and sticky sidebar 300x600 optimized for AdSense & Mediavine.</p>
+        </div>
+        <span class="inline-flex items-center gap-1 text-xs font-bold text-emerald-500 mt-4" data-i18n="pillar_ads_status">
+          IAB Ad Standard Compliant
+        </span>
+      </div>
+
+      <!-- 3. Sponsored Content & Partnerships -->
+      <div class="p-6 bg-white dark:bg-[#0e121d] rounded-3xl border border-slate-200 dark:border-slate-800/80 hover:border-cyan-500/60 shadow-sm card-hover flex flex-col justify-between">
+        <div>
+          <div class="w-12 h-12 rounded-2xl bg-pink-100 dark:bg-pink-950/80 text-cyan-600 dark:text-cyan-400 dark:text-pink-400 flex items-center justify-center mb-4 shadow-sm">
+            <i data-lucide="award" class="w-6 h-6"></i>
+          </div>
+          <h4 class="font-bold text-slate-900 dark:text-white text-base" data-i18n="pillar_sponsor_title">Sponsored Content</h4>
+          <p class="text-xs text-slate-600 dark:text-slate-400 mt-2 leading-relaxed" data-i18n="pillar_sponsor_desc">SEO-compliant sponsorship disclosures, partner spotlight badges, and high-converting media kit booking portal.</p>
+        </div>
+        <a href="sponsor.html" class="inline-flex items-center gap-1.5 text-xs font-bold text-cyan-600 dark:text-cyan-400 dark:text-pink-400 mt-4 hover:underline">
+          <span data-i18n="pillar_sponsor_action">View Brand Rates</span> <i data-lucide="arrow-right" class="w-3 h-3"></i>
+        </a>
+      </div>
+
+      <!-- 4. Curated Gear & Merchandise -->
+      <div class="p-6 bg-white dark:bg-[#0e121d] rounded-3xl border border-slate-200 dark:border-slate-800/80 hover:border-cyan-500/60 shadow-sm card-hover flex flex-col justify-between">
+        <div>
+          <div class="w-12 h-12 rounded-2xl bg-violet-100 dark:bg-violet-950/80 text-violet-600 dark:text-violet-400 flex items-center justify-center mb-4 shadow-sm">
+            <i data-lucide="shopping-bag" class="w-6 h-6"></i>
+          </div>
+          <h4 class="font-bold text-slate-900 dark:text-white text-base" data-i18n="pillar_digital_title">Curated Shop & Gear</h4>
+          <p class="text-xs text-slate-600 dark:text-slate-400 mt-2 leading-relaxed" data-i18n="pillar_digital_desc">Mechanical horology, performance tuning, designer apparel, and desk EDC tested hands-on with exclusive coupon codes.</p>
+        </div>
+        <a href="shop.html" class="inline-flex items-center gap-1.5 text-xs font-bold text-cyan-400 mt-4 hover:underline">
+          <span data-i18n="pillar_digital_action">Explore Store</span> <i data-lucide="arrow-right" class="w-3 h-3"></i>
+        </a>
+      </div>
+
+    </div>
+  </section>
+
+  <!-- GET IN TOUCH / CONTACT SECTION -->
+  <section class="py-16 bg-slate-50 dark:bg-[#07080e] border-t border-slate-200 dark:border-slate-800/80">
+    <div class="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
+      
+      <!-- Section Header -->
+      <div class="mb-8">
+        <h2 class="text-2xl sm:text-3xl font-black text-slate-900 dark:text-white font-display" data-i18n="contact_heading">Get in Touch</h2>
+        <p class="text-xs sm:text-sm text-slate-500 dark:text-slate-400 mt-1" data-i18n="contact_subtitle">Questions, partnerships, or feedback — we'd love to hear from you.</p>
+      </div>
+
+      <!-- Main Card Grid -->
+      <div class="rounded-3xl overflow-hidden shadow-2xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-[#0e121d] grid grid-cols-1 lg:grid-cols-12">
+        
+        <!-- Left Column: Emerald Gradient Card -->
+        <div class="lg:col-span-5 bg-gradient-to-br from-emerald-600 via-emerald-700 to-teal-800 p-8 sm:p-10 text-white flex flex-col justify-between relative overflow-hidden">
+          <!-- Background decorative circles -->
+          <div class="absolute -top-16 -right-16 w-56 h-56 rounded-full bg-white/10 blur-xl pointer-events-none"></div>
+          <div class="absolute -bottom-16 -left-16 w-56 h-56 rounded-full bg-teal-900/30 blur-xl pointer-events-none"></div>
+
+          <div class="relative z-10 space-y-6">
+            <!-- Icon -->
+            <div class="w-12 h-12 rounded-2xl bg-white/15 backdrop-blur-md flex items-center justify-center border border-white/20 text-white shadow-inner">
+              <i data-lucide="life-buoy" class="w-6 h-6"></i>
+            </div>
+
+            <!-- Title & Desc -->
+            <div class="space-y-2">
+              <h3 class="text-2xl sm:text-3xl font-black leading-tight" data-i18n-html="contact_left_title">
+                We're here<br/>to help you save
+              </h3>
+              <p class="text-xs sm:text-sm text-emerald-100 leading-relaxed font-light" data-i18n="contact_left_desc">
+                Our team reviews every message personally. Whether it's a coupon issue, partnership idea, or feedback — we've got you.
+              </p>
+            </div>
+
+            <!-- Highlights List -->
+            <div class="space-y-4 pt-2">
+              <div class="flex items-start gap-3.5">
+                <div class="w-8 h-8 rounded-full bg-white/15 flex items-center justify-center shrink-0 text-white">
+                  <i data-lucide="clock" class="w-4 h-4"></i>
+                </div>
+                <div>
+                  <h4 class="text-xs font-bold text-white" data-i18n="contact_bullet1_title">Reply within 24 hours</h4>
+                  <p class="text-[11px] text-emerald-100/90" data-i18n="contact_bullet1_sub">Mon – Fri, 9am – 6pm PT</p>
+                </div>
+              </div>
+
+              <div class="flex items-start gap-3.5">
+                <div class="w-8 h-8 rounded-full bg-white/15 flex items-center justify-center shrink-0 text-white">
+                  <i data-lucide="shield-check" class="w-4 h-4"></i>
+                </div>
+                <div>
+                  <h4 class="text-xs font-bold text-white" data-i18n="contact_bullet2_title">Your info is safe</h4>
+                  <p class="text-[11px] text-emerald-100/90" data-i18n="contact_bullet2_sub">We never share your details</p>
+                </div>
+              </div>
+
+              <div class="flex items-start gap-3.5">
+                <div class="w-8 h-8 rounded-full bg-white/15 flex items-center justify-center shrink-0 text-white">
+                  <i data-lucide="message-square" class="w-4 h-4"></i>
+                </div>
+                <div>
+                  <h4 class="text-xs font-bold text-white" data-i18n="contact_bullet3_title">Partnership inquiries</h4>
+                  <p class="text-[11px] text-emerald-100/90" data-i18n="contact_bullet3_sub">Open to store & brand partners</p>
+                </div>
+              </div>
+
+              <div class="flex items-start gap-3.5">
+                <div class="w-8 h-8 rounded-full bg-white/15 flex items-center justify-center shrink-0 text-white">
+                  <i data-lucide="mail" class="w-4 h-4"></i>
+                </div>
+                <div>
+                  <h4 class="text-xs font-bold text-white break-words">support@couponhiker.com</h4>
+                  <p class="text-[11px] text-emerald-100/90" data-i18n="contact_bullet4_sub">Direct email always welcome</p>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Bottom Official Partner Badge with User Address -->
+          <div class="relative z-10 pt-6 mt-6 border-t border-emerald-500/40">
+            <div class="flex items-center gap-3">
+              <div class="w-7 h-7 rounded-full bg-white/20 flex items-center justify-center shrink-0 text-white">
+                <i data-lucide="check" class="w-4 h-4"></i>
+              </div>
+              <div class="text-[11px]">
+                <p class="font-bold text-white tracking-wide" data-i18n="contact_partner_title">Official Marketing Partner</p>
+                <p class="text-emerald-100/90 leading-tight" data-i18n="contact_partner_note">CouponHiker Hub • 2205 Lorina Ave, Corcoran, CA 93212, USA</p>
+              </div>
+            </div>
+          </div>
+
+        </div>
+
+        <!-- Right Column: Contact Form -->
+        <div class="lg:col-span-7 p-8 sm:p-10 bg-white dark:bg-[#0c061a] flex flex-col justify-between">
+          <div>
+            <div class="mb-6">
+              <h3 class="text-xl font-extrabold text-slate-900 dark:text-white" data-i18n="contact_form_title">Send us a message</h3>
+              <p class="text-xs text-slate-500 dark:text-slate-300/60 mt-1" data-i18n="contact_form_required">Fields marked * are required</p>
+            </div>
+
+            <form id="get-in-touch-form" class="space-y-4" onsubmit="handleContactSubmit(event)">
+              <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                <!-- Name -->
+                <div>
+                  <label class="block text-xs font-bold text-slate-700 dark:text-purple-200 mb-1.5" data-i18n="contact_name_label">
+                    Your Name <span class="text-slate-400 font-normal" data-i18n="contact_optional">(optional)</span>
+                  </label>
+                  <input type="text" id="contact-name" name="name" placeholder="Jane Smith" data-i18n-placeholder="contact_name_placeholder" class="w-full px-3.5 py-2.5 rounded-xl border border-slate-200 dark:border-slate-200 dark:border-slate-800/80 bg-white dark:bg-purple-950/30 text-slate-900 dark:text-white text-xs focus:ring-2 focus:ring-emerald-500 outline-none transition-all" />
+                </div>
+
+                <!-- Email -->
+                <div>
+                  <label class="block text-xs font-bold text-slate-700 dark:text-purple-200 mb-1.5" data-i18n="contact_email_label">
+                    Email Address <span class="text-rose-500">*</span>
+                  </label>
+                  <input type="email" id="contact-email" name="email" required placeholder="you@example.com" data-i18n-placeholder="contact_email_placeholder" class="w-full px-3.5 py-2.5 rounded-xl border border-slate-200 dark:border-slate-200 dark:border-slate-800/80 bg-white dark:bg-purple-950/30 text-slate-900 dark:text-white text-xs focus:ring-2 focus:ring-emerald-500 outline-none transition-all" />
+                </div>
+              </div>
+
+              <!-- Subject -->
+              <div>
+                <label class="block text-xs font-bold text-slate-700 dark:text-purple-200 mb-1.5" data-i18n="contact_subject_label">
+                  Subject <span class="text-slate-400 font-normal" data-i18n="contact_optional">(optional)</span>
+                </label>
+                <input type="text" id="contact-subject" name="subject" placeholder="e.g. Partnership, coupon issue, feedback..." data-i18n-placeholder="contact_subject_placeholder" class="w-full px-3.5 py-2.5 rounded-xl border border-slate-200 dark:border-slate-200 dark:border-slate-800/80 bg-white dark:bg-purple-950/30 text-slate-900 dark:text-white text-xs focus:ring-2 focus:ring-emerald-500 outline-none transition-all" />
+              </div>
+
+              <!-- Message -->
+              <div>
+                <label class="block text-xs font-bold text-slate-700 dark:text-purple-200 mb-1.5" data-i18n="contact_message_label">
+                  Message <span class="text-rose-500">*</span>
+                </label>
+                <textarea id="contact-message" name="message" required rows="4" placeholder="Tell us how we can help..." data-i18n-placeholder="contact_message_placeholder" class="w-full px-3.5 py-2.5 rounded-xl border border-slate-200 dark:border-slate-200 dark:border-slate-800/80 bg-white dark:bg-purple-950/30 text-slate-900 dark:text-white text-xs focus:ring-2 focus:ring-emerald-500 outline-none transition-all resize-none"></textarea>
+              </div>
+
+              <!-- Submit Button -->
+              <button type="submit" id="contact-submit-btn" class="w-full py-3 px-6 rounded-xl bg-emerald-600 hover:bg-emerald-500 active:scale-[0.99] text-white font-bold text-xs flex items-center justify-center gap-2 shadow-lg shadow-emerald-600/25 transition-all cursor-pointer">
+                <i data-lucide="send" class="w-4 h-4"></i>
+                <span data-i18n="contact_submit_btn">Send Message</span>
+              </button>
+            </form>
+          </div>
+
+          <div class="mt-4 pt-3 text-center border-t border-slate-100 dark:border-purple-900/30">
+            <p class="text-[11px] text-slate-400 dark:text-slate-300/50" data-i18n="contact_reply_guarantee">
+              We typically reply within 24 hours · Your info is never shared
+            </p>
+          </div>
+        </div>
+
+      </div>
+
+    </div>
+  </section>
+
+  <!-- FOOTER -->
+  <footer class="bg-white dark:bg-[#07080e] border-t border-purple-200/50 dark:border-purple-900/40 mt-auto py-12">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-8 mb-10">
+        
+        <div class="space-y-3">
+          <div class="flex items-center gap-2">
+            <img src="images/logo.png?v=20261116_noflash_v3" alt="CouponHiker Logo" class="w-8 h-8 rounded-xl object-cover shadow-md flex-shrink-0">
+            <span class="font-extrabold text-lg text-slate-900 dark:text-white font-display">CouponHiker</span>
+          </div>
+          <p class="text-xs text-slate-500 dark:text-slate-400 leading-relaxed" data-i18n="footer_desc">
+            Authoritative publication specializing in tech reviews, affiliate marketing frameworks, and conversion optimization for independent creators.
+          </p>
+          <!-- Social Media Channels -->
+          <div class="pt-2">
+            <span class="text-[10px] font-bold uppercase tracking-wider text-slate-400 dark:text-purple-400 block mb-2" data-i18n="footer_social_title">Follow Us</span>
+            <div class="flex items-center gap-2.5">
+              <a href="https://www.facebook.com/couponhiker" target="_blank" rel="noopener noreferrer" class="w-8 h-8 rounded-lg bg-slate-100 hover:bg-[#1877F2] dark:bg-[#141926] dark:hover:bg-[#1877F2] border border-slate-200 dark:border-slate-800 flex items-center justify-center text-slate-600 dark:text-slate-300 hover:text-white dark:hover:text-white transition-all transform hover:-translate-y-0.5 shadow-sm group" title="Facebook: CouponHiker" aria-label="Facebook">
+                <svg class="w-4 h-4 fill-current" viewBox="0 0 24 24"><path d="M24 12.073c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 5.99 4.388 10.954 10.125 11.854v-8.385H7.078v-3.47h3.047V9.43c0-3.007 1.792-4.669 4.533-4.669 1.312 0 2.686.235 2.686.235v2.953H15.83c-1.491 0-1.956.925-1.956 1.874v2.25h3.328l-.532 3.47h-2.796v8.385C19.612 23.027 24 18.062 24 12.073z"/></svg>
+              </a>
+              <a href="https://www.instagram.com/couponhiker/" target="_blank" rel="noopener noreferrer" class="w-8 h-8 rounded-lg bg-slate-100 hover:bg-gradient-to-tr hover:from-[#f09433] hover:via-[#dc2743] hover:to-[#bc1888] dark:bg-[#141926] border border-slate-200 dark:border-slate-800 flex items-center justify-center text-slate-600 dark:text-slate-300 hover:text-white dark:hover:text-white transition-all transform hover:-translate-y-0.5 shadow-sm group" title="Instagram: @couponhiker" aria-label="Instagram">
+                <svg class="w-4 h-4 fill-current" viewBox="0 0 24 24"><path d="M12 2.163c3.204 0 3.584.012 4.85.07 3.252.148 4.771 1.691 4.919 4.919.058 1.265.069 1.645.069 4.849 0 3.205-.012 3.584-.069 4.849-.149 3.225-1.664 4.771-4.919 4.919-1.266.058-1.644.07-4.85.07-3.204 0-3.584-.012-4.849-.07-3.26-.149-4.771-1.699-4.919-4.92-.058-1.265-.07-1.644-.07-4.849 0-3.204.013-3.583.07-4.849.149-3.227 1.664-4.771 4.919-4.919 1.266-.057 1.645-.069 4.849-.069zm0-2.163c-3.259 0-3.667.014-4.947.072-4.358.2-6.78 2.618-6.98 6.98-.059 1.281-.073 1.689-.073 4.948 0 3.259.014 3.668.072 4.948.2 4.358 2.618 6.78 6.98 6.98 1.281.058 1.689.072 4.948.072 3.259 0 3.668-.014 4.948-.072 4.354-.2 6.782-2.618 6.979-6.98.059-1.28.073-1.689.073-4.948 0-3.259-.014-3.667-.072-4.947-.196-4.354-2.617-6.78-6.979-6.98-1.281-.059-1.69-.073-4.949-.073zm0 5.838c-3.403 0-6.162 2.759-6.162 6.162s2.759 6.163 6.162 6.163 6.162-2.759 6.162-6.163c0-3.403-2.759-6.162-6.162-6.162zm0 10.162c-2.209 0-4-1.79-4-4 0-2.209 1.791-4 4-4s4 1.791 4 4c0 2.21-1.791 4-4 4zm6.406-11.845c-.796 0-1.441.645-1.441 1.44s.645 1.44 1.441 1.44c.795 0 1.439-.645 1.439-1.44s-.644-1.44-1.439-1.44z"/></svg>
+              </a>
+              <a href="mailto:support@couponhiker.com" class="w-8 h-8 rounded-lg bg-slate-100 hover:bg-emerald-600 dark:bg-[#141926] dark:hover:bg-emerald-600 border border-slate-200 dark:border-slate-800 flex items-center justify-center text-slate-600 dark:text-slate-300 hover:text-white dark:hover:text-white transition-all transform hover:-translate-y-0.5 shadow-sm" title="Email: support@couponhiker.com" aria-label="Email">
+                <svg class="w-4 h-4 fill-none stroke-current stroke-2" viewBox="0 0 24 24" stroke-linecap="round" stroke-linejoin="round"><rect width="20" height="16" x="2" y="4" rx="2"/><path d="m22 7-8.97 5.7a1.94 1.94 0 0 1-2.06 0L2 7"/></svg>
+              </a>
+            </div>
+          </div>
+        </div>
+
+        <div>
+          <h4 class="text-xs font-bold uppercase tracking-wider text-slate-900 dark:text-white mb-3" data-i18n="footer_categories">Navigation</h4>
+          <ul class="space-y-2 text-xs text-slate-600 dark:text-slate-400">
+            <li><a href="index.html" class="hover:text-cyan-500 dark:hover:text-cyan-400" data-i18n="nav_home">Home</a></li>
+            <li><a href="post.html" class="hover:text-cyan-500 dark:hover:text-cyan-400" data-i18n="nav_reviews">Tech Reviews</a></li>
+            <li><a href="shop.html" class="hover:text-cyan-500 dark:hover:text-cyan-400" data-i18n="nav_shop">Curated Store</a></li>
+            <li><a href="sponsor.html" class="hover:text-cyan-500 dark:hover:text-cyan-400" data-i18n="nav_sponsor">Sponsorships</a></li>
+          </ul>
+        </div>
+
+        <div>
+          <h4 class="text-xs font-bold uppercase tracking-wider text-slate-900 dark:text-white mb-3" data-i18n="footer_models">Revenue Models</h4>
+          <ul class="space-y-2 text-xs text-slate-600 dark:text-slate-400">
+            <li data-i18n="footer_model_affiliate">• Affiliate Marketing (Direct Merchant Partnerships)</li>
+            <li data-i18n="footer_model_ads">• IAB-Compliant Display Ad Networks</li>
+            <li data-i18n="footer_model_sponsor">• Sponsored Reviews & Exclusive Partnerships</li>
+            <li data-i18n="footer_model_digital">• Curated Products & Physical Gear Store</li>
+          </ul>
+        </div>
+
+        <div>
+          <h4 class="text-xs font-bold uppercase tracking-wider text-slate-900 dark:text-white mb-3" data-i18n="footer_compliance">Compliance & Disclosure</h4>
+          <p class="text-[11px] text-slate-500 dark:text-slate-400 leading-relaxed" data-i18n="footer_compliance_text">
+            Fully compliant with FTC guidelines and Google Quality Rater standards for transparency, honest affiliate partnerships, and consumer protection.
+          </p>
+        </div>
+
+        <!-- Contact Column (Exact Match to User Reference) -->
+        <div>
+          <h4 class="text-xs font-bold uppercase tracking-wider text-slate-900 dark:text-white mb-3" data-i18n="footer_contact_title">Contact</h4>
+          <p class="text-xs font-semibold text-slate-700 dark:text-purple-200 mb-1" data-i18n="footer_mailing_addr_label">Mailing Address:</p>
+          <p class="text-xs text-slate-600 dark:text-slate-400 leading-relaxed mb-3">
+            2205 Lorina Ave, Corcoran, CA 93212, USA
+          </p>
+          <div class="flex items-center gap-2 text-xs text-slate-600 dark:text-slate-400 mb-4">
+            <i data-lucide="mail" class="w-3.5 h-3.5 text-emerald-600 dark:text-emerald-400 shrink-0"></i>
+            <a href="mailto:support@couponhiker.com" class="text-[11.5px] sm:text-xs hover:underline hover:text-emerald-600 dark:hover:text-emerald-400 break-words font-medium">support@couponhiker.com</a>
+          </div>
+          <div class="pt-3 border-t border-slate-200 dark:border-slate-800/80">
+            <span class="text-[10px] font-bold uppercase tracking-wider text-slate-400 dark:text-purple-400 block mb-1.5" data-i18n="footer_partner_label">OFFICIAL MARKETING PARTNER</span>
+            <div class="flex items-center gap-2.5 p-2 rounded-xl bg-slate-50 dark:bg-purple-950/40 border border-slate-200 dark:border-purple-800/40">
+              <div class="w-7 h-7 rounded-lg bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 flex items-center justify-center shrink-0">
+                <i data-lucide="check-circle" class="w-4 h-4"></i>
+              </div>
+              <div>
+                <p class="text-xs font-bold text-slate-800 dark:text-purple-100 leading-tight">CouponHiker Lab LLC</p>
+                <p class="text-[10px] text-slate-500 dark:text-slate-300/60 leading-tight" data-i18n="footer_partner_sub">CouponHiker Hub is an independent tech marketing division</p>
+              </div>
+            </div>
+          </div>
+        </div>
+
+      </div>
+
+      <div class="pt-6 border-t border-slate-200 dark:border-slate-800/80 flex flex-col sm:flex-row items-center justify-between gap-4 text-xs text-slate-400">
+        <p data-i18n="footer_copyright">© 2026 CouponHiker. All rights reserved.</p>
+        <div class="flex gap-4">
+          <a href="#" class="hover:underline" data-i18n="footer_privacy">Privacy Policy</a>
+          <a href="#" class="hover:underline" data-i18n="footer_terms">Terms of Service</a>
+          <a href="sponsor.html" class="hover:underline" data-i18n="footer_partnerships">Brand Partnerships</a>
+        </div>
+      </div>
+
+    </div>
+  </footer>
+
+  <!-- Toast Container -->
+  <div id="toast"></div>
+
+  <!-- Scripts -->
+  <script src="js/app.js?v=20261116_noflash_v3"></script>
+  <script src="js/checkout.js?v=20261116_noflash_v3"></script>
+  <script src="js/home-articles.js?v=20261116_noflash_v3"></script>
+</body>
+</html>
+<!-- Cache Buster 20261005 -->
