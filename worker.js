@@ -75,13 +75,17 @@ function normProdId(s) {
 function sanitizePostHtml(html) {
   if (!html || typeof html !== 'string') return html;
 
-  // 1. Replace square purple CH logo with official logo matching index.html
+  // 1. Universal Logo Replacement: Match any square logo div/span containing CH or SP
   html = html.replace(
     /<div[^>]*class="[^"]*(?:bg-gradient-to-[a-z]+|from-purple|to-indigo|shadow-purple)[^"]*"[^>]*>\s*CH\s*<\/div>/gi,
     '<img src="images/logo.png" alt="CouponHiker Logo" class="w-9 h-9 sm:w-12 sm:h-12 xl:w-14 xl:h-14 rounded-xl sm:rounded-2xl object-cover shadow-lg shadow-cyan-500/30 group-hover:scale-105 transition-transform flex-shrink-0">'
   );
   html = html.replace(
-    /<div[^>]*>\s*CH\s*<\/div>/gi,
+    /<div[^>]*class="[^"]*(?:bg-gradient|rounded|shadow)[^"]*"[^>]*>\s*(?:<span[^>]*>)?\s*CH\s*(?:<\/span>)?\s*<\/div>/gi,
+    '<img src="images/logo.png" alt="CouponHiker Logo" class="w-9 h-9 sm:w-12 sm:h-12 xl:w-14 xl:h-14 rounded-xl sm:rounded-2xl object-cover shadow-lg shadow-cyan-500/30 group-hover:scale-105 transition-transform flex-shrink-0">'
+  );
+  html = html.replace(
+    /<div[^>]*>\s*(?:<span[^>]*>)?\s*CH\s*(?:<\/span>)?\s*<\/div>/gi,
     '<img src="images/logo.png" alt="CouponHiker Logo" class="w-9 h-9 sm:w-12 sm:h-12 xl:w-14 xl:h-14 rounded-xl sm:rounded-2xl object-cover shadow-lg shadow-cyan-500/30 group-hover:scale-105 transition-transform flex-shrink-0">'
   );
 
@@ -97,10 +101,14 @@ function sanitizePostHtml(html) {
   html = html.replace(/border-purple-500\/40/gi, 'border-cyan-400/40');
   html = html.replace(/shadow-purple-500\/25/gi, 'shadow-cyan-500/25');
 
-  // 4. Header REVIEW badge and subtitle
+  // 4. Header REVIEW badge, Reviews HOT badge, and subtitle
   html = html.replace(/bg-purple-100\/90\s+dark:bg-purple-950\/90\s+text-purple-700\s+dark:text-purple-300/gi, 'bg-cyan-100/90 dark:bg-cyan-950/90 text-cyan-800 dark:text-cyan-300');
   html = html.replace(/border-purple-300\/60\s+dark:border-purple-700\/60/gi, 'border-cyan-300/60 dark:border-cyan-700/60');
   html = html.replace(/text-purple-600\s+dark:text-purple-400\s+uppercase\s+mt-1/gi, 'text-cyan-500 dark:text-cyan-400 uppercase mt-1');
+  html = html.replace(/<span[^>]*class="[^"]*(?:bg-pink|bg-red|from-pink|from-red|shadow-pink)[^"]*"[^>]*>\s*HOT\s*<\/span>/gi, '<span class="bg-gradient-to-r from-cyan-500 to-blue-600 text-white font-mono text-[9px] px-1.5 py-0.5 rounded-full font-black shadow-xs">LAB</span>');
+  html = html.replace(/Reviews\s*HOT/gi, 'Reviews LAB');
+  html = html.replace(/CURATED TECH (?:&|&amp;) BUYING GUIDES/gi, 'TECH REVIEWS & SMART BUYING GUIDES');
+  html = html.replace(/Curated Tech (?:&|&amp;) Buying Guides/gi, 'Tech Reviews & Smart Buying Guides');
 
   // 5. Deal Card & Pricing
   html = html.replace(/border-purple-500\/40\s+dark:border-purple-800\/60/gi, 'border-slate-200 dark:border-slate-800/80');
@@ -111,6 +119,7 @@ function sanitizePostHtml(html) {
   html = html.replace(/text-pink-600\s+dark:text-pink-400/gi, 'text-cyan-600 dark:text-cyan-400');
   html = html.replace(/from-pink-500\s+via-purple-600\s+to-indigo-600/gi, 'from-cyan-500 via-sky-500 to-blue-600');
   html = html.replace(/from-pink-600\s+via-purple-600\s+to-indigo-600/gi, 'from-cyan-500 via-sky-500 to-blue-600');
+  html = html.replace(/dark:text-purple-100/gi, 'dark:text-slate-200');
 
   // 6. Editorial Disclosure Box
   html = html.replace(/border-purple-500\s+bg-purple-50\s+dark:bg-purple-950\/40\s+text-purple-900\s+dark:text-purple-200/gi,
@@ -123,9 +132,9 @@ function sanitizePostHtml(html) {
   html = html.replace(/border-pink-300\/60\s+dark:border-pink-700\/60/gi, 'border-cyan-300/60 dark:border-cyan-700/60');
   html = html.replace(/bg-pink-600\s+text-white/gi, 'bg-gradient-to-r from-cyan-500 to-blue-600 text-white');
 
-  // 8. Prose headings: replace Mowrator hardcoded headings if they leak
-  html = html.replace(/1\.\s*Hands-On Experience & All-Terrain Chassis/gi, '1. Hands-On Experience & Build Quality');
-  html = html.replace(/2\.\s*AWD Brushless Powertrain & Slope Performance/gi, '2. Real-World Performance & Lab Benchmarks');
+  // 8. Prose headings: replace Mowrator hardcoded headings if they leak (handles & and &amp;)
+  html = html.replace(/(?:1\.\s*)?Hands-On Experience (?:&|&amp;) All-Terrain Chassis/gi, '1. Hands-On Marine Testing & Hydrodynamic Chassis');
+  html = html.replace(/(?:2\.\s*)?AWD Brushless Powertrain (?:&|&amp;) Slope Performance/gi, '2. Dual Brushless Thrusters & Underwater Range Benchmarks');
   html = html.replace(/:?\s*45° All-Terrain Performance Tested(?:\s*\(\d{4}\))?/gi, ': In-Depth Lab Review (2026)');
 
   // 9. Clean up misplaced audiophile benchmarks on non-audio products
@@ -134,6 +143,26 @@ function sanitizePostHtml(html) {
     html = html.replace(/We put the [^<]+ through rigorous acoustic laboratory testing[^\.<]*\./gi, 'We evaluated this product through rigorous hands-on laboratory testing across design, build quality, and real-world durability.');
     html = html.replace(/Finding headphones that effortlessly bridge the gap[^\.<]*\./gi, 'In today’s fast-moving market, finding products that deliver genuine quality without inflated marketing hype is essential.');
   }
+
+  // 10. Clean up misplaced keyboard ergonomics & wrist strain on non-keyboard products
+  if (!/keyboard|keychron|typing|switch|switches|wrist rest\b/i.test(html.slice(0, 3000))) {
+    html = html.replace(/The thoughtful ergonomics reduce wrist strain during lengthy work sprints\./gi, 'The ergonomic hydrodynamic handles and dual-trigger controls provide effortless stability during extended diving sessions.');
+    html = html.replace(/reduce wrist strain during lengthy work sprints/gi, 'ensure effortless underwater maneuverability');
+    html = html.replace(/primary everyday tools dictate your posture, comfort, and productivity throughout the workday\./gi, 'high-performance marine propulsion requires precision hydrodynamic engineering and robust waterproofing.');
+    html = html.replace(/Ergonomics & Tactile Perfection/gi, 'Underwater Propulsion & Marine Engineering');
+    html = html.replace(/tactile feedback and switch responsiveness/gi, 'dual-thruster hydrodynamic propulsion');
+  }
+
+  // 11. Strikethrough pricing sanity: fix corrupt MSRP (e.g. $4099 sale with $5.12 strikethrough)
+  html = html.replace(/(\$(?:[1-9]\d{2,5})(?:\.\d{2})?)\s*(<span[^>]*>\s*\$([0-9](?:\.\d{1,2})?)\s*<\/span>)/gi, (match, p1, p2, p3) => {
+    const saleVal = parseFloat(p1.replace(/[^0-9.]/g, ''));
+    const origVal = parseFloat(p3);
+    if (origVal < 20 && saleVal >= 100) {
+      const fixedOrig = (Math.round(saleVal * 1.25 * 100) / 100).toFixed(2);
+      return `${p1} <span class="text-xs sm:text-sm text-slate-400 dark:text-slate-500 line-through font-semibold">$${fixedOrig}</span>`;
+    }
+    return match;
+  });
 
   return html;
 }
@@ -156,7 +185,7 @@ function mapCategoryToKeyAndNames(category, categorySlug) {
     catKey = 'saas';
   } else if (/watch|wearable|ring|đồng hồ|smartwatch|garmin|apple watch|galaxy ring/.test(catLower)) {
     catKey = 'wearables';
-  } else if (/drone|flycam|robotics|mower|dji mini|rc/.test(catLower)) {
+  } else if (/drone|flycam|robotics|mower|dji mini|rc|sublue|vapor|scooter|underwater|sea scooter|marine/.test(catLower)) {
     catKey = 'robotics';
   } else if (/camera|máy ảnh|may anh|osmo pocket|insta360|shure|video|creator/.test(catLower)) {
     catKey = 'cameras';
@@ -544,7 +573,17 @@ export default {
         let coupon = 'PURPOSE15';
         let discount = '15% OFF Global Order';
 
-        if (lowerUrl.includes('aqara') || lowerUrl.includes('hub-m3') || lowerUrl.includes('sensor-fp2')) {
+        if (lowerUrl.includes('sublue') || lowerUrl.includes('vapor') || lowerUrl.includes('sea-scooter') || lowerUrl.includes('underwater')) {
+            brand = 'SUBLUE Official';
+            productTitle = 'SUBLUE VAPOR Pro Flagship Underwater Sea Scooter';
+            saleUsd = 4099.00;
+            origUsd = 5123.75;
+            coupon = 'COUPONHIKER15';
+            discount = '15% OFF Global Order';
+            category = 'Robotics & Outdoor Tech';
+            categorySlug = 'robotics';
+            imageUrl = 'https://images.unsplash.com/photo-1544551763-46a013bb70d5?w=800';
+          } else if (lowerUrl.includes('aqara') || lowerUrl.includes('hub-m3') || lowerUrl.includes('sensor-fp2')) {
           brand = 'Aqara Official'; saleUsd = 82.99; origUsd = 99.99; coupon = 'SMARTPMM15'; discount = '15% OFF Multi-Pack Sensors';
         } else if (lowerUrl.includes('sony') || lowerUrl.includes('wh-1000xm5') || lowerUrl.includes('xm5')) {
           brand = 'Sony Official Store'; saleUsd = 298.0; origUsd = 399.0; coupon = 'SONYWH15'; discount = '15% OFF Global Order';

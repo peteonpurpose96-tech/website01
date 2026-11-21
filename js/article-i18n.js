@@ -545,9 +545,21 @@
       // 1. Sanitize Header Logo
       const logoLinks = document.querySelectorAll('header a[href="index.html"], header a.group, a.flex-shrink-0.flex.items-center');
       logoLinks.forEach(link => {
-        const purpleBox = link.querySelector('div.bg-gradient-to-tr, div.from-purple-600, div.ring-purple-400, div.shadow-purple-500');
-        if (purpleBox || (link.firstElementChild && link.firstElementChild.tagName.toLowerCase() === 'div' && link.firstElementChild.textContent.trim() === 'CH')) {
-          const target = purpleBox || link.firstElementChild;
+        const existingImg = link.querySelector('img[src*="logo.png"]');
+        if (existingImg) return;
+
+        let target = link.querySelector('div.bg-gradient-to-tr, div.from-purple-600, div.ring-purple-400, div.shadow-purple-500, div.rounded-xl, div.rounded-2xl, div[class*="gradient"]');
+        if (!target) {
+          link.querySelectorAll('div, span').forEach(el => {
+            if (el.textContent.trim() === 'CH' || el.textContent.trim() === 'SP') {
+              target = el;
+            }
+          });
+        }
+        if (!target && link.firstElementChild && link.firstElementChild.tagName.toLowerCase() !== 'img') {
+          target = link.firstElementChild;
+        }
+        if (target) {
           const img = document.createElement('img');
           img.src = 'images/logo.png';
           img.alt = 'CouponHiker Logo';
@@ -588,15 +600,36 @@
         }
       });
 
+      // Replace "Reviews HOT" badge with "Reviews LAB"
+      document.querySelectorAll('header nav a, nav a').forEach(a => {
+        const spans = a.querySelectorAll('span');
+        spans.forEach(sp => {
+          if (sp.textContent.trim().toUpperCase() === 'HOT') {
+            sp.textContent = 'LAB';
+            sp.className = 'bg-gradient-to-r from-cyan-500 to-blue-600 text-white font-mono text-[9px] px-1.5 py-0.5 rounded-full font-black shadow-xs';
+          }
+        });
+      });
+
+      // Subtitle
+      document.querySelectorAll('header span').forEach(sp => {
+        if (/CURATED TECH (?:&|&amp;) BUYING GUIDES/i.test(sp.textContent)) {
+          sp.textContent = 'TECH REVIEWS & SMART BUYING GUIDES';
+          sp.className = sp.className.replace(/text-purple-[0-9]+/g, 'text-cyan-500 dark:text-cyan-400');
+        }
+      });
+
       // 4. Clean Leaked Mower Headings & Copy on Non-Mower Posts
       const isMowrator = /mowrator/i.test(window.location.href);
       if (!isMowrator) {
-        document.querySelectorAll('h2').forEach(h2 => {
+        document.querySelectorAll('h2, h3').forEach(h2 => {
           if (/All-Terrain Chassis/i.test(h2.textContent)) {
-            h2.innerHTML = h2.innerHTML.replace(/All-Terrain Chassis/gi, 'Build Quality & Ergonomics');
+            h2.innerHTML = h2.innerHTML.replace(/(?:1\.\s*)?Hands-On Experience (?:&|&amp;) All-Terrain Chassis/gi, '1. Hands-On Marine Testing & Hydrodynamic Chassis')
+                                       .replace(/All-Terrain Chassis/gi, 'Build Quality & Hydrodynamics');
           }
           if (/AWD Brushless Powertrain/i.test(h2.textContent)) {
-            h2.innerHTML = h2.innerHTML.replace(/AWD Brushless Powertrain & Slope Performance/gi, 'Real-World Performance & Lab Benchmarks');
+            h2.innerHTML = h2.innerHTML.replace(/(?:2\.\s*)?AWD Brushless Powertrain (?:&|&amp;) Slope Performance/gi, '2. Dual Brushless Thrusters & Underwater Range Benchmarks')
+                                       .replace(/AWD Brushless Powertrain & Slope Performance/gi, 'Real-World Propulsion & Battery Performance');
           }
         });
 
@@ -617,6 +650,20 @@
             }
           });
         }
+
+        // Clean leaked keyboard wrist strain copy on non-keyboards
+        const isKeyboard = /keyboard|keychron|typing|switch|switches|wrist rest\b/i.test(pageText);
+        if (!isKeyboard) {
+          document.querySelectorAll('p').forEach(p => {
+            if (/wrist strain/i.test(p.textContent)) {
+              p.textContent = p.textContent.replace(/The thoughtful ergonomics reduce wrist strain during lengthy work sprints\./gi, 'The ergonomic hydrodynamic handles and dual-trigger controls provide effortless stability during extended diving sessions.')
+                                           .replace(/reduce wrist strain during lengthy work sprints/gi, 'ensure effortless underwater maneuverability');
+            }
+            if (/primary everyday tools dictate your posture/i.test(p.textContent)) {
+              p.textContent = 'High-performance marine propulsion requires precision hydrodynamic engineering and robust waterproofing. The SUBLUE VAPOR Pro delivers unprecedented underwater thrust with zero compromise.';
+            }
+          });
+        }
       }
 
       // 5. Category Badges: replace hot pink with neon cyan / obsidian
@@ -628,6 +675,13 @@
       document.querySelectorAll('.border-pink-500\\/40, .border-purple-500\\/40').forEach(card => {
         card.classList.remove('border-pink-500/40', 'border-purple-500/40');
         card.classList.add('border-slate-200', 'dark:border-slate-800');
+      });
+
+      // 7. Fix corrupt $5.12 strikethrough price
+      document.querySelectorAll('span, del, s').forEach(el => {
+        if (el.textContent.trim() === '$5.12') {
+          el.textContent = '$5,123.75';
+        }
       });
 
     } catch (e) {

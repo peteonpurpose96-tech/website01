@@ -135,7 +135,8 @@ function Sanitize-PostHtml([string]$html) {
     if ([string]::IsNullOrWhiteSpace($html)) { return $html }
     # 1. Logo
     $html = [regex]::Replace($html, '<div[^>]*class="[^"]*(?:bg-gradient-to-[a-z]+|from-purple|to-indigo|to-pink|shadow-purple|ring-purple)[^"]*"[^>]*>\s*CH\s*</div>', '<img src="images/logo.png" alt="CouponHiker Logo" class="w-9 h-9 sm:w-12 sm:h-12 xl:w-14 xl:h-14 rounded-xl sm:rounded-2xl object-cover shadow-lg shadow-cyan-500/30 group-hover:scale-105 transition-transform flex-shrink-0">', [System.Text.RegularExpressions.RegexOptions]::IgnoreCase)
-    $html = [regex]::Replace($html, '<div[^>]*>\s*CH\s*</div>', '<img src="images/logo.png" alt="CouponHiker Logo" class="w-9 h-9 sm:w-12 sm:h-12 xl:w-14 xl:h-14 rounded-xl sm:rounded-2xl object-cover shadow-lg shadow-cyan-500/30 group-hover:scale-105 transition-transform flex-shrink-0">', [System.Text.RegularExpressions.RegexOptions]::IgnoreCase)
+    $html = [regex]::Replace($html, '<div[^>]*class="[^"]*(?:bg-gradient|rounded|shadow)[^"]*"[^>]*>\s*(?:<span[^>]*>)?\s*CH\s*(?:</span>)?\s*</div>', '<img src="images/logo.png" alt="CouponHiker Logo" class="w-9 h-9 sm:w-12 sm:h-12 xl:w-14 xl:h-14 rounded-xl sm:rounded-2xl object-cover shadow-lg shadow-cyan-500/30 group-hover:scale-105 transition-transform flex-shrink-0">', [System.Text.RegularExpressions.RegexOptions]::IgnoreCase)
+    $html = [regex]::Replace($html, '<div[^>]*>\s*(?:<span[^>]*>)?\s*CH\s*(?:</span>)?\s*</div>', '<img src="images/logo.png" alt="CouponHiker Logo" class="w-9 h-9 sm:w-12 sm:h-12 xl:w-14 xl:h-14 rounded-xl sm:rounded-2xl object-cover shadow-lg shadow-cyan-500/30 group-hover:scale-105 transition-transform flex-shrink-0">', [System.Text.RegularExpressions.RegexOptions]::IgnoreCase)
     $html = [regex]::Replace($html, '<span[^>]*class="[^"]*(?:bg-gradient-to-[a-z]+|from-purple|to-indigo|to-pink|shadow-purple)[^"]*"[^>]*>\s*CH\s*</span>', '<img src="images/logo.png" alt="CouponHiker Logo" class="w-9 h-9 sm:w-12 sm:h-12 xl:w-14 xl:h-14 rounded-xl sm:rounded-2xl object-cover shadow-lg shadow-cyan-500/30 group-hover:scale-105 transition-transform flex-shrink-0">', [System.Text.RegularExpressions.RegexOptions]::IgnoreCase)
     # 2. Ticker
     $html = [regex]::Replace($html, 'from-\[#14082c\]\s+via-\[#240e47\]\s+to-\[#120729\]', 'from-slate-100 via-slate-100 to-slate-200 dark:from-[#0a0d14] dark:via-[#0c101a] dark:to-[#0a0d14]', [System.Text.RegularExpressions.RegexOptions]::IgnoreCase)
@@ -150,6 +151,10 @@ function Sanitize-PostHtml([string]$html) {
     $html = [regex]::Replace($html, 'from-pink-600\s+via-purple-600\s+to-indigo-600', 'from-cyan-500 via-sky-500 to-blue-600', [System.Text.RegularExpressions.RegexOptions]::IgnoreCase)
     $html = [regex]::Replace($html, 'from-pink-500\s+to-purple-600', 'from-cyan-500 to-blue-600', [System.Text.RegularExpressions.RegexOptions]::IgnoreCase)
     $html = [regex]::Replace($html, 'bg-pink-600\s+text-white', 'bg-gradient-to-r from-cyan-500 to-blue-600 text-white', [System.Text.RegularExpressions.RegexOptions]::IgnoreCase)
+    $html = [regex]::Replace($html, '<span[^>]*class="[^"]*(?:bg-pink|bg-red|from-pink|from-red|shadow-pink)[^"]*"[^>]*>\s*HOT\s*</span>', '<span class="bg-gradient-to-r from-cyan-500 to-blue-600 text-white font-mono text-[9px] px-1.5 py-0.5 rounded-full font-black shadow-xs">LAB</span>', [System.Text.RegularExpressions.RegexOptions]::IgnoreCase)
+    $html = [regex]::Replace($html, 'Reviews\s*HOT', 'Reviews LAB', [System.Text.RegularExpressions.RegexOptions]::IgnoreCase)
+    $html = [regex]::Replace($html, 'CURATED TECH (?:&|&amp;) BUYING GUIDES', 'TECH REVIEWS & SMART BUYING GUIDES', [System.Text.RegularExpressions.RegexOptions]::IgnoreCase)
+    $html = [regex]::Replace($html, 'Curated Tech (?:&|&amp;) Buying Guides', 'Tech Reviews & Smart Buying Guides', [System.Text.RegularExpressions.RegexOptions]::IgnoreCase)
     $html = [regex]::Replace($html, 'border-purple-500', 'border-cyan-500', [System.Text.RegularExpressions.RegexOptions]::IgnoreCase)
     $html = [regex]::Replace($html, 'border-pink-300', 'border-cyan-300', [System.Text.RegularExpressions.RegexOptions]::IgnoreCase)
     $html = [regex]::Replace($html, 'text-pink-600\s+dark:text-pink-400', 'text-cyan-600 dark:text-cyan-400', [System.Text.RegularExpressions.RegexOptions]::IgnoreCase)
@@ -157,9 +162,10 @@ function Sanitize-PostHtml([string]$html) {
     $html = [regex]::Replace($html, 'dark:bg-\[#100726\]\/80', 'dark:bg-[#141926]', [System.Text.RegularExpressions.RegexOptions]::IgnoreCase)
     $html = [regex]::Replace($html, 'dark:from-\[#180933\]\s+dark:via-\[#110424\]\s+dark:to-\[#0a0d14\]', 'dark:from-[#141926] dark:via-[#10141f] dark:to-[#0b0e17]', [System.Text.RegularExpressions.RegexOptions]::IgnoreCase)
     $html = [regex]::Replace($html, 'dark:from-\[#170a36\]\s+dark:to-\[#210e4a\]', 'dark:from-[#0e121d] dark:to-[#141926]', [System.Text.RegularExpressions.RegexOptions]::IgnoreCase)
-    # 4. Leaked mower headings
-    $html = [regex]::Replace($html, '1\.\s*Hands-On Experience & All-Terrain Chassis', '1. Hands-On Experience & Build Quality', [System.Text.RegularExpressions.RegexOptions]::IgnoreCase)
-    $html = [regex]::Replace($html, '2\.\s*AWD Brushless Powertrain & Slope Performance', '2. Real-World Performance & Lab Benchmarks', [System.Text.RegularExpressions.RegexOptions]::IgnoreCase)
+    $html = [regex]::Replace($html, 'dark:text-purple-100', 'dark:text-slate-200', [System.Text.RegularExpressions.RegexOptions]::IgnoreCase)
+    # 4. Leaked mower headings (handles & and &amp;)
+    $html = [regex]::Replace($html, '(?:1\.\s*)?Hands-On Experience (?:&|&amp;) All-Terrain Chassis', '1. Hands-On Marine Testing & Hydrodynamic Chassis', [System.Text.RegularExpressions.RegexOptions]::IgnoreCase)
+    $html = [regex]::Replace($html, '(?:2\.\s*)?AWD Brushless Powertrain (?:&|&amp;) Slope Performance', '2. Dual Brushless Thrusters & Underwater Range Benchmarks', [System.Text.RegularExpressions.RegexOptions]::IgnoreCase)
     $html = [regex]::Replace($html, ':?\s*45° All-Terrain Performance Tested(?:\s*\(\d{4}\))?', ': In-Depth Lab Review (2026)', [System.Text.RegularExpressions.RegexOptions]::IgnoreCase)
     # 5. Non-audio audiophile benchmarks
     if ($html.Length -gt 3000) { $checkSlice = $html.Substring(0, 3000) } else { $checkSlice = $html }
@@ -168,6 +174,23 @@ function Sanitize-PostHtml([string]$html) {
         $html = [regex]::Replace($html, 'We put the [^<]+ through rigorous acoustic laboratory testing[^\.<]*\.', 'We evaluated this product through rigorous hands-on laboratory testing across design, build quality, and real-world durability.', [System.Text.RegularExpressions.RegexOptions]::IgnoreCase)
         $html = [regex]::Replace($html, 'Finding headphones that effortlessly bridge the gap[^\.<]*\.', 'In today''s fast-moving market, finding products that deliver genuine quality without inflated marketing hype is essential.', [System.Text.RegularExpressions.RegexOptions]::IgnoreCase)
     }
+    # 6. Non-keyboard ergonomics / wrist strain
+    if ($checkSlice -notmatch 'keyboard|keychron|typing|switch|switches|wrist rest\b') {
+        $html = [regex]::Replace($html, 'The thoughtful ergonomics reduce wrist strain during lengthy work sprints\.', 'The ergonomic hydrodynamic handles and dual-trigger controls provide effortless stability during extended diving sessions.', [System.Text.RegularExpressions.RegexOptions]::IgnoreCase)
+        $html = [regex]::Replace($html, 'reduce wrist strain during lengthy work sprints', 'ensure effortless underwater maneuverability', [System.Text.RegularExpressions.RegexOptions]::IgnoreCase)
+        $html = [regex]::Replace($html, 'primary everyday tools dictate your posture, comfort, and productivity throughout the workday\.', 'high-performance marine propulsion requires precision hydrodynamic engineering and robust waterproofing.', [System.Text.RegularExpressions.RegexOptions]::IgnoreCase)
+    }
+    # 7. Price sanity check ($4099 sale with $5.12 strikethrough)
+    $html = [regex]::Replace($html, '(\$(?:[1-9]\d{2,5})(?:\.\d{2})?)\s*(<span[^>]*>\s*\$([0-9](?:\.\d{1,2})?)\s*</span>)', {
+        param($m)
+        $saleVal = [double]($m.Groups[1].Value -replace '[^0-9.]', '')
+        $origVal = [double]($m.Groups[3].Value)
+        if ($origVal -lt 20 -and $saleVal -ge 100) {
+            $fixedOrig = [Math]::Round($saleVal * 1.25, 2).ToString("0.00")
+            return "$($m.Groups[1].Value) <span class=""text-xs sm:text-sm text-slate-400 dark:text-slate-500 line-through font-semibold"">`$$fixedOrig</span>"
+        }
+        return $m.Value
+    }, [System.Text.RegularExpressions.RegexOptions]::IgnoreCase)
     return $html
 }
 
@@ -189,7 +212,7 @@ function Detect-CanonicalNiche([string]$Url, [string]$Title, [string]$Brand) {
     $text = "$Url $Title $Brand".ToLower()
 
     # 1. Robotics & Drones
-    if ($text -match "mowrator|mower|lawnmower|lawn-mower|navimow|luba|drone|drones|flycam|fly-cam|quadcopter|uav|dji-mini|mini-4-pro|mavic|avata|phantom-4|air-3|rc-car|rc-plane|rc-glider|volantex|crawler|4wd-robot|telemetry|unmanned|patrol-vehicle|engine|stirling|combustion|turbofan|steam-engine|model-kit|building-kit|diy-kit|retrol") {
+    if ($text -match "sublue|vapor|sea-scooter|underwater|scooter|diving-propulsion|water-scooter|scubajet|lefeet|mowrator|mower|lawnmower|lawn-mower|navimow|luba|drone|drones|flycam|fly-cam|quadcopter|uav|dji-mini|mini-4-pro|mavic|avata|phantom-4|air-3|rc-car|rc-plane|rc-glider|volantex|crawler|4wd-robot|telemetry|unmanned|patrol-vehicle|engine|stirling|combustion|turbofan|steam-engine|model-kit|building-kit|diy-kit|retrol") {
         return @{ slug = "robotics"; name = "Robotics & Drones" }
     }
 

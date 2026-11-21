@@ -1311,8 +1311,8 @@ const NICHE_CANONICAL_MAP = {
 function detectNicheFromUrlAndKeyword(url = '', keyword = '', title = '', brand = '') {
   const combined = `${url} ${keyword} ${title} ${brand}`.toLowerCase().replace(/[-_]/g, ' ');
 
-  // 1. Robotics & Drones & Precision Kits (Engine DIY, stirling, retrol, RC gliders, airplanes, drones, mavic, flycam, robot mowers, uav)
-  if (/mowrator|mower|lawnmower|lawn mower|navimow|luba|drone|drones|flycam|fly cam|quadcopter|uav|dji|mini 4|mavic|avata|phantom|air 3|rc car|rc plane|rc glider|rc boat|rc jet|rc aircraft|rc flight|volantex|exhobby|xpilot|glider|airplane|aircraft|aerobatic|stunt plane|fixed wing|propeller|flight controller|crawler|4wd robot|telemetry|unmanned|patrol vehicle|robotics|robot\b|enginediy|engine diy|stirling|retrol|teching|flame licker|steam turbine|vacuum engine|model kit|building kit|diy kit|combustion engine/.test(combined)) {
+  // 1. Robotics & Drones & Marine / Outdoor Tech (Sublue, sea scooter, underwater scooter, water scooter, diving propulsion, Engine DIY, stirling, retrol, RC gliders, airplanes, drones, mavic, flycam, robot mowers, uav)
+  if (/sublue|vapor|sea[- ]*scooter|underwater[- ]*scooter|water[- ]*scooter|watercraft|diving propulsion|dive scooter|scubajet|lefeet|aquatic propulsion|mowrator|mower|lawnmower|lawn mower|navimow|luba|drone|drones|flycam|fly cam|quadcopter|uav|dji|mini 4|mavic|avata|phantom|air 3|rc car|rc plane|rc glider|rc boat|rc jet|rc aircraft|rc flight|volantex|exhobby|xpilot|glider|airplane|aircraft|aerobatic|stunt plane|fixed wing|propeller|flight controller|crawler|4wd robot|telemetry|unmanned|patrol vehicle|robotics|robot\b|enginediy|engine diy|stirling|retrol|teching|flame licker|steam turbine|vacuum engine|model kit|building kit|diy kit|combustion engine/.test(combined)) {
     return { slug: 'robotics', name: 'Robotics & Outdoor Tech' };
   }
 
@@ -2464,6 +2464,29 @@ function parseAffiliateLinkInfo(rawUrl, hintKw = '') {
     };
   }
 
+  // 6.6 Sublue Underwater Sea Scooters & Marine Propulsion
+  if (hostname.includes('sublue') || fullLower.includes('sublue') || fullLower.includes('vapor-pro') || fullLower.includes('sea-scooter') || fullLower.includes('water-scooter')) {
+    return {
+      success: true,
+      brand: 'Sublue Official',
+      productTitle: 'SUBLUE VAPOR Pro Flagship Underwater Sea Scooter',
+      image: 'https://images.unsplash.com/photo-1544551763-46a013bb70d5?auto=format&fit=crop&w=1200&q=80',
+      category: 'Robotics & Outdoor Tech',
+      categorySlug: 'robotics',
+      salePriceUsd: '$4,099.00',
+      salePriceVnd: '102.475.000₫',
+      originalPriceUsd: '$5,123.75',
+      couponCode: detectedCoupon || 'COUPONHIKER15',
+      couponDiscount: '15% OFF Global Order',
+      couponExpiry: '12/31/2026',
+      storeProducts: [
+        { id: 9812401827361, title: 'SUBLUE VAPOR Pro Flagship Underwater Sea Scooter', salePriceUsd: '$4,099.00', salePriceVnd: '102.475.000₫', originalPriceUsd: '$5,123.75', image: 'https://images.unsplash.com/photo-1544551763-46a013bb70d5?auto=format&fit=crop&w=1200&q=80', brand: 'Sublue' },
+        { id: 9812401827362, title: 'SUBLUE Navbow+ Smart Underwater Scooter with OLED & Depth Sensor', salePriceUsd: '$1,399.00', salePriceVnd: '34.975.000₫', originalPriceUsd: '$1,699.00', image: 'https://images.unsplash.com/photo-1682687220063-4742bd7fd538?auto=format&fit=crop&w=1200&q=80', brand: 'Sublue' },
+        { id: 9812401827363, title: 'SUBLUE WhiteShark Tini Modular Underwater Sea Scooter', salePriceUsd: '$499.00', salePriceVnd: '12.475.000₫', originalPriceUsd: '$649.00', image: 'https://images.unsplash.com/photo-1518709268805-4e9042af9f23?auto=format&fit=crop&w=1200&q=80', brand: 'Sublue' }
+      ]
+    };
+  }
+
   // 7. Generic Brand / Affiliate Merchant URL Fallback
   const hostParts = hostname.replace(/^www\./, '').split('.');
   const rawBrand = hostParts[0] ? (hostParts[0].charAt(0).toUpperCase() + hostParts[0].slice(1)) : 'Brand Partner';
@@ -3022,8 +3045,20 @@ function buildAiArticleData(keyword, niche, brand, lang, customAffLink, customIm
   const isCapOutdoorGear = /cap|hat|beanie|headwear|baseball[- ]*cap|visor|headlamp|flashlight|camping|fishing|outdoor/i.test(kwLower) || /cap|hat/i.test(cleanKw);
   const isEngineModelKit = /engine|stirling|combustion|turbofan|steam[- ]*engine|model[- ]*kit|building[- ]*kit|diy[- ]*kit|retrol|teching|flame[- ]*licker|v8[- ]*engine|radial[- ]*engine|machining|cnc|mechanical[- ]*clock|tourbillon/i.test(kwLower) || /engine/i.test(brandName);
   const isMiniPcWorkstation = /bosgame|magicnuc|minisforum|gmktec|mini[- ]*pc|minipc|workstation|desktop|ryzen ai/i.test(kwLower) || /bosgame/i.test(brandName);
+  const isWaterScooter = /sublue|vapor|sea[- ]*scooter|underwater[- ]*scooter|water[- ]*scooter|watercraft|diving|propulsion|scubajet|lefeet/i.test(kwLower) || /sublue/i.test(brandName) || /sublue/i.test(customAffLink);
 
-  if (isIm8Longevity) {
+  if (isWaterScooter) {
+    catName = 'Robotics & Outdoor Tech';
+    priceU = '$4,099.00'; priceV = '102.475.000₫'; priceO = '$5,123.75';
+    t_img = resolveImage('https://images.unsplash.com/photo-1544551763-46a013bb70d5?auto=format&fit=crop&w=1200&q=80');
+    t_title = `${cleanKw.includes('VAPOR') ? 'SUBLUE VAPOR Pro Flagship Underwater Sea Scooter' : cleanKw} Hands-On Review: Underwater Propulsion & Marine Benchmarks (2026)`;
+    t_excerpt = `An exhaustive marine evaluation of the ${cleanKw}. We test dual brushless pump-jet thrusters, 40m depth rating, hydrodynamic ergonomics, and battery endurance across open ocean currents.`;
+    t_pros = `High-efficiency brushless pump-jet propulsion delivers blistering underwater speeds up to 12 km/h (7.5 mph)\nPrecision aerospace-grade hydrodynamic chassis rated to 40 meters (131 ft) depth with neutral buoyancy\nIntuitive dual-trigger multi-speed throttle with integrated OLED dashboard monitoring speed, depth, and battery\nQuick-swap lithium battery architecture with airline-compliant travel battery compatibility\nIntegrated universal accessory mount supporting GoPro and professional underwater video rigs`;
+    t_cons = `High-speed turbo mode draws substantial current, reducing continuous runtime to 35-45 minutes under maximum thrust\nPremium prosumer investment compared to basic consumer snorkeling pool toys`;
+    t_intro = `Underwater exploration and recreational diving have witnessed a technological revolution with the arrival of high-performance personal sea scooters. The ${cleanKw} by ${brandName} represents the pinnacle of compact aquatic propulsion engineering.\n\nFrom the moment you pick up the unit, the hydrodynamic design and reinforced marine-grade composites convey uncompromising build quality. Engineered with sealed dual thrusters, magnetic triggers, and an integrated digital dashboard, it is built to glide effortlessly through reef drop-offs, open ocean swells, and deep scuba descents.`;
+    t_body = `We put the ${cleanKw} through extensive open-water ocean dives and pool agility circuits. In the water, throttle response is instantaneous and exceptionally smooth, pulling adult divers effortlessly through strong currents without arm fatigue or gas-wasting physical exertion.\n\nThe integrated OLED display provides crystal-clear readouts of real-time speed gear, battery percentage, and operating temperature. In our depth trials down to 35 meters, the waterproof hull maintained flawless integrity with zero seal leakage or telemetry drift.`;
+    t_verdict = `The ${cleanKw} is quite simply a game-changer for scuba divers, freedivers, and ocean adventurers alike. With blistering speed, deep dive reliability, and exquisite hydrodynamic engineering, it earns our top 9.8/10 flagship recommendation in 2026.`;
+  } else if (isIm8Longevity) {
     catName = 'Desk Setup & EDC';
     priceU = '$89.00'; priceV = '2.225.000₫'; priceO = '$112.00';
     t_img = resolveImage('https://cdn.shopify.com/s/files/1/0637/4460/6375/files/USD_30DAY_ESSENTIALS_COPY1_VISUAL_B_97edb232-7b04-4be6-8eb5-f6a3187588be.jpg?v=1778121212');
@@ -3424,6 +3459,54 @@ function buildMultilingualFields(data) {
     };
   }
 
+  const isWaterScooter = /sublue|vapor|sea[- ]*scooter|underwater[- ]*scooter|water[- ]*scooter|diving/i.test((data.title || '') + ' ' + (data.slug || ''));
+  if (isWaterScooter) {
+    return {
+      titleEn: data.title,
+      titleVi: 'Đánh Giá Chuyên Sâu Thiết Bị Lặn Biển Đẩy Cá Nhân SUBLUE VAPOR Pro: Động Cơ Phản Lực & Trải Nghiệm Lặn (2026)',
+      titleZh: 'SUBLUE VAPOR Pro 旗舰级水下助推器/水下飞行器深度实测：双泵喷无刷动力与深海潜水体验 (2026)',
+      categoryEn: data.category || 'Robotics & Outdoor Tech',
+      categoryVi: 'Thiết Bị Lặn & Robotics Biển',
+      categoryZh: '水下机器人与户外探险装备',
+      excerptEn: data.excerpt,
+      excerptVi: 'Hệ thống phản lực không chổi than mạnh mẽ đạt 12 km/h, chịu áp suất nước độ sâu 40m và màn hình OLED hiển thị thông số chuẩn xác cho dân lặn chuyên nghiệp.',
+      excerptZh: '高效率双泵喷无刷水下推进系统、时速高达12公里/小时、40米深海防水耐压等级与高清OLED智能仪表盘，畅享深海潜水飞行体验。',
+      introEn: data.intro,
+      introVi: 'Khám phá đại dương và lặn biển giải trí đã bước sang kỷ nguyên mới với sự ra đời của các thiết bị đẩy cá nhân (sea scooter) hiệu năng cao. SUBLUE VAPOR Pro đại diện cho đỉnh cao kỹ thuật chế tạo phương tiện di chuyển dưới nước. Với động cơ phản lực kín nước kép, lẫy kích hoạt từ tính và màn hình OLED hiển thị thông số thông minh, máy giúp bạn lướt êm ái qua các rạn san hô và dòng hải lưu mà không tốn sức bơi.',
+      introZh: '个人水下助推装备在深海探险与休闲潜水领域迎来了革命性突破。SUBLUE VAPOR Pro 汇集了尖端水动力学流线设计与密封无刷推进科技。双握把磁吸智能扳机、直观清晰的OLED数显交互仪表，让潜水员在穿梭珊瑚礁与洋流时体验如鱼得水般的零体力极速巡航。',
+      bodyEn: data.body,
+      bodyVi: 'Chúng tôi đã thử nghiệm SUBLUE VAPOR Pro trong nhiều buổi lặn thực tế ngoài biển khơi và hồ bơi kỹ thuật. Dưới nước, lực đẩy phản lực cực kỳ mạnh mẽ và tức thì, dễ dàng kéo thợ lặn tiến lên với tốc độ tối đa 12 km/h mà không gây mỏi cơ bắp hay hao hụt dưỡng khí. Màn hình kỹ thuật số hiển thị sắc nét mức pin, tốc độ và nhiệt độ hoạt động theo thời gian thực. Trong các bài thử nghiệm áp suất ở độ sâu hơn 30 mét, thân máy hoàn toàn kín nước, không hề có hiện tượng rò rỉ hay suy giảm tín hiệu điều khiển.',
+      bodyZh: '在开放海域深潜与泳池机动实测中，VAPOR Pro 爆发出了令人惊叹的澎湃推力。无刷轮机响应敏捷平顺，毫无顿挫感，在强洋流中能轻松牵引成年潜水员以高达12km/h的速度破浪前行。OLED彩色屏幕实时反馈电量、挡位及工作温度；在超过30米的深海极限静压测试中，整机展现出军工级的严密防水耐腐蚀品质。',
+      verdictEn: data.verdict,
+      verdictVi: 'SUBLUE VAPOR Pro là bước đột phá hoàn hảo cho những ai đam mê lặn biển, lặn tự do (freediving) và thám hiểm đại dương. Lực kéo ấn tượng, khả năng lặn sâu tin cậy cùng thiết kế công thái học đỉnh cao giúp sản phẩm xứng đáng đạt điểm số 9.8/10.',
+      verdictZh: '对于自由潜水员、水肺深潜玩家以及水上运动爱好者，SUBLUE VAPOR Pro 彻底打破了传统潜水体能边界，带来风驰电掣般的水下翱翔快感。当之无愧获得 9.8 / 10 顶峰评级。',
+      prosEn: data.pros,
+      prosVi: [
+        'Động cơ phản lực không chổi than công suất cao đạt tốc độ lướt dưới nước lên đến 12 km/h',
+        'Khung vỏ composite chuyên dụng cho môi trường biển, chịu áp suất nước ở độ sâu lên tới 40m',
+        'Tay cầm công thái học tích hợp màn hình OLED hiển thị dung lượng pin, tốc độ và độ sâu tức thì',
+        'Pin lithium tháo lắp nhanh thông minh, hỗ trợ sạc nhanh và đạt chuẩn vận chuyển hàng không',
+        'Ngàm gắn đa năng tích hợp sẵn cho camera hành trình GoPro và đèn chiếu sáng lặn biển'
+      ],
+      prosZh: [
+        '双无刷泵喷推进系统，爆发强悍推力，水下航速高达12 km/h（7.5 mph）',
+        '流线型高强度耐腐蚀航天级外壳，具备40米（131英尺）专业深潜耐压防水与中性浮力',
+        '人体工学双握把配合高清OLED仪表盘，实时清晰显示速度档位、续航与电池状态',
+        '智能快拆式高容量锂电池仓，支持闪电快充并符合航空随身携带登机标准',
+        '标配多功能扩展接口，无缝挂载GoPro运动相机与专业深潜探照补光灯'
+      ],
+      consEn: data.cons,
+      consVi: [
+        'Chế độ chạy tốc độ tối đa (turbo) tiêu hao năng lượng nhanh, thời lượng pin liên tục khoảng 35-45 phút',
+        'Mức giá phân khúc chuyên nghiệp cao cấp so với các dòng phao lướt giải trí thông thường'
+      ],
+      consZh: [
+        '极速极限制霸挡位下电量消耗较快，全油门连续巡航时间约35-45分钟',
+        '专业级水下推进装备定位，初始采购预算高于大众娱乐级戏水浮板'
+      ]
+    };
+  }
+
   const catDict = {
     'audio': { en: 'Audio & Sound', vi: 'Tai Nghe & Âm Thanh', zh: '音频与发烧声学' },
     'smarthome': { en: 'Smart Home & IoT', vi: 'Nhà Thông Minh & IoT', zh: '智能家居与IoT' },
@@ -3696,6 +3779,29 @@ function fallbackDownload(fileName, content) {
   document.body.removeChild(a);
 }
 
+function cleanUsdPrice(str) {
+  if (!str) return 0;
+  let s = String(str).trim().replace(/[^0-9.,]/g, '');
+  if (!s) return 0;
+  if (s.includes(',') && s.includes('.')) {
+    if (s.indexOf(',') < s.indexOf('.')) {
+      // US style: 4,099.00 -> remove commas
+      s = s.replace(/,/g, '');
+    } else {
+      // European style: 4.099,00 -> remove dot, convert comma to dot
+      s = s.replace(/\./g, '').replace(',', '.');
+    }
+  } else if (s.includes(',')) {
+    if (/,\d{1,2}$/.test(s)) {
+      s = s.replace(',', '.');
+    } else {
+      s = s.replace(/,/g, '');
+    }
+  }
+  const val = parseFloat(s);
+  return isNaN(val) ? 0 : val;
+}
+
 function collectFormData() {
   const title = document.getElementById('input-title').value.trim();
   let slug = document.getElementById('input-slug').value.trim();
@@ -3721,14 +3827,13 @@ function collectFormData() {
     image: document.getElementById('input-image').value.trim() || 'https://images.unsplash.com/photo-1523275335684-37898b6baf30?auto=format&fit=crop&w=1000&q=80',
     priceUsd: (() => {
       let rawUsd = (document.getElementById('input-price-usd')?.value || '').trim();
-      if (/^[0-9]+,[0-9]{1,2}$/.test(rawUsd)) rawUsd = rawUsd.replace(',', '.');
-      let num = parseFloat(rawUsd.replace(/[^0-9.]/g, ''));
-      if (isNaN(num) || num <= 0) num = 149.0;
+      let num = cleanUsdPrice(rawUsd);
+      if (num <= 0) num = 149.0;
       return '$' + num.toFixed(2);
     })(),
     priceVnd: (() => {
       let rawUsd = (document.getElementById('input-price-usd')?.value || '').trim();
-      let numUsd = parseFloat(rawUsd.replace(/,/g, '.').replace(/[^0-9.]/g, '')) || 149.0;
+      let numUsd = cleanUsdPrice(rawUsd) || 149.0;
       let rawVnd = (document.getElementById('input-price-vnd')?.value || '').trim();
       let numVnd = parseInt(rawVnd.replace(/[^0-9]/g, ''), 10);
       if (isNaN(numVnd) || numVnd <= 0) numVnd = Math.round(numUsd * 25000 / 1000) * 1000;
@@ -3736,15 +3841,11 @@ function collectFormData() {
     })(),
     priceOrig: (() => {
       let rawUsd = (document.getElementById('input-price-usd')?.value || '').trim();
-      let numUsd = parseFloat(rawUsd.replace(/,/g, '.').replace(/[^0-9.]/g, '')) || 149.0;
+      let numUsd = cleanUsdPrice(rawUsd) || 149.0;
       let rawOrig = (document.getElementById('input-price-orig')?.value || '').trim();
-      let numOrig = 0;
-      if (rawOrig && !/min|read|\/|date/i.test(rawOrig)) {
-        if (/^[0-9]+,[0-9]{1,2}$/.test(rawOrig)) rawOrig = rawOrig.replace(',', '.');
-        numOrig = parseFloat(rawOrig.replace(/[^0-9.]/g, ''));
-      }
-      if (!numOrig || isNaN(numOrig) || numOrig < numUsd || numOrig > numUsd * 5) {
-        if (numOrig && numOrig > numUsd * 5 && (numOrig / 100 >= numUsd && numOrig / 100 <= numUsd * 2.5)) {
+      let numOrig = cleanUsdPrice(rawOrig);
+      if (numOrig <= 0 || numOrig < numUsd || numOrig > numUsd * 5) {
+        if (numOrig > numUsd * 5 && (numOrig / 100 >= numUsd && numOrig / 100 <= numUsd * 2.5)) {
           numOrig = Math.round((numOrig / 100) * 100) / 100;
         } else {
           numOrig = Math.round(numUsd * 1.25 * 100) / 100;
@@ -3979,7 +4080,7 @@ function generateFullPostHtml(data) {
   <script src="js/i18n.js"></script>
   <script src="js/article-i18n.js"></script>
 </head>
-<body class="bg-[#f4f6fc] text-slate-900 dark:bg-[#070913] dark:text-purple-100 min-h-screen flex flex-col selection:bg-cyan-500 selection:text-white">
+<body class="bg-[#f4f6fc] text-slate-900 dark:bg-[#070913] dark:text-slate-200 min-h-screen flex flex-col selection:bg-cyan-500 selection:text-white">
 
   <!-- Reading Progress Bar -->
   <div id="reading-progress"></div>
@@ -4280,14 +4381,14 @@ function generateFullPostHtml(data) {
           <div class="space-y-3">
             <h2 class="text-xl sm:text-2xl font-black text-slate-900 dark:text-white font-display flex items-center gap-2">
               <span class="w-7 h-7 rounded-xl bg-cyan-50 dark:bg-cyan-950/80 text-cyan-700 dark:text-cyan-300 border border-cyan-200 dark:border-cyan-500/40 text-xs font-black inline-flex items-center justify-center">1</span>
-              Hands-On Experience & Design Overview
+              ${/sublue|vapor|sea[- ]*scooter|underwater[- ]*scooter|water[- ]*scooter|diving/i.test((data.title || '') + ' ' + (data.slug || '')) ? 'Hands-On Marine Testing & Hydrodynamic Chassis' : 'Hands-On Experience & Build Quality'}
             </h2>
             <p class="leading-relaxed">${escapeHtml(data.intro)}</p>
           </div>
           <div class="space-y-3">
             <h2 class="text-xl sm:text-2xl font-black text-slate-900 dark:text-white font-display flex items-center gap-2">
               <span class="w-7 h-7 rounded-xl bg-cyan-50 dark:bg-cyan-950/80 text-cyan-700 dark:text-cyan-300 border border-cyan-200 dark:border-cyan-500/40 text-xs font-black inline-flex items-center justify-center">2</span>
-              In-Depth Performance & Technical Analysis
+              ${/sublue|vapor|sea[- ]*scooter|underwater[- ]*scooter|water[- ]*scooter|diving/i.test((data.title || '') + ' ' + (data.slug || '')) ? 'Dual Brushless Thrusters & Underwater Range Benchmarks' : 'Real-World Performance & Lab Benchmarks'}
             </h2>
             <p class="leading-relaxed">${escapeHtml(data.body)}</p>
           </div>
