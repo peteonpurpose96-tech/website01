@@ -3,6 +3,10 @@ start-*.bat
 _worker.js
 worker.js
 wrangler.toml
+wrangler.json
 *.py
 *.log
+*.tmp
+scratch*
+live_*
 .git*

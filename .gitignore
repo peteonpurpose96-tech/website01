@@ -3,6 +3,8 @@
 node_modules/
 *.log
 *.tmp
+scratch*
+live_*
 
 # Temporary / Scratch python scripts
 *.py
