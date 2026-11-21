@@ -2129,6 +2129,12 @@ function renderDiscoveredStoreProducts(products) {
           aiThumb.src = selected.image;
           aiThumb.classList.remove('hidden');
         }
+        if (window.lastDiscoveredImages && window.lastDiscoveredImages.length > 0) {
+          if (!window.lastDiscoveredImages.includes(selected.image)) {
+            window.lastDiscoveredImages.unshift(selected.image);
+          }
+          renderCandidateImagePicker(window.lastDiscoveredImages, selected.image);
+        }
       }
 
       if (window.lastScrapedProductData) {
@@ -2174,6 +2180,134 @@ function renderDiscoveredStoreProducts(products) {
       showToast(`⚡ Đã chọn sản phẩm: "${selected.title}" (${selected.salePriceUsd})`);
     });
   });
+}
+
+// Visual Candidate Product Images Gallery Selector
+function renderCandidateImagePicker(images, activeImg) {
+  const containerAi = document.getElementById('ai-candidate-images-container');
+  const gridAi = document.getElementById('ai-candidate-images-grid');
+  const badgeAi = document.getElementById('ai-candidate-images-badge');
+
+  const containerForm = document.getElementById('form-candidate-images-container');
+  const gridForm = document.getElementById('form-candidate-images-grid');
+  const badgeForm = document.getElementById('form-candidate-images-badge');
+
+  if (!images || !Array.isArray(images) || images.length === 0) {
+    if (containerAi) containerAi.classList.add('hidden');
+    if (containerForm) containerForm.classList.add('hidden');
+    return;
+  }
+
+  // Deduplicate and filter valid HTTP URLs
+  const unique = [];
+  const seen = new Set();
+  images.forEach(img => {
+    if (!img || typeof img !== 'string') return;
+    img = img.trim();
+    if (img.startsWith('//')) img = 'https:' + img;
+    if (!img.startsWith('http://') && !img.startsWith('https://') && !img.startsWith('data:image/')) return;
+    const base = img.split('?')[0].toLowerCase();
+    if (!seen.has(base)) {
+      seen.add(base);
+      unique.push(img);
+    }
+  });
+
+  if (unique.length === 0) {
+    if (containerAi) containerAi.classList.add('hidden');
+    if (containerForm) containerForm.classList.add('hidden');
+    return;
+  }
+
+  window.lastDiscoveredImages = unique;
+  const currentSelected = activeImg || unique[0];
+
+  const updateSelectedUi = (selectedUrl) => {
+    const aiImgInput = document.getElementById('ai-input-image');
+    const aiImgThumb = document.getElementById('ai-img-thumb');
+    const formImgInput = document.getElementById('input-image');
+
+    if (aiImgInput) aiImgInput.value = selectedUrl;
+    if (aiImgThumb) {
+      aiImgThumb.src = selectedUrl;
+      aiImgThumb.classList.remove('hidden');
+    }
+    if (formImgInput) formImgInput.value = selectedUrl;
+
+    if (window.lastScrapedProductData) {
+      window.lastScrapedProductData.image = selectedUrl;
+    }
+
+    // Highlight active card across all candidate grids
+    document.querySelectorAll('.candidate-img-card').forEach(card => {
+      const cardUrl = card.getAttribute('data-img-url');
+      const isMatch = (cardUrl === selectedUrl) || (cardUrl && selectedUrl && cardUrl.split('?')[0] === selectedUrl.split('?')[0]);
+      const badge = card.querySelector('.selected-badge');
+      if (isMatch) {
+        card.classList.remove('border-slate-800', 'opacity-70');
+        card.classList.add('border-cyan-400', 'ring-2', 'ring-cyan-400', 'opacity-100', 'scale-105');
+        if (badge) badge.classList.remove('hidden');
+      } else {
+        card.classList.remove('border-cyan-400', 'ring-2', 'ring-cyan-400', 'opacity-100', 'scale-105');
+        card.classList.add('border-slate-800', 'opacity-70');
+        if (badge) badge.classList.add('hidden');
+      }
+    });
+
+    updatePreview();
+    saveActiveDraft();
+  };
+
+  const buildCards = () => {
+    return unique.map((imgUrl, idx) => {
+      const isSelected = (imgUrl === currentSelected) || (imgUrl.split('?')[0] === currentSelected.split('?')[0]);
+      return `
+        <button 
+          type="button" 
+          class="candidate-img-card relative flex-shrink-0 w-16 h-16 sm:w-20 sm:h-20 rounded-xl overflow-hidden border-2 transition-all cursor-pointer group bg-[#141926] shadow-sm ${
+            isSelected 
+              ? 'border-cyan-400 ring-2 ring-cyan-400 opacity-100 scale-105' 
+              : 'border-slate-800 opacity-70 hover:opacity-100 hover:border-cyan-400/60'
+          }"
+          data-img-url="${imgUrl}"
+          data-index="${idx}"
+          title="Bấm để chọn ảnh #${idx + 1}"
+        >
+          <img src="${imgUrl}" class="w-full h-full object-cover group-hover:scale-110 transition-transform duration-300" onerror="this.parentElement.style.display='none'">
+          <div class="selected-badge ${isSelected ? '' : 'hidden'} absolute inset-0 bg-cyan-950/40 flex items-center justify-center pointer-events-none">
+            <span class="w-5 h-5 rounded-full bg-cyan-400 text-slate-950 flex items-center justify-center font-black text-xs shadow-md">✓</span>
+          </div>
+          <span class="absolute bottom-0 inset-x-0 bg-black/80 text-[9px] text-white text-center font-mono py-0.5 truncate px-0.5 pointer-events-none">#${idx + 1}</span>
+        </button>
+      `;
+    }).join('');
+  };
+
+  if (containerAi && gridAi) {
+    containerAi.classList.remove('hidden');
+    if (badgeAi) badgeAi.textContent = `${unique.length} ảnh`;
+    gridAi.innerHTML = buildCards();
+  }
+
+  if (containerForm && gridForm) {
+    containerForm.classList.remove('hidden');
+    if (badgeForm) badgeForm.textContent = `${unique.length}`;
+    gridForm.innerHTML = buildCards();
+  }
+
+  // Attach click listener to each card
+  document.querySelectorAll('.candidate-img-card').forEach(card => {
+    card.addEventListener('click', () => {
+      const url = card.getAttribute('data-img-url');
+      const idx = card.getAttribute('data-index');
+      if (url) {
+        updateSelectedUi(url);
+        showToast(`🖼️ Đã chọn hình ảnh #${parseInt(idx, 10) + 1} cho sản phẩm!`);
+      }
+    });
+  });
+
+  if (window.lucide) lucide.createIcons();
 }
 
 // Smart Affiliate & Merchant URL Parser (Client-side instant intelligence)
@@ -2355,6 +2489,37 @@ function parseAffiliateLinkInfo(rawUrl, hintKw = '') {
       couponDiscount: '15% OFF Comfort Apparel',
       couponExpiry: '12/31/2026',
       storeProducts: []
+    };
+  }
+
+  // 4.5 VECELO Ergonomic Furniture & Living
+  if (hostname.includes('vecelo') || fullLower.includes('vecelo')) {
+    const code = detectedCoupon || 'VTKHQQOS';
+    return {
+      success: true,
+      brand: 'VECELO Official',
+      productTitle: 'VECELO Full Size Bed Frame with Headboard & Smart LED Storage',
+      image: 'https://cdn.shopify.com/s/files/1/0143/8643/0006/files/81uecSLdvlL._AC_SL1500.jpg?v=1794471125',
+      category: 'Desk Setup & EDC',
+      categorySlug: 'edc',
+      salePriceUsd: '$149.99',
+      salePriceVnd: '3.750.000₫',
+      originalPriceUsd: '$199.99',
+      couponCode: code.toUpperCase(),
+      couponDiscount: `15% OFF Storewide (Code: ${code.toUpperCase()})`,
+      couponExpiry: '12/31/2026',
+      storeProducts: [
+        { id: 101, title: 'VECELO Full Size Bed Frame with Headboard', salePriceUsd: '$149.99', salePriceVnd: '3.750.000₫', originalPriceUsd: '$199.99', image: 'https://cdn.shopify.com/s/files/1/0143/8643/0006/files/81uecSLdvlL._AC_SL1500.jpg?v=1794471125', brand: 'VECELO' },
+        { id: 102, title: 'VECELO 2 in 1 Convertible Side Table Coffee Table', salePriceUsd: '$89.99', salePriceVnd: '2.250.000₫', originalPriceUsd: '$119.99', image: 'https://cdn.shopify.com/s/files/1/0143/8643/0006/files/81emz1r7sSL._AC_SL1500.jpg?v=1795067353', brand: 'VECELO' },
+        { id: 103, title: 'VECELO End Table with Charging Station', salePriceUsd: '$69.99', salePriceVnd: '1.750.000₫', originalPriceUsd: '$89.99', image: 'https://cdn.shopify.com/s/files/1/0143/8643/0006/files/711B4EVtQXL._AC_SL1500.jpg?v=1794981048', brand: 'VECELO' },
+        { id: 104, title: 'VECELO Square Corduroy Pouf Ottoman 25.6"', salePriceUsd: '$79.00', salePriceVnd: '1.975.000₫', originalPriceUsd: '$99.00', image: 'https://cdn.shopify.com/s/files/1/0143/8643/0006/files/91yIbKfUy0L._AC_SL1500.jpg?v=1794560314', brand: 'VECELO' }
+      ],
+      candidateImages: [
+        'https://cdn.shopify.com/s/files/1/0143/8643/0006/files/81uecSLdvlL._AC_SL1500.jpg?v=1794471125',
+        'https://cdn.shopify.com/s/files/1/0143/8643/0006/files/81emz1r7sSL._AC_SL1500.jpg?v=1795067353',
+        'https://cdn.shopify.com/s/files/1/0143/8643/0006/files/711B4EVtQXL._AC_SL1500.jpg?v=1794981048',
+        'https://cdn.shopify.com/s/files/1/0143/8643/0006/files/91yIbKfUy0L._AC_SL1500.jpg?v=1794560314'
+      ]
     };
   }
 
@@ -2596,7 +2761,7 @@ async function fetchAndApplyBrandPrice(targetUrl, silent = false) {
 
   try {
     const controller = new AbortController();
-    const timeoutId = setTimeout(() => controller.abort(), 2500);
+    const timeoutId = setTimeout(() => controller.abort(), 9000);
 
     const res = await fetch('/api/fetch-brand-price', {
       method: 'POST',
@@ -2610,6 +2775,9 @@ async function fetchAndApplyBrandPrice(targetUrl, silent = false) {
       const srvData = await res.json().catch(() => null);
       if (srvData && srvData.success) {
         data = { ...clientParsed, ...srvData };
+        if (Array.isArray(srvData.candidateImages) && srvData.candidateImages.length > 0) {
+          data.candidateImages = srvData.candidateImages;
+        }
         if ((!srvData.storeProducts || srvData.storeProducts.length === 0) && clientParsed && clientParsed.storeProducts && clientParsed.storeProducts.length > 0) {
           data.storeProducts = clientParsed.storeProducts;
         }
@@ -2758,6 +2926,29 @@ async function fetchAndApplyBrandPrice(targetUrl, silent = false) {
         container.classList.add('hidden');
         container.innerHTML = '';
       }
+    }
+
+    // Render Discovered Candidate Images Gallery
+    let candidateList = [];
+    if (Array.isArray(data.candidateImages) && data.candidateImages.length > 0) {
+      candidateList.push(...data.candidateImages);
+    }
+    if (data.image) {
+      candidateList.unshift(data.image);
+    }
+    if (Array.isArray(data.storeProducts)) {
+      data.storeProducts.forEach(p => {
+        if (p.image) candidateList.push(p.image);
+      });
+    }
+    const cleanCandidateList = Array.from(new Set(candidateList.filter(Boolean)));
+    if (cleanCandidateList.length > 0) {
+      renderCandidateImagePicker(cleanCandidateList, data.image || cleanCandidateList[0]);
+    } else {
+      const c1 = document.getElementById('ai-candidate-images-container');
+      const c2 = document.getElementById('form-candidate-images-container');
+      if (c1) c1.classList.add('hidden');
+      if (c2) c2.classList.add('hidden');
     }
 
     if (statusText) {

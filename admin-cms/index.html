@@ -556,6 +556,26 @@
                     <span id="ai-btn-label">GENERATE ARTICLE WITH AI</span>
                   </button>
                 </div>
+
+                <!-- Discovered Candidate Product Images Gallery (rendered dynamically when scanning link) -->
+                <div id="ai-candidate-images-container" class="hidden lg:col-span-12 mt-1 p-3 rounded-xl bg-[#0b0e17] border border-cyan-500/40 shadow-lg space-y-2">
+                  <div class="flex items-center justify-between">
+                    <div class="flex items-center gap-2">
+                      <div class="w-6 h-6 rounded-lg bg-cyan-500/20 text-cyan-400 flex items-center justify-center font-bold text-xs border border-cyan-500/30">
+                        <i data-lucide="images" class="w-3.5 h-3.5 text-cyan-400"></i>
+                      </div>
+                      <div>
+                        <span class="text-xs font-bold text-white flex items-center gap-1.5">
+                          <span>Ảnh sản phẩm quét được</span>
+                          <span id="ai-candidate-images-badge" class="px-1.5 py-0.5 rounded-md bg-cyan-950 text-cyan-300 border border-cyan-500/40 text-[10px] font-mono font-bold">0 ảnh</span>
+                        </span>
+                        <p class="text-[10px] text-slate-400">Bấm vào bất kỳ ảnh nào bên dưới để chọn làm ảnh đại diện sản phẩm</p>
+                      </div>
+                    </div>
+                    <span class="text-[10px] text-amber-300 font-semibold hidden sm:inline-block">⚡ Tự động cập nhật vào bài viết & live preview</span>
+                  </div>
+                  <div id="ai-candidate-images-grid" class="flex items-center gap-2.5 overflow-x-auto no-scrollbar py-1"></div>
+                </div>
               </div>
             </div>
 
@@ -738,6 +758,18 @@
                     <input type="file" id="form-file-image" accept="image/*" class="hidden">
                   </div>
                   <input id="input-image" type="url" placeholder="https://images.unsplash.com/... or paste custom image link" class="w-full px-3.5 py-2 rounded-xl bg-[#141926] border border-slate-800 text-white text-xs focus:border-cyan-500 focus:ring-1 focus:ring-cyan-500 focus:outline-none">
+                </div>
+
+                <!-- Discovered Candidate Images Picker (Section 3) -->
+                <div id="form-candidate-images-container" class="hidden p-3 rounded-xl bg-[#0b0e17] border border-cyan-500/40 shadow-lg space-y-2">
+                  <div class="flex items-center justify-between text-[11px]">
+                    <span class="font-bold text-cyan-300 flex items-center gap-1.5">
+                      <i data-lucide="images" class="w-3.5 h-3.5 text-cyan-400"></i>
+                      <span>Ảnh sản phẩm quét được từ web (<span id="form-candidate-images-badge">0</span> ảnh):</span>
+                    </span>
+                    <span class="text-[10px] text-slate-400">Click ảnh để chọn nhanh</span>
+                  </div>
+                  <div id="form-candidate-images-grid" class="flex items-center gap-2 overflow-x-auto no-scrollbar py-1"></div>
                 </div>
 
                 <div>

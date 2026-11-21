@@ -542,24 +542,25 @@
   // Universal Client-Side Brand & Theme Sanitizer
   function sanitizeLiveDOM() {
     try {
-      // 1. Sanitize Header Logo
-      const logoLinks = document.querySelectorAll('header a[href="index.html"], header a.group, a.flex-shrink-0.flex.items-center');
+      // 1. Sanitize Header Logo - strictly target brand logo link only
+      const logoLinks = document.querySelectorAll('header a[href="index.html"].group, header a.brand-logo-link');
       logoLinks.forEach(link => {
+        // Must contain brand indicator
+        if (!link.querySelector('span.font-display') && !link.textContent.includes('CouponHiker')) return;
         const existingImg = link.querySelector('img[src*="logo.png"]');
         if (existingImg) return;
 
-        let target = link.querySelector('div.bg-gradient-to-tr, div.from-purple-600, div.ring-purple-400, div.shadow-purple-500, div.rounded-xl, div.rounded-2xl, div[class*="gradient"]');
+        let target = null;
+        link.querySelectorAll('div, span').forEach(el => {
+          const txt = el.textContent.trim();
+          if (txt === 'CH' || txt === 'SP') {
+            target = el;
+          }
+        });
         if (!target) {
-          link.querySelectorAll('div, span').forEach(el => {
-            if (el.textContent.trim() === 'CH' || el.textContent.trim() === 'SP') {
-              target = el;
-            }
-          });
+          target = link.querySelector('div.bg-gradient-to-tr, div.from-purple-600, div.ring-purple-400, div.shadow-purple-500, div.rounded-xl, div.rounded-2xl, div[class*="gradient"]');
         }
-        if (!target && link.firstElementChild && link.firstElementChild.tagName.toLowerCase() !== 'img') {
-          target = link.firstElementChild;
-        }
-        if (target) {
+        if (target && target !== link && !target.contains(link.querySelector('span.font-display'))) {
           const img = document.createElement('img');
           img.src = 'images/logo.png';
           img.alt = 'CouponHiker Logo';

@@ -568,6 +568,7 @@ export default {
         let category = '';
         let categorySlug = '';
         let storeProducts = null;
+        let candidateImages = [];
         let saleUsd = 79.0;
         let origUsd = 99.0;
         let coupon = 'PURPOSE15';
@@ -713,6 +714,25 @@ export default {
           imageUrl = 'https://cdn.shopify.com/s/files/1/0569/4029/8784/files/1_7064ac73-7980-4d3d-b52f-ea7ab704812f.jpg?v=1794857953';
           coupon = 'COMFRT15'; discount = '15% OFF Comfort Apparel';
           category = 'Desk Setup & EDC'; categorySlug = 'edc';
+        } else if (lowerUrl.includes('vecelo')) {
+          brand = 'VECELO Official';
+          productTitle = 'VECELO Full Size Bed Frame with Headboard & Smart LED Storage';
+          saleUsd = 149.99; origUsd = 199.99;
+          imageUrl = 'https://cdn.shopify.com/s/files/1/0143/8643/0006/files/81uecSLdvlL._AC_SL1500.jpg?v=1794471125';
+          coupon = 'VTKHQQOS'; discount = '15% OFF Storewide (Code: VTKHQQOS)';
+          category = 'Desk Setup & EDC'; categorySlug = 'edc';
+          storeProducts = [
+            { id: 101, title: 'VECELO Full Size Bed Frame with Headboard', salePriceUsd: '$149.99', salePriceVnd: '3.750.000₫', originalPriceUsd: '$199.99', image: 'https://cdn.shopify.com/s/files/1/0143/8643/0006/files/81uecSLdvlL._AC_SL1500.jpg?v=1794471125', brand: 'VECELO' },
+            { id: 102, title: 'VECELO 2 in 1 Convertible Side Table Coffee Table', salePriceUsd: '$89.99', salePriceVnd: '2.250.000₫', originalPriceUsd: '$119.99', image: 'https://cdn.shopify.com/s/files/1/0143/8643/0006/files/81emz1r7sSL._AC_SL1500.jpg?v=1795067353', brand: 'VECELO' },
+            { id: 103, title: 'VECELO End Table with Charging Station', salePriceUsd: '$69.99', salePriceVnd: '1.750.000₫', originalPriceUsd: '$89.99', image: 'https://cdn.shopify.com/s/files/1/0143/8643/0006/files/711B4EVtQXL._AC_SL1500.jpg?v=1794981048', brand: 'VECELO' },
+            { id: 104, title: 'VECELO Square Corduroy Pouf Ottoman 25.6"', salePriceUsd: '$79.00', salePriceVnd: '1.975.000₫', originalPriceUsd: '$99.00', image: 'https://cdn.shopify.com/s/files/1/0143/8643/0006/files/91yIbKfUy0L._AC_SL1500.jpg?v=1794560314', brand: 'VECELO' }
+          ];
+          candidateImages = [
+            'https://cdn.shopify.com/s/files/1/0143/8643/0006/files/81uecSLdvlL._AC_SL1500.jpg?v=1794471125',
+            'https://cdn.shopify.com/s/files/1/0143/8643/0006/files/81emz1r7sSL._AC_SL1500.jpg?v=1795067353',
+            'https://cdn.shopify.com/s/files/1/0143/8643/0006/files/711B4EVtQXL._AC_SL1500.jpg?v=1794981048',
+            'https://cdn.shopify.com/s/files/1/0143/8643/0006/files/91yIbKfUy0L._AC_SL1500.jpg?v=1794560314'
+          ];
         }
 
         // =========================================================================
@@ -750,7 +770,7 @@ export default {
 
             // Live fetch webpage with modern headers and redirect following
             const abortCtrl = new AbortController();
-            const timeoutTimer = setTimeout(() => abortCtrl.abort(), 4500);
+            const timeoutTimer = setTimeout(() => abortCtrl.abort(), 8000);
 
             const fetchRes = await fetch(scrapeUrl, {
               headers: {
@@ -782,10 +802,17 @@ export default {
                         if (!productTitle && item.name) {
                           productTitle = item.name.replace(/&amp;/g, '&').replace(/&#39;/g, "'").trim();
                         }
-                        if (!imageUrl) {
-                          if (typeof item.image === 'string') imageUrl = item.image;
-                          else if (Array.isArray(item.image) && item.image[0]) imageUrl = typeof item.image[0] === 'string' ? item.image[0] : (item.image[0].url || '');
-                          else if (item.image && item.image.url) imageUrl = item.image.url;
+                        if (item.image) {
+                          const addImg = (im) => {
+                            let s = typeof im === 'string' ? im : (im?.url || '');
+                            if (s) {
+                              if (s.startsWith('//')) s = 'https:' + s;
+                              candidateImages.push(s);
+                              if (!imageUrl) imageUrl = s;
+                            }
+                          };
+                          if (Array.isArray(item.image)) item.image.forEach(addImg);
+                          else addImg(item.image);
                         }
                         if (item.brand) {
                           if (typeof item.brand === 'string') brand = item.brand;
@@ -811,10 +838,13 @@ export default {
                     productTitle = ogTitle[1].replace(/&amp;/g, '&').replace(/&#39;/g, "'").trim();
                   }
                 }
-                if (!imageUrl) {
-                  const ogImg = html.match(/<meta[^>]*property=["'](?:og:image|twitter:image)["'][^>]*content=["']([^"']+)["']/i) ||
-                                html.match(/<meta[^>]*content=["']([^"']+)["'][^>]*property=["'](?:og:image|twitter:image)["']/i);
-                  if (ogImg && ogImg[1]) imageUrl = ogImg[1].trim();
+                const ogImg = html.match(/<meta[^>]*property=["'](?:og:image|twitter:image)["'][^>]*content=["']([^"']+)["']/i) ||
+                              html.match(/<meta[^>]*content=["']([^"']+)["'][^>]*property=["'](?:og:image|twitter:image)["']/i);
+                if (ogImg && ogImg[1]) {
+                  let oi = ogImg[1].trim();
+                  if (oi.startsWith('//')) oi = 'https:' + oi;
+                  if (!imageUrl) imageUrl = oi;
+                  candidateImages.push(oi);
                 }
                 if (saleUsd === 79.0) {
                   const ogPrice = html.match(/<meta[^>]*property=["'](?:product:price:amount|og:price:amount)["'][^>]*content=["']([^"']+)["']/i) ||
@@ -827,6 +857,17 @@ export default {
                 const ogSite = html.match(/<meta[^>]*property=["']og:site_name["'][^>]*content=["']([^"']+)["']/i);
                 if (ogSite && ogSite[1] && (!brand || brand === 'Verified Partner' || brand === 'Brand Partner')) {
                   brand = ogSite[1].trim();
+                }
+
+                // Also collect relevant product images from HTML img tags
+                const imgTagMatches = html.matchAll(/<img[^>]+src=["']([^"']+)["']/gi);
+                for (const im of imgTagMatches) {
+                  let src = (im[1] || '').trim();
+                  if (src.startsWith('//')) src = 'https:' + src;
+                  else if (src.startsWith('/') && !src.startsWith('//')) src = storeOrigin + src;
+                  if (/cdn\.shopify\.com|products\/|\.jpe?g|\.webp|\.png/i.test(src) && !/icon|logo|badge|avatar|flag|pixel|spinner|star|cart/i.test(src)) {
+                    candidateImages.push(src);
+                  }
                 }
 
                 // 3. Fallback to HTML <title>
@@ -850,7 +891,7 @@ export default {
                       const t = (p.title || '').toLowerCase();
                       const pPrice = parseFloat(p.variants?.[0]?.price || 0);
                       if (pPrice < 10) return false;
-                      if (/gift\s*card|donation|tip|insurance|warranty|sample|shipping|test/i.test(t)) return false;
+                      if (/gift\s*card|donation|tip|insurance|warranty|sample|shipping|test|^part\s+for|replacement\s+part/i.test(t)) return false;
                       return true;
                     });
                     if (validProducts.length > 0) {
@@ -922,6 +963,22 @@ export default {
                         if (!imageUrl || imageUrl.includes('favicon') || imageUrl.includes('logo') || imageUrl.includes('unsplash.com')) {
                           imageUrl = topProd.image;
                         }
+
+                        // Collect all product images for candidate image picker
+                        const shopifyImgs = [];
+                        validProducts.forEach((p, pIdx) => {
+                          if (Array.isArray(p.images)) {
+                            const maxImgs = pIdx < 3 ? 12 : 3;
+                            p.images.slice(0, maxImgs).forEach(im => {
+                              let s = typeof im === 'string' ? im : (im?.src || '');
+                              if (s) {
+                                if (s.startsWith('//')) s = 'https:' + s;
+                                shopifyImgs.push(s);
+                              }
+                            });
+                          }
+                        });
+                        candidateImages.unshift(...shopifyImgs);
                       }
                     }
                   }
@@ -1002,11 +1059,34 @@ export default {
         const saleVnd = Math.round(saleUsd * 25000 / 1000) * 1000;
         const origVnd = Math.round(origUsd * 25000 / 1000) * 1000;
 
+        // Deduplicate and sanitize candidate images
+        const finalCandidateImages = [];
+        const seenImgKeys = new Set();
+        if (imageUrl && !imageUrl.includes('unsplash.com')) {
+          finalCandidateImages.push(imageUrl);
+          seenImgKeys.add(imageUrl.split('?')[0].toLowerCase());
+        }
+        for (let im of candidateImages) {
+          if (!im || typeof im !== 'string') continue;
+          im = im.trim();
+          if (im.startsWith('//')) im = 'https:' + im;
+          if (!im.startsWith('http://') && !im.startsWith('https://')) continue;
+          const key = im.split('?')[0].toLowerCase();
+          if (!seenImgKeys.has(key)) {
+            seenImgKeys.add(key);
+            finalCandidateImages.push(im);
+          }
+        }
+        if (finalCandidateImages.length > 0 && (!imageUrl || imageUrl.includes('unsplash.com'))) {
+          imageUrl = finalCandidateImages[0];
+        }
+
         return new Response(JSON.stringify({
           success: true,
           brand: brand,
           productTitle: productTitle,
           image: imageUrl || '',
+          candidateImages: finalCandidateImages.slice(0, 30),
           category: category || 'Desk Setup & EDC',
           categorySlug: categorySlug || 'edc',
           salePriceUsd: '$' + saleUsd.toFixed(2),
