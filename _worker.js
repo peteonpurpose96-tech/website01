@@ -3231,7 +3231,7 @@ export default {
 
             // If static file exists in assets, let ASSETS serve it sanitized
       if (env.ASSETS) {
-        const assetRes = await env.ASSETS.fetch(request);
+        const assetRes = await env.ASSETS.fetch(new Request(new URL(url.pathname, request.url)));
         if (assetRes.ok) {
           const assetText = await assetRes.text();
           return new Response(sanitizePostHtml(assetText), {
