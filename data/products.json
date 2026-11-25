@@ -1,55 +1,5 @@
 [
   {
-    "id": "prod-test-persist-verify",
-    "categoryKey": "audio",
-    "shopName": "CouponHiker Verification Lab",
-    "brand": "CouponHiker Verification Lab",
-    "title": "Test Automation Persistence Verification Review (2026)",
-    "titleEn": "Test Automation Persistence Verification Review (2026)",
-    "titleVi": "Test Automation Persistence Verification Review (2026)",
-    "titleZh": "Test Automation Persistence Verification Review (2026)",
-    "category": "Audio & Sound",
-    "categoryEn": "Audio & Sound",
-    "categoryVi": "Tai Nghe & Âm Thanh",
-    "categoryZh": "音频与发烧声学",
-    "price": 25000,
-    "priceUsd": 0.99,
-    "originalPrice": 31000,
-    "originalPriceUsd": 1.24,
-    "discountPercent": "20% OFF",
-    "badge": "CouponHiker Verification Lab",
-    "badgeEn": "CouponHiker Verification Lab",
-    "badgeVi": "CouponHiker Verification Lab",
-    "badgeZh": "CouponHiker Verification Lab",
-    "rating": 9.6,
-    "salesCount": 168,
-    "description": "Automatic persistence testing article verifying zero-data-loss architecture.",
-    "descriptionEn": "Automatic persistence testing article verifying zero-data-loss architecture.",
-    "descriptionVi": "Automatic persistence testing article verifying zero-data-loss architecture.",
-    "descriptionZh": "Automatic persistence testing article verifying zero-data-loss architecture.",
-    "features": [
-      "Official manufacturer certified hardware with direct warranty coverage",
-      "Benchmark-tested efficiency exceeding industry category standards"
-    ],
-    "featuresEn": [
-      "Official manufacturer certified hardware with direct warranty coverage",
-      "Benchmark-tested efficiency exceeding industry category standards"
-    ],
-    "featuresVi": [
-      "Official manufacturer certified hardware with direct warranty coverage",
-      "Benchmark-tested efficiency exceeding industry category standards"
-    ],
-    "featuresZh": [
-      "Official manufacturer certified hardware with direct warranty coverage",
-      "Benchmark-tested efficiency exceeding industry category standards"
-    ],
-    "image": "https://images.unsplash.com/photo-1523275335684-37898b6baf30",
-    "affiliateUrl": "https://example.com/ref",
-    "reviewUrl": "post-test-persist-verify.html",
-    "isPhysical": true,
-    "updatedAt": "2026-11-23T10:06:48.576Z"
-  },
-  {
     "id": "prod-post-vapor-pro-review",
     "title": "SUBLUE VAPOR Pro Flagship Underwater Sea Scooter",
     "titleEn": "SUBLUE VAPOR Pro Flagship Underwater Sea Scooter",
