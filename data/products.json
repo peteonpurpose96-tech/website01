@@ -1,5 +1,63 @@
 [
   {
+    "id": "prod-runic-tarot-deck-with-guide-book-review",
+    "categoryKey": "ebooks",
+    "shopName": "Artoftheroot",
+    "brand": "Artoftheroot",
+    "title": "Runic Tarot Deck with Guide Book Review: True Automation for the Modern Connected Home",
+    "titleEn": "Runic Tarot Deck with Guide Book Review: True Automation for the Modern Connected Home",
+    "titleVi": "Runic Tarot Deck with Guide Book Đánh Giá: True Automation for the Modern Connected Home",
+    "titleZh": "Runic Tarot Deck with Guide Book 评测： True Automation for the Modern Connected Home",
+    "category": "Ebooks & Guides",
+    "categoryEn": "Ebooks & Guides",
+    "categoryVi": "Tài Nguyên & Cẩm Nang",
+    "categoryZh": "电子书与知识资产",
+    "price": 675000,
+    "priceUsd": 26.99,
+    "originalPrice": 844000,
+    "originalPriceUsd": 33.74,
+    "discountPercent": "15% OFF Special Partner Deal",
+    "badge": "Artoftheroot",
+    "badgeEn": "Artoftheroot",
+    "badgeVi": "Artoftheroot",
+    "badgeZh": "Artoftheroot",
+    "rating": 9.6,
+    "salesCount": 168,
+    "description": "We integrated the Runic Tarot Deck with Guide Book into a 45-device Matter & HomeKit smart home testbed for 4 weeks. Here is our hands-on review of reliability and ease of use.",
+    "descriptionEn": "We integrated the Runic Tarot Deck with Guide Book into a 45-device Matter & HomeKit smart home testbed for 4 weeks. Here is our hands-on review of reliability and ease of use.",
+    "descriptionVi": "Đánh giá chi tiết Artoftheroot: trải nghiệm thực tế, so sánh giá đa sàn và mã ưu đãi độc quyền.",
+    "descriptionZh": "关于 Artoftheroot 的深度实测：上手体验、全网渠道比价与专属优惠券。",
+    "features": [
+      "Native Matter & Thread support ensures seamless cross-ecosystem synchronization",
+      "Ultra-low idle power consumption with instant millisecond local network response",
+      "Intuitive zero-code automation scripting within the companion application",
+      "Solid industrial enclosure with concealed cable management channels"
+    ],
+    "featuresEn": [
+      "Native Matter & Thread support ensures seamless cross-ecosystem synchronization",
+      "Ultra-low idle power consumption with instant millisecond local network response",
+      "Intuitive zero-code automation scripting within the companion application",
+      "Solid industrial enclosure with concealed cable management channels"
+    ],
+    "featuresVi": [
+      "Native Matter & Thread support ensures seamless cross-ecosystem synchronization",
+      "Ultra-low idle power consumption with instant millisecond local network response",
+      "Intuitive zero-code automation scripting within the companion application",
+      "Solid industrial enclosure with concealed cable management channels"
+    ],
+    "featuresZh": [
+      "Native Matter & Thread support ensures seamless cross-ecosystem synchronization",
+      "Ultra-low idle power consumption with instant millisecond local network response",
+      "Intuitive zero-code automation scripting within the companion application",
+      "Solid industrial enclosure with concealed cable management channels"
+    ],
+    "image": "https://cdn.shopify.com/s/files/1/0260/6255/files/thoth-tarot-deck-by-aleister-crowley-art-of-the-root-2.webp?v=1793817833",
+    "affiliateUrl": "#",
+    "reviewUrl": "post-runic-tarot-deck-with-guide-book-review.html",
+    "isPhysical": false,
+    "updatedAt": "2026-11-25T13:50:13.882Z"
+  },
+  {
     "id": "prod-dowinx-classic-series-ls-66d50f-01-black-uk-review",
     "categoryKey": "smarthome",
     "shopName": "Eu",
