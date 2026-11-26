@@ -1,5 +1,63 @@
 [
   {
+    "id": "prod-lot-de-bandanas-dlavs-review",
+    "categoryKey": "edc",
+    "shopName": "Royalbandana",
+    "brand": "Royalbandana",
+    "title": "Lot de bandanas dlavs Hands-On Review: Ergonomics & Tactile Perfection",
+    "titleEn": "Lot de bandanas dlavs Hands-On Review: Ergonomics & Tactile Perfection",
+    "titleVi": "Lot de bandanas dlavs Hands-On Đánh Giá: Ergonomics & Tactile Perfection",
+    "titleZh": "Lot de bandanas dlavs Hands-On 评测： Ergonomics & Tactile Perfection",
+    "category": "Desk Setup & EDC",
+    "categoryEn": "Desk Setup & EDC",
+    "categoryVi": "Bàn Làm Việc & EDC",
+    "categoryZh": "桌面搭子与EDC",
+    "price": 1225000,
+    "priceUsd": 49,
+    "originalPrice": 2475000,
+    "originalPriceUsd": 99,
+    "discountPercent": "15% OFF (Code: CKGVSUHB)",
+    "badge": "Royalbandana",
+    "badgeEn": "Royalbandana",
+    "badgeVi": "Royalbandana",
+    "badgeZh": "Royalbandana",
+    "rating": 9.6,
+    "salesCount": 168,
+    "description": "An exhaustive teardown of the Lot de bandanas dlavs. We evaluate structural chassis ergonomics, material quality, and daily productivity enhancements.",
+    "descriptionEn": "An exhaustive teardown of the Lot de bandanas dlavs. We evaluate structural chassis ergonomics, material quality, and daily productivity enhancements.",
+    "descriptionVi": "Đánh giá chi tiết Royalbandana: trải nghiệm thực tế, so sánh giá đa sàn và mã ưu đãi độc quyền.",
+    "descriptionZh": "关于 Royalbandana 的深度实测：上手体验、全网渠道比价与专属优惠券。",
+    "features": [
+      "Solid premium enclosure provides weight, acoustic dampening, and zero desk slippage",
+      "Ergonomically contoured for fatigue-free all-day creative sprints",
+      "Highly modular design with custom attachments for macOS, Windows, and Linux",
+      "Durable scratch-resistant finish built for years of heavy daily use"
+    ],
+    "featuresEn": [
+      "Solid premium enclosure provides weight, acoustic dampening, and zero desk slippage",
+      "Ergonomically contoured for fatigue-free all-day creative sprints",
+      "Highly modular design with custom attachments for macOS, Windows, and Linux",
+      "Durable scratch-resistant finish built for years of heavy daily use"
+    ],
+    "featuresVi": [
+      "Solid premium enclosure provides weight, acoustic dampening, and zero desk slippage",
+      "Ergonomically contoured for fatigue-free all-day creative sprints",
+      "Highly modular design with custom attachments for macOS, Windows, and Linux",
+      "Durable scratch-resistant finish built for years of heavy daily use"
+    ],
+    "featuresZh": [
+      "Solid premium enclosure provides weight, acoustic dampening, and zero desk slippage",
+      "Ergonomically contoured for fatigue-free all-day creative sprints",
+      "Highly modular design with custom attachments for macOS, Windows, and Linux",
+      "Durable scratch-resistant finish built for years of heavy daily use"
+    ],
+    "image": "https://cdn.shopify.com/s/files/1/0045/8752/0046/files/Lot-de-bandanas-delaves.png?v=1759595619",
+    "affiliateUrl": "https://royalbandana.com/?ref=ckgvsuhb",
+    "reviewUrl": "post-lot-de-bandanas-dlavs-review.html",
+    "isPhysical": true,
+    "updatedAt": "2026-11-26T01:59:42.584Z"
+  },
+  {
     "id": "prod-flipsky-technology-diy-electric-skateboard-parts-vesc-motor-online-review",
     "categoryKey": "edc",
     "shopName": "Flipsky",
