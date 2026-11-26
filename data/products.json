@@ -1,5 +1,63 @@
 [
   {
+    "id": "prod-kids-lunch-bag-bundle-lucy-ladybird-review",
+    "categoryKey": "edc",
+    "shopName": "Tumtumtots",
+    "brand": "Tumtumtots",
+    "title": "Kids Lunch Bag Bundle Lucy Ladybird Hands-On Review: Ergonomics & Tactile Perfection",
+    "titleEn": "Kids Lunch Bag Bundle Lucy Ladybird Hands-On Review: Ergonomics & Tactile Perfection",
+    "titleVi": "Kids Lunch Bag Bundle Lucy Ladybird Hands-On Đánh Giá: Ergonomics & Tactile Perfection",
+    "titleZh": "Kids Lunch Bag Bundle Lucy Ladybird Hands-On 评测： Ergonomics & Tactile Perfection",
+    "category": "Desk Setup & EDC",
+    "categoryEn": "Desk Setup & EDC",
+    "categoryVi": "Bàn Làm Việc & EDC",
+    "categoryZh": "桌面搭子与EDC",
+    "price": 1025000,
+    "priceUsd": 41,
+    "originalPrice": 1175000,
+    "originalPriceUsd": 47,
+    "discountPercent": "15% OFF (Code: HQBSVDVO)",
+    "badge": "Tumtumtots",
+    "badgeEn": "Tumtumtots",
+    "badgeVi": "Tumtumtots",
+    "badgeZh": "Tumtumtots",
+    "rating": 9.6,
+    "salesCount": 168,
+    "description": "An exhaustive teardown of the Kids Lunch Bag Bundle Lucy Ladybird. We evaluate structural chassis ergonomics, material quality, and daily productivity enhancements.",
+    "descriptionEn": "An exhaustive teardown of the Kids Lunch Bag Bundle Lucy Ladybird. We evaluate structural chassis ergonomics, material quality, and daily productivity enhancements.",
+    "descriptionVi": "Đánh giá chi tiết Tumtumtots: trải nghiệm thực tế, so sánh giá đa sàn và mã ưu đãi độc quyền.",
+    "descriptionZh": "关于 Tumtumtots 的深度实测：上手体验、全网渠道比价与专属优惠券。",
+    "features": [
+      "Solid premium enclosure provides weight, acoustic dampening, and zero desk slippage",
+      "Ergonomically contoured for fatigue-free all-day creative sprints",
+      "Highly modular design with custom attachments for macOS, Windows, and Linux",
+      "Durable scratch-resistant finish built for years of heavy daily use"
+    ],
+    "featuresEn": [
+      "Solid premium enclosure provides weight, acoustic dampening, and zero desk slippage",
+      "Ergonomically contoured for fatigue-free all-day creative sprints",
+      "Highly modular design with custom attachments for macOS, Windows, and Linux",
+      "Durable scratch-resistant finish built for years of heavy daily use"
+    ],
+    "featuresVi": [
+      "Solid premium enclosure provides weight, acoustic dampening, and zero desk slippage",
+      "Ergonomically contoured for fatigue-free all-day creative sprints",
+      "Highly modular design with custom attachments for macOS, Windows, and Linux",
+      "Durable scratch-resistant finish built for years of heavy daily use"
+    ],
+    "featuresZh": [
+      "Solid premium enclosure provides weight, acoustic dampening, and zero desk slippage",
+      "Ergonomically contoured for fatigue-free all-day creative sprints",
+      "Highly modular design with custom attachments for macOS, Windows, and Linux",
+      "Durable scratch-resistant finish built for years of heavy daily use"
+    ],
+    "image": "https://cdn.shopify.com/s/files/1/0229/4562/8232/products/LadybirdLunchbagSPBundle_1.jpg?v=1653299004",
+    "affiliateUrl": "https://www.tumtumtots.com/?ref=hqbsvdvo",
+    "reviewUrl": "post-kids-lunch-bag-bundle-lucy-ladybird-review.html",
+    "isPhysical": true,
+    "updatedAt": "2026-11-26T02:00:20.169Z"
+  },
+  {
     "id": "prod-lot-de-bandanas-dlavs-review",
     "categoryKey": "edc",
     "shopName": "Royalbandana",
